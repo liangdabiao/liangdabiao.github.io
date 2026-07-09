@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§03 让 Agent 自己读懂并修复一个 bug · Claude Agent SDK 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="index.html">Claude Agent SDK 从入门到精通</a>
+</header>
+<main class="content">
+  <h1 class="chapter-title">§03 让 Agent 自己读懂并修复一个 bug</h1>
+  <p>去年带实习生做入门 demo，我想找个最直观的例子。效果要肉眼可见：行就行、崩就崩。文档里那个"让 Agent 自己修 bug"正好。我直接拿来用。</p>
+<h3>03.1 文档里的经典例子</h3>
+<p>文档给了一个特别好的入门例子。我直接拿来用。</p>
+<p>你写一个 <code>utils.py</code>，故意埋两个会崩的 bug。然后让 Agent 自己读、自己修。你全程只看着。</p>
+<p>这个方法好在哪？效果肉眼可见。修之前会崩，修之后不崩。一眼就知道 Agent 真干活了。</p>
+<h3>03.2 先埋两个 bug</h3>
+<pre><code class="language-python"># utils.py —— 故意写残的两个函数
+def calculate_average(numbers):
+    total = 0
+    for num in numbers:
+        total += num
+    return total / len(numbers)   # bug：除数是 0 会崩
+
+def get_user_name(user):
+    return user[&quot;name&quot;].upper()    # bug：user 是 None 会崩
+</code></pre>
+<p>这里两个 bug 都很典型：<code>calculate_average([])</code> 除零，<code>get_user_name(None)</code> 类型错。</p>
+<h3>03.3 让 Agent 自己修</h3>
+<pre><code class="language-python"># fixer.py —— 会自己修 bug 的 Agent
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions
+
+async def main():
+    async for message in query(
+        # 这行是关键：告诉它要找会崩的 bug 并修复
+        prompt=&quot;检查 utils.py 里会导致崩溃的 bug，把问题修掉。&quot;,
+        options=ClaudeAgentOptions(
+            allowed_tools=[&quot;Read&quot;, &quot;Edit&quot;, &quot;Glob&quot;],  # 给它读和改的权限
+            permission_mode=&quot;acceptEdits&quot;,           # 自动批准文件修改
+        ),
+    ):
+        # 打印它每个动作，看清它在干嘛
+        if hasattr(message, &quot;content&quot;):
+            for block in message.content:
+                if hasattr(block, &quot;text&quot;):
+                    print(block.text)                # 它的思考过程
+                elif hasattr(block, &quot;name&quot;):
+                    print(f&quot;调用工具：{block.name}&quot;)   # 它调了哪个工具
+
+asyncio.run(main())
+</code></pre>
+<p>预期结果：Agent 读了 <code>utils.py</code>，发现两个边界情况，自己加上错误处理。你没改过一行代码。</p>
+<h3>03.4 四种权限模式怎么选</h3>
+<p><code>permission_mode</code> 决定 Agent 动手前要不要问你。</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>行为</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>acceptEdits</code></td>
+<td>自动批准改文件</td>
+<td>本地开发首选</td>
+</tr>
+<tr>
+<td><code>bypassPermissions</code></td>
+<td>全部跳过审批</td>
+<td>只用在隔离环境</td>
+</tr>
+<tr>
+<td><code>plan</code></td>
+<td>先问再做</td>
+<td>怕它乱改时用</td>
+</tr>
+<tr>
+<td><code>default</code></td>
+<td>靠回调决定</td>
+<td>做自定义审批流</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout tip">
+<p><strong>核心建议</strong>：本地练手用 <code>acceptEdits</code>。</p>
+<p>它会自动批准文件编辑，Agent 不用等你点确认。等你做需要人工把关的产品时，再换成 <code>default</code> 配 <code>canUseTool</code> 回调。</p>
+</blockquote>
+<p>跑通一个会修 bug 的 Agent 了。但它是怎么"自己想、自己干"的？下一章拆开看。</p>
+<p>深入 SDK 的发动机。每章一个核心概念，读完你能看懂 Agent 内部在发生什么。</p>
+</main>
+<nav class="pager">
+  <span class="pager-side"><a class="pager-link" href="ch02.html">← §02 三步装好环境，跑通第一条查询</a></span>
+  <a class="pager-home" href="index.html">目录</a>
+  <span class="pager-side"><a class="pager-link" href="ch04.html">§04 Agent Loop：Claude 自己"想—做—看"的循环 →</a></span>
+</nav>
+<footer class="site-footer">标叔出品 · AI Native Coder · 基于 Claude Agent SDK 文档</footer>
+</body>
+</html>

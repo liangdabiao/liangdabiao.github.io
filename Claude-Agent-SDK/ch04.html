@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§04 Agent Loop：Claude 自己"想—做—看"的循环 · Claude Agent SDK 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="index.html">Claude Agent SDK 从入门到精通</a>
+</header>
+<main class="content">
+  <h1 class="chapter-title">§04 Agent Loop：Claude 自己"想—做—看"的循环</h1>
+  <p>我第一次看 Agent Loop 的日志，是在调一个修测试的任务。盯着它一圈圈转、自己调工具、自己读结果，突然就懂了。这章拆开看。</p>
+<h3>04.1 一句话说清 Loop</h3>
+<p>Agent Loop 就是 Claude 自己跑的一个循环。</p>
+<p>它收到你的 prompt，决定调哪个工具，SDK 帮它执行，结果喂回去，它再看、再决定。一直循环，直到它觉得干完了。</p>
+<p>我管它叫"想—做—看"三步循环。想是推理，做是调工具，看是读结果。</p>
+<h3>04.2 一个真实的四步例子</h3>
+<p>文档里有个例子，我拆给你看。prompt 是"修 auth.ts 里失败的测试"。</p>
+<ul>
+<li>第 1 轮：Claude 调 <code>Bash</code> 跑 <code>npm test</code>。结果：3 个失败。</li>
+<li>第 2 轮：Claude 调 <code>Read</code> 读 <code>auth.ts</code>。结果：看到了代码。</li>
+<li>第 3 轮：Claude 调 <code>Edit</code> 改文件，再调 <code>Bash</code> 重跑测试。结果：3 个全过。</li>
+<li>最后一轮：Claude 只回文字"修好了"。没有工具调用，循环结束。</li>
+</ul>
+<p>一共 4 轮。前 3 轮有工具调用，最后一轮纯文字收尾。</p>
+<blockquote class="callout experience">
+<p><strong>标叔的经验</strong>：生产环境我一定设 <code>max_budget_usd</code>。</p>
+<p>文档写得很直白：不设上限，Loop 会一直跑到 Claude 自己觉得完成为止。遇到"改进这个代码库"这种开放式 prompt，可能跑很久。我习惯给个预算当保险丝。</p>
+</blockquote>
+<h3>04.3 两个开关：轮次和预算</h3>
+<table>
+<thead>
+<tr>
+<th>开关</th>
+<th>作用</th>
+<th>默认值</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>maxTurns</code></td>
+<td>最多跑几轮工具调用</td>
+<td>无限制</td>
+<td>生产环境必设上限</td>
+</tr>
+<tr>
+<td><code>maxBudgetUsd</code></td>
+<td>花到多少美元就停</td>
+<td>无限制</td>
+<td>当保险丝一定要设</td>
+</tr>
+</tbody>
+</table>
+<p>到达上限时，SDK 会给一个特定的结束状态：<code>error_max_turns</code> 或 <code>error_max_budget_usd</code>。你读 <code>subtype</code> 就能判断它为什么停。</p>
+<h3>04.4 思考深度也能调</h3>
+<p><code>effort</code> 参数控制 Claude 每轮想多深。</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>low</code></td>
+<td>列文件、搜一下</td>
+</tr>
+<tr>
+<td><code>medium</code></td>
+<td>常规编辑</td>
+</tr>
+<tr>
+<td><code>high</code></td>
+<td>重构、调试</td>
+</tr>
+<tr>
+<td><code>xhigh</code>/<code>max</code></td>
+<td>多步难题</td>
+</tr>
+</tbody>
+</table>
+<p>简单任务用 <code>low</code>，又快又省。复杂任务用 <code>high</code> 起步。</p>
+<p>看懂了 Loop，但它每一步吐出来的消息到底是什么？下一章讲消息流。</p>
+</main>
+<nav class="pager">
+  <span class="pager-side"><a class="pager-link" href="ch03.html">← §03 让 Agent 自己读懂并修复一个 bug</a></span>
+  <a class="pager-home" href="index.html">目录</a>
+  <span class="pager-side"><a class="pager-link" href="ch05.html">§05 消息流：从 SDK 里流出来的每一条消息 →</a></span>
+</nav>
+<footer class="site-footer">标叔出品 · AI Native Coder · 基于 Claude Agent SDK 文档</footer>
+</body>
+</html>

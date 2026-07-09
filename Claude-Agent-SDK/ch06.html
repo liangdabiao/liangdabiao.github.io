@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§06 工具与权限：给 Agent 能力，也锁住风险 · Claude Agent SDK 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="index.html">Claude Agent SDK 从入门到精通</a>
+</header>
+<main class="content">
+  <h1 class="chapter-title">§06 工具与权限：给 Agent 能力，也锁住风险</h1>
+  <p>我见过有人把 Agent 的权限开到最大。结果它顺手把整个 node_modules 清了。从那以后，我对"给什么工具、用前问不问"特别较真。这章把这两层讲透。</p>
+<h3>06.1 工具是 Agent 的手脚</h3>
+<p>没有工具，Claude 只能聊天。有了工具，它能读文件、跑命令、搜代码。</p>
+<p>SDK 自带一套和 Claude Code 一样的工具：</p>
+<ul>
+<li>文件：<code>Read</code>、<code>Write</code>、<code>Edit</code>、<code>Glob</code>、<code>Grep</code></li>
+<li>执行：<code>Bash</code></li>
+<li>网络：<code>WebSearch</code>、<code>WebFetch</code></li>
+<li>编排：<code>Task</code>（子代理）、<code>AskUserQuestion</code>、<code>Skill</code></li>
+</ul>
+<p>我常跟人说：给 Agent 什么工具，决定了它能干到哪一步。</p>
+<h3>06.2 两层控制：能不能用 + 用不用问</h3>
+<p>这是最容易迷糊的地方。我画清楚。</p>
+<p>第一层是<strong>可用性</strong>：<code>tools</code> 列表决定哪些工具进 Claude 的"视野"。不在列表里的内置工具，Claude 根本看不到。</p>
+<p>第二层是<strong>权限</strong>：<code>allowedTools</code> 决定列出的工具调用时不用问。<code>disallowedTools</code> 直接封掉某些工具。</p>
+<p>一句话：<code>tools</code> 管"看不看得见"，<code>allowedTools</code> 管"用不用批"。</p>
+<h3>06.3 权限模式速查</h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>适合场景</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>acceptEdits</code></td>
+<td>本地开发</td>
+<td>改文件不弹窗</td>
+</tr>
+<tr>
+<td><code>bypassPermissions</code></td>
+<td>容器/CI</td>
+<td>全跳过，危险</td>
+</tr>
+<tr>
+<td><code>plan</code></td>
+<td>怕它乱动</td>
+<td>只探索不改</td>
+</tr>
+<tr>
+<td><code>dontAsk</code></td>
+<td>无头 Agent</td>
+<td>不在列表全拒</td>
+</tr>
+<tr>
+<td><code>default</code></td>
+<td>自定义审批</td>
+<td>配 <code>canUseTool</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout tip">
+<p><strong>核心建议</strong>：Web 服务用 <code>bypassPermissions</code> 要配 <code>allowedTools</code>。</p>
+<p>文档第 14 条坑说得很重：无人值守的 Web 服务，其他模式会因为等人工确认而挂起。但 <code>bypassPermissions</code> 等于 Agent 能跑任何 Bash。必须再用 <code>allowedTools</code> 把范围收死。</p>
+</blockquote>
+<h3>06.4 工具还能并行</h3>
+<p>只读工具（<code>Read</code>、<code>Glob</code>、<code>Grep</code>）可以并发跑。改状态的（<code>Edit</code>、<code>Write</code>、<code>Bash</code>）必须串行，避免打架。</p>
+<p>你的自定义工具默认串行。想让它并行，在注解里设 <code>readOnlyHint: true</code>。</p>
+<p>给 Agent 手脚也拴了缰绳。但它怎么记住上一轮说过的话？下一章讲会话和记忆。</p>
+</main>
+<nav class="pager">
+  <span class="pager-side"><a class="pager-link" href="ch05.html">← §05 消息流：从 SDK 里流出来的每一条消息</a></span>
+  <a class="pager-home" href="index.html">目录</a>
+  <span class="pager-side"><a class="pager-link" href="ch07.html">§07 会话和记忆：让 Agent 记住上下文 →</a></span>
+</nav>
+<footer class="site-footer">标叔出品 · AI Native Coder · 基于 Claude Agent SDK 文档</footer>
+</body>
+</html>

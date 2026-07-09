@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>附录 A：核心概念速查与常见坑精选 · Claude Agent SDK 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="index.html">Claude Agent SDK 从入门到精通</a>
+</header>
+<main class="content">
+  <h1 class="chapter-title">附录 A：核心概念速查与常见坑精选</h1>
+  <h3>A.1 一句话速查</h3>
+<ul>
+<li><strong>Agent SDK</strong>：把 Claude Code 的自动驾驶打包成库。</li>
+<li><strong>Agent Loop</strong>：想—做—看 的循环，直到干完。</li>
+<li><strong>session_id</strong>：记忆钥匙，存它才能 resume。</li>
+<li><strong>MCP</strong>：给 Agent 装外挂的标准协议。</li>
+<li><strong>Hook</strong>：在 Agent 每一步插进你的代码。</li>
+<li><strong>子代理</strong>：一个 Agent 指挥一队专精 Agent。</li>
+<li><strong>沙箱</strong>：把 Agent 关进 OS/内核层的笼子，防 prompt injection 乱来。</li>
+<li><strong>凭证代理</strong>：API Key 不进 Agent 边界，由边界外的代理注入。</li>
+<li><strong>OpenTelemetry</strong>：生产可观测性的标准出口，导出到任意 OTLP 后端。</li>
+</ul>
+<h3>A.2 配置项速查</h3>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>model</code></td>
+<td><code>opus</code>/<code>sonnet</code>/<code>haiku</code> 或完整 ID</td>
+</tr>
+<tr>
+<td><code>maxTurns</code></td>
+<td>工具调用轮次上限</td>
+</tr>
+<tr>
+<td><code>maxBudgetUsd</code></td>
+<td>花费上限（保险丝）</td>
+</tr>
+<tr>
+<td><code>allowedTools</code></td>
+<td>免审批工具白名单（不影响 <code>bypassPermissions</code>）</td>
+</tr>
+<tr>
+<td><code>disallowedTools</code></td>
+<td>危险工具黑名单（优先于模式，<code>bypassPermissions</code> 也拦）</td>
+</tr>
+<tr>
+<td><code>permissionMode</code></td>
+<td>审批策略（<code>default</code>/<code>acceptEdits</code>/<code>plan</code>/<code>dontAsk</code>/<code>bypassPermissions</code>）</td>
+</tr>
+<tr>
+<td><code>settingSources</code></td>
+<td>加载 <code>.claude/</code> 配置的来源</td>
+</tr>
+<tr>
+<td><code>mcpServers</code></td>
+<td>自定义/外部 MCP 服务器</td>
+</tr>
+<tr>
+<td><code>hooks</code></td>
+<td>工具执行前后回调</td>
+</tr>
+<tr>
+<td><code>agents</code></td>
+<td>子代理定义</td>
+</tr>
+<tr>
+<td><code>effort</code></td>
+<td>每轮思考深度</td>
+</tr>
+<tr>
+<td><code>cwd</code></td>
+<td>工作目录（决定文件操作根，指向带 <code>.claude/</code> 的目录）</td>
+</tr>
+<tr>
+<td><code>resume</code></td>
+<td>续接会话（传 <code>session_id</code>）</td>
+</tr>
+<tr>
+<td><code>sessionStore</code></td>
+<td>会话镜像到 S3/Redis/Postgres（多机 resume 必备）</td>
+</tr>
+<tr>
+<td><code>env</code></td>
+<td>注入子进程环境变量（OTel、缓存 TTL、代理等）</td>
+</tr>
+</tbody>
+</table>
+<h3>A.3 常见坑精选（来自官方 25 条）</h3>
+<ol>
+<li>自定义工具名带前缀 <code>mcp__&lt;server&gt;__&lt;tool&gt;</code>。</li>
+<li><code>settingSources</code> 默认空，必须显式设。</li>
+<li>Hook 的 matcher 是正则，用 <code>Write|Edit</code> 不是 glob。</li>
+<li>V2 API 名字以 <code>unstable_v2_</code> 开头，可能变。</li>
+<li><code>cwd</code> 决定文件操作根目录，指向带 <code>.claude/</code> 的目录。</li>
+<li>传 <code>abortController</code> 才能取消。</li>
+<li>流式输入必须是 <code>{ type: 'user', message: {...} }</code> 形状。</li>
+<li>V1 resume 要从 <code>system/init</code> 和 <code>result</code> 都抓 <code>session_id</code>。</li>
+<li>遍历 assistant 内容要处理 <code>tool_result</code> 块。</li>
+<li><code>.env</code> 可能被系统变量覆盖，用 <code>override: true</code>。</li>
+</ol>
+<h3>A.4 阅读指南</h3>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>章节</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 1</td>
+<td>§01-§03</td>
+<td>从零跑通第一个会修 bug 的 Agent</td>
+</tr>
+<tr>
+<td>Day 2-3</td>
+<td>§04-§07</td>
+<td>看懂 Loop、消息、权限、会话</td>
+</tr>
+<tr>
+<td>Day 4-5</td>
+<td>§08-§10</td>
+<td>接 MCP、用子代理、上生产</td>
+</tr>
+<tr>
+<td>Day 6</td>
+<td>附录 A</td>
+<td>当速查表反复翻</td>
+</tr>
+</tbody>
+</table>
+<p><em>标叔出品 · AI Native Coder · 独立开发者</em>
+<em>公众号「标叔」| B站「AI进化论-花生」</em></p>
+</main>
+<nav class="pager">
+  <span class="pager-side"><a class="pager-link" href="ch10.html">← §10 上生产：把 Agent 关进安全的笼子</a></span>
+  <a class="pager-home" href="index.html">目录</a>
+  <span class="pager-side"></span>
+</nav>
+<footer class="site-footer">标叔出品 · AI Native Coder · 基于 Claude Agent SDK 文档</footer>
+</body>
+</html>

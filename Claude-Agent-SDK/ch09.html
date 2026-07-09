@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§09 子代理：一个 Agent 指挥一队 Agent · Claude Agent SDK 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="index.html">Claude Agent SDK 从入门到精通</a>
+</header>
+<main class="content">
+  <h1 class="chapter-title">§09 子代理：一个 Agent 指挥一队 Agent</h1>
+  <p>去年做一个研究报告生成器，单个 Agent 跑半小时还串台。拆成"研究员 + 写手"两个专员并行，十分钟出稿。这章讲这种"一个人带一队人"的打法。</p>
+<h3>09.1 类比级联：总监、经理、员工</h3>
+<p>单个 Agent 是一个人干活。子代理让一个人带一队人。</p>
+<p>主 Agent 是技术总监。它不自己写代码，只把任务派下去。
+子代理是专员。每个只会一件事，但做得精。</p>
+<p>我管这叫"一个人带出一支队伍"。复杂任务拆给不同专员并行做，速度直接起飞。</p>
+<h3>09.2 三种定义方式</h3>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>写法</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码定义</td>
+<td><code>agents={...}</code></td>
+<td>SDK 应用首选</td>
+</tr>
+<tr>
+<td>文件定义</td>
+<td><code>.claude/agents/*.md</code></td>
+<td>团队协作好维护</td>
+</tr>
+<tr>
+<td>内置通用</td>
+<td>不用定义</td>
+<td>临时探索用</td>
+</tr>
+</tbody>
+</table>
+<p>代码定义最常用。每个子代理有 <code>description</code>、<code>prompt</code>、<code>tools</code>、<code>model</code>。</p>
+<h3>09.3 一个真实的多代理例子</h3>
+<p>文档里的研究系统，我精简给你看：</p>
+<pre><code class="language-python">from claude_agent_sdk import AgentDefinition
+
+agents = {
+    &quot;researcher&quot;: AgentDefinition(
+        description=&quot;需要搜集资料时用。用搜索找信息，写进文件。&quot;,
+        tools=[&quot;WebSearch&quot;, &quot;Write&quot;],   # 只给搜索和写，最小权限
+        prompt=&quot;你是研究专员，负责上网找资料。&quot;,
+        model=&quot;haiku&quot;,                   # 便宜的模型干脏活
+    ),
+    &quot;report-writer&quot;: AgentDefinition(
+        description=&quot;资料齐了，用来写正式报告。不搜网。&quot;,
+        tools=[&quot;Skill&quot;, &quot;Write&quot;, &quot;Read&quot;],
+        prompt=&quot;你是报告写手，把笔记整理成 PDF。&quot;,
+        model=&quot;haiku&quot;,
+    ),
+}
+</code></pre>
+<p>主 Agent 的 <code>allowed_tools</code> 只放 <code>["Task"]</code>。它自己不动手，全派给子代理。</p>
+<blockquote class="callout experience">
+<p><strong>标叔的经验</strong>：子代理的 <code>description</code> 决定它被不被调用。</p>
+<p>文档里反复强调：主 Agent 看 <code>description</code> 决定"这事该派谁"。我把描述写成"什么时候用"，匹配准多了。写"研究专员"这种名字，它经常瞎派。</p>
+</blockquote>
+<h3>09.4 上下文隔离是精髓</h3>
+<p>每个子代理跑在独立的全新对话里。它读了 100 个文件，主 Agent 只收到一句总结。上下文不爆炸。</p>
+<blockquote class="callout warning">
+<p><strong>注意</strong>：工具名从 <code>Task</code> 改成了 <code>Agent</code>。</p>
+<p>文档提了：Claude Code v2.1.63 之后，子代理工具叫 <code>Agent</code>。但老 SDK 还发 <code>Task</code>。检测时两个都判断，才兼容各版本。</p>
+</blockquote>
+<p>子代理会带了。最后一步，把它送上生产环境。</p>
+</main>
+<nav class="pager">
+  <span class="pager-side"><a class="pager-link" href="ch08.html">← §08 自定义工具与 MCP：把外部能力交给 Agent</a></span>
+  <a class="pager-home" href="index.html">目录</a>
+  <span class="pager-side"><a class="pager-link" href="ch10.html">§10 上生产：把 Agent 关进安全的笼子 →</a></span>
+</nav>
+<footer class="site-footer">标叔出品 · AI Native Coder · 基于 Claude Agent SDK 文档</footer>
+</body>
+</html>

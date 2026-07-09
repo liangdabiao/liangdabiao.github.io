@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§05 消息流：从 SDK 里流出来的每一条消息 · Claude Agent SDK 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="index.html">Claude Agent SDK 从入门到精通</a>
+</header>
+<main class="content">
+  <h1 class="chapter-title">§05 消息流：从 SDK 里流出来的每一条消息</h1>
+  <h3>05.1 消息是一条一条流出来的</h3>
+<p>你用 <code>for await</code> 接收消息。每转一圈，SDK 就吐出几条消息。</p>
+<p>我第一次接的时候，被消息种类搞晕了。其实就 5 种，记住这张表就够。</p>
+<h3>05.2 五种消息类型</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>何时出现</th>
+<th>关键字段</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>system</code></td>
+<td>会话开始</td>
+<td><code>session_id</code></td>
+<td>先存好，后面 resume 用</td>
+</tr>
+<tr>
+<td><code>assistant</code></td>
+<td>Claude 回复</td>
+<td><code>content[]</code></td>
+<td>看它调了什么工具</td>
+</tr>
+<tr>
+<td><code>user</code></td>
+<td>工具结果回灌</td>
+<td>工具输出</td>
+<td>一般不用管</td>
+</tr>
+<tr>
+<td><code>result</code></td>
+<td>全部结束</td>
+<td><code>subtype</code>、<code>total_cost_usd</code></td>
+<td>成败看这里</td>
+</tr>
+<tr>
+<td><code>streamEvent</code></td>
+<td>开了流式</td>
+<td>增量文本</td>
+<td>做实时打字机用</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout note">
+<p><strong>重点看</strong>：最后一行 <code>result</code> 的 <code>total_cost_usd</code>。</p>
+<p>每次跑完都能看到花了多少钱。我做长期任务时必打这行日志，不然成本会悄悄失控。</p>
+</blockquote>
+<h3>05.3 两种 SDK 的写法差异</h3>
+<pre><code class="language-python"># Python：用 isinstance 判断类型
+from claude_agent_sdk import ResultMessage, AssistantMessage
+
+if isinstance(message, ResultMessage):
+    if message.subtype == &quot;success&quot;:
+        print(message.result)
+</code></pre>
+<pre><code class="language-ts">// TypeScript：用 type 字符串判断
+for await (const msg of q) {
+  if (msg.type === &quot;result&quot;) {
+    if (msg.subtype === &quot;success&quot;) console.log(msg.result);
+  }
+}
+</code></pre>
+<p>这里有个坑：TypeScript 的 <code>assistant</code> 消息，内容在 <code>msg.message.content</code>，不是 <code>msg.content</code>。多套了一层。</p>
+<blockquote class="callout warning">
+<p><strong>注意</strong>：<code>tool_result</code> 块也在 assistant 内容里。</p>
+<p>文档第 10 条坑专门提了：遍历 assistant 内容时，除了 <code>text</code> 和 <code>tool_use</code>，还要处理 <code>tool_result</code>。漏了这一种，解析会出错。</p>
+</blockquote>
+<p>消息看明白了。但 Agent 能调哪些工具、能不能乱调？下一章讲工具和权限。</p>
+</main>
+<nav class="pager">
+  <span class="pager-side"><a class="pager-link" href="ch04.html">← §04 Agent Loop：Claude 自己"想—做—看"的循环</a></span>
+  <a class="pager-home" href="index.html">目录</a>
+  <span class="pager-side"><a class="pager-link" href="ch06.html">§06 工具与权限：给 Agent 能力，也锁住风险 →</a></span>
+</nav>
+<footer class="site-footer">标叔出品 · AI Native Coder · 基于 Claude Agent SDK 文档</footer>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§01 Claude Agent SDK 是什么，为什么你需要它 · Claude Agent SDK 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="index.html">Claude Agent SDK 从入门到精通</a>
+</header>
+<main class="content">
+  <h1 class="chapter-title">§01 Claude Agent SDK 是什么，为什么你需要它</h1>
+  <h3>01.1 一个真实的时间点</h3>
+<p>2026 年 6 月 15 日。Anthropic 给 Agent SDK 算了独立的月度额度。</p>
+<p>这件事说明一个问题：用 SDK 把 Claude 嵌进自己产品的人，已经多到值得单独计费了。我读这条公告时，第一反应是——这个东西真的成熟了。</p>
+<p>先给结论：<strong>Claude Agent SDK 就是把 Claude Code 的"自动驾驶"能力，打包成一个你能 import 的库。</strong></p>
+<p>你写几行代码。Claude 就能自己读文件、跑命令、搜网页、改代码。你不用自己写工具循环。</p>
+<h3>01.2 三个东西，别搞混</h3>
+<p>很多人分不清这三个。我用一张表说清楚。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Anthropic Client SDK</th>
+<th>Claude Agent SDK</th>
+<th>Claude Code CLI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>你做什么</td>
+<td>手写工具循环</td>
+<td>调一个函数</td>
+<td>敲命令</td>
+</tr>
+<tr>
+<td>谁跑工具</td>
+<td>你</td>
+<td>Claude 自己</td>
+<td>Claude 自己</td>
+</tr>
+<tr>
+<td>上手难度</td>
+<td>高</td>
+<td>低</td>
+<td>最低</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>想完全控盘才用</td>
+<td>做个 Agent 首选</td>
+<td>个人写代码用</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout note">
+<p><strong>重点看</strong>：第二行"谁跑工具"。</p>
+<p>Client SDK 要你自己写 <code>while stop_reason == "tool_use"</code> 的循环。Agent SDK 把这件事替你做了。差距就在这一行。</p>
+</blockquote>
+<h3>01.3 类比级联：手动挡、辅助驾驶、自动驾驶</h3>
+<p>我习惯这么理解这三者的关系。</p>
+<p>Client SDK 是你的手动挡。离合、换挡全自己来。
+Claude Code CLI 是你的辅助驾驶。你坐主驾，它帮你打方向。
+Claude Agent SDK 是你的自动驾驶。你给个目的地，它自己开。</p>
+<p>关键区别在最后一句：Agent SDK 跑在一个<strong>子进程</strong>里。你的程序发一句 prompt，它自己推理、自己调工具，再把结果流回来给你。你只在两端接管。</p>
+<blockquote class="callout experience">
+<p><strong>标叔的经验</strong>：Agent SDK 不用先装 Claude Code。</p>
+<p>TypeScript 包会把对应平台的 Claude Code 二进制一起打包。我第一次看到这点时挺意外——以前用 CLI 工具总得先装客户端。这里直接省了一步。</p>
+</blockquote>
+<h3>01.4 适合谁，不适合谁</h3>
+<p>如果你是下面这种人，这本书就是给你写的：</p>
+<ul>
+<li>你想在 Web 应用里接一个能自己干活的 AI 助手。</li>
+<li>你想批量跑代码审查、研究、报告生成。</li>
+<li>你不想从零造一个工具调度系统。</li>
+</ul>
+<p>如果你只想在网页里发一句"写首诗"，用 Client SDK 就够了。Agent SDK 是给"要让 AI 动手做事"的场景准备的。</p>
+<p>装好环境，我们马上跑第一条查询。</p>
+</main>
+<nav class="pager">
+  <span class="pager-side"></span>
+  <a class="pager-home" href="index.html">目录</a>
+  <span class="pager-side"><a class="pager-link" href="ch02.html">§02 三步装好环境，跑通第一条查询 →</a></span>
+</nav>
+<footer class="site-footer">标叔出品 · AI Native Coder · 基于 Claude Agent SDK 文档</footer>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§07 会话和记忆：让 Agent 记住上下文 · Claude Agent SDK 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="index.html">Claude Agent SDK 从入门到精通</a>
+</header>
+<main class="content">
+  <h1 class="chapter-title">§07 会话和记忆：让 Agent 记住上下文</h1>
+  <p>有次我让 Agent 改完代码，关了程序再打开。它把之前聊的全忘了，又从头读一遍文件。我才意识到 session_id 这块"记忆钥匙"有多重要。这章讲怎么留住上下文。</p>
+<h3>07.1 会话 ID 是记忆的钥匙</h3>
+<p>每次跑 Agent，SDK 都会给一个 <code>session_id</code>。</p>
+<p>你把它存下来。下次带着它 <code>resume</code>，Agent 就记得上一轮读过什么、改过什么。我管这叫"记忆的钥匙"。</p>
+<pre><code class="language-python"># 存下 session_id，下次接着聊
+async for message in query(prompt=&quot;记住：我最爱的颜色是蓝&quot;):
+    if hasattr(message, &quot;session_id&quot;):
+        saved_id = message.session_id
+
+# 后面带着 id 继续
+async for message in query(
+    prompt=&quot;我喜欢的颜色是什么？&quot;,
+    options=ClaudeAgentOptions(resume=saved_id),  # 这行是关键：续上上下文
+):
+    ...
+</code></pre>
+<h3>07.2 三种多轮写法</h3>
+<table>
+<thead>
+<tr>
+<th>写法</th>
+<th>适合</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>V1 <code>resume</code></td>
+<td>每轮新 query</td>
+<td>简单清晰</td>
+</tr>
+<tr>
+<td>V2 Session</td>
+<td>TS 聊天应用</td>
+<td>最灵活</td>
+</tr>
+<tr>
+<td>Python 客户端</td>
+<td>Python 多轮</td>
+<td>自动管状态</td>
+</tr>
+</tbody>
+</table>
+<p>Python 的 <code>ClaudeSDKClient</code> 最省心：在 <code>async with</code> 块里多轮对话，状态它自己管。</p>
+<h3>07.3 别忘了 settingSources</h3>
+<p>这是新手第一坑。我单独说。</p>
+<pre><code class="language-python">options = ClaudeAgentOptions(
+    setting_sources=[&quot;project&quot;],  # 这行是关键：加载 .claude/ 下的配置
+)
+</code></pre>
+<p><code>settingSources</code> 默认是空数组。不设这个，Agent 看不到你项目里的 <code>CLAUDE.md</code>、Skills、子代理定义。</p>
+<blockquote class="callout warning">
+<p><strong>注意</strong>：<code>settingSources</code> 默认是 <code>[]</code>。</p>
+<p>文档第 2 条坑原话：必须显式设 <code>settingSources: ['project']</code>，否则 CLAUDE.md、skills、文件型子代理都加载不出来。我见过太多人卡在这——配置写好了，Agent 却"看不见"。</p>
+</blockquote>
+<h3>07.4 上下文太长会自动压缩</h3>
+<p>会话里所有东西都累计进上下文窗口。文件越长、轮次越多，越占地方。</p>
+<p>快满时，SDK 会自动"压缩"：把老的历史总结成摘要腾空间。但早期的具体指令可能丢。持久的规则要写进 <code>CLAUDE.md</code>，因为它每次请求都重新注入。</p>
+<p>记住了会话。想让 Agent 会更多本事怎么办？下一章讲自定义工具和 MCP。</p>
+<p>把 Agent 接进真实系统。工具、子代理、上生产，一章一个硬骨头。</p>
+</main>
+<nav class="pager">
+  <span class="pager-side"><a class="pager-link" href="ch06.html">← §06 工具与权限：给 Agent 能力，也锁住风险</a></span>
+  <a class="pager-home" href="index.html">目录</a>
+  <span class="pager-side"><a class="pager-link" href="ch08.html">§08 自定义工具与 MCP：把外部能力交给 Agent →</a></span>
+</nav>
+<footer class="site-footer">标叔出品 · AI Native Coder · 基于 Claude Agent SDK 文档</footer>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§02 三步装好环境，跑通第一条查询 · Claude Agent SDK 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="index.html">Claude Agent SDK 从入门到精通</a>
+</header>
+<main class="content">
+  <h1 class="chapter-title">§02 三步装好环境，跑通第一条查询</h1>
+  <p>我第一次装 Agent SDK 是 2026 年 3 月。那会儿我以为又要配一堆环境。结果 10 分钟就跑通了第一个 Agent。这章把当时的装法原样走一遍。</p>
+<h3>02.1 你需要什么</h3>
+<ul>
+<li>Node.js 18+，或 Python 3.10+。</li>
+<li>一个 Anthropic API Key（从 Console 申请）。</li>
+<li>预计 10 分钟。</li>
+</ul>
+<p>我实测装这个比装大多数 CLI 工具都快。因为不用装 Claude Code 本体。</p>
+<h3>02.2 我们最终要看到什么</h3>
+<p>目标：写一段代码，让 Claude 列出当前目录的文件。</p>
+<p>你会看到它自己调用工具，最后打印出文件清单。这就是"自动驾驶"的第一脚油门。</p>
+<h3>02.3 第一步：装包</h3>
+<pre><code class="language-bash"># TypeScript 项目
+npm install @anthropic-ai/claude-agent-sdk
+
+# Python 项目
+pip install claude-agent-sdk
+</code></pre>
+<p>预期结果：终端显示安装完成，没有报红。</p>
+<h3>02.4 第二步：配 API Key</h3>
+<pre><code class="language-bash"># 在终端里导出（临时生效）
+export ANTHROPIC_API_KEY=你的key
+
+# 或者在项目根目录建 .env 文件，写入下面这行
+# ANTHROPIC_API_KEY=你的key
+</code></pre>
+<p>预期结果：环境变量已设置。后面代码会自动读它。</p>
+<blockquote class="callout warning">
+<p><strong>注意</strong>：<code>.env</code> 可能被系统环境变量覆盖。</p>
+<p>文档里专门提了这条坑：当系统已经设了 <code>ANTHROPIC_API_KEY</code>，<code>dotenv.config()</code> 默认不会覆盖。你要用 <code>dotenv.config({ override: true })</code>，否则 SDK 会连到你没想到的端点。</p>
+</blockquote>
+<h3>02.5 第三步：跑第一条查询</h3>
+<pre><code class="language-python"># agent.py —— 第一个会动的 Agent
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions
+
+async def main():
+    # 这行是关键：只给读文件相关的工具，最安全
+    async for message in query(
+        prompt=&quot;这个目录里有哪些文件？&quot;,
+        options=ClaudeAgentOptions(allowed_tools=[&quot;Bash&quot;, &quot;Glob&quot;]),
+    ):
+        if hasattr(message, &quot;result&quot;):
+            print(message.result)  # 打印最终答案
+
+asyncio.run(main())
+</code></pre>
+<p>预期结果：终端列出当前目录的文件名。整个过程你没碰过文件操作。</p>
+<blockquote class="callout experience">
+<p><strong>标叔的经验</strong>：第一次跑，别追求完美 prompt。</p>
+<p>我带新人时总说：先让它动起来，看输出，再改 prompt。很多人卡在"写一句完美的指令"，结果一行都没跑。这里 <code>allowed_tools</code> 只放了 <code>Bash</code> 和 <code>Glob</code>，就是给它最小权限先试水。</p>
+</blockquote>
+<p>装好了，也跑通了。下一章，让 Agent 干点真活——自己修 bug。</p>
+</main>
+<nav class="pager">
+  <span class="pager-side"><a class="pager-link" href="ch01.html">← §01 Claude Agent SDK 是什么，为什么你需要它</a></span>
+  <a class="pager-home" href="index.html">目录</a>
+  <span class="pager-side"><a class="pager-link" href="ch03.html">§03 让 Agent 自己读懂并修复一个 bug →</a></span>
+</nav>
+<footer class="site-footer">标叔出品 · AI Native Coder · 基于 Claude Agent SDK 文档</footer>
+</body>
+</html>

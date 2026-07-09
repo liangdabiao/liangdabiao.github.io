@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§08 自定义工具与 MCP：把外部能力交给 Agent · Claude Agent SDK 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="index.html">Claude Agent SDK 从入门到精通</a>
+</header>
+<main class="content">
+  <h1 class="chapter-title">§08 自定义工具与 MCP：把外部能力交给 Agent</h1>
+  <p>有回产品经理想让 Agent 直接查订单库、发站内信。内置工具做不到，我第一次认真翻 MCP 文档。才发现它是给 Agent 装外挂的标准插槽。这章手把手接一个。</p>
+<h3>08.1 MCP 是给 Agent 装外挂</h3>
+<p>内置工具够用，但不够。你想让 Agent 查数据库、发邮件、调你的内部 API？</p>
+<p>这些靠 MCP（Model Context Protocol）接进来。SDK 里用 <code>createSdkMcpServer</code> 把你的函数包成一个"服务器"，传给 <code>query</code> 就行。</p>
+<p>我管 MCP 叫"外挂插槽"。插上，Agent 就会用。</p>
+<h3>08.2 三步定义一个工具</h3>
+<pre><code class="language-python"># weather_tool.py —— 给 Agent 一个查天气的工具
+from claude_agent_sdk import tool, create_sdk_mcp_server
+
+@tool(
+    &quot;get_temperature&quot;,                      # 工具名
+    &quot;查某个位置的当前温度&quot;,                  # 描述，Claude 靠它决定何时调用
+    {&quot;latitude&quot;: float, &quot;longitude&quot;: float}, # 输入参数
+)
+async def get_temperature(args):
+    # 这行是关键：真正去调天气 API
+    data = await fetch_api(args[&quot;latitude&quot;], args[&quot;longitude&quot;])
+    return {&quot;content&quot;: [{&quot;type&quot;: &quot;text&quot;, &quot;text&quot;: f&quot;温度：{data}°F&quot;}]}
+
+# 包成服务器
+weather_server = create_sdk_mcp_server(
+    name=&quot;weather&quot;, version=&quot;1.0.0&quot;, tools=[get_temperature]
+)
+</code></pre>
+<p>工具的<strong>描述</strong>特别重要。Claude 靠描述判断"这件事该不该调这个工具"。写清楚"什么时候用"，它才调得准。</p>
+<h3>08.3 工具名的固定格式</h3>
+<p>接入后，工具全名长这样：</p>
+<pre><code>mcp__&lt;服务器名&gt;__&lt;工具名&gt;
+</code></pre>
+<p>上面的例子，全名是 <code>mcp__weather__get_temperature</code>。你要把它写进 <code>allowedTools</code> 才会自动批准。</p>
+<blockquote class="callout warning">
+<p><strong>注意</strong>：自定义工具名带前缀 <code>mcp__</code>。</p>
+<p>文档第 1 条坑：很多人 <code>allowedTools</code> 里直接写 <code>get_temperature</code>，结果调不动。必须写全名 <code>mcp__weather__get_temperature</code>，或用通配 <code>mcp__weather__*</code>。</p>
+</blockquote>
+<h3>08.4 出错别抛异常</h3>
+<p>工具处理函数如果直接抛异常，整个 <code>query</code> 会挂掉。正确做法：返回 <code>is_error: true</code>，让 Agent 自己决定重试或换方法。</p>
+<pre><code class="language-python"># 捕获错误，把失败当数据返回
+try:
+    resp = await httpx.get(args[&quot;endpoint&quot;])
+    if resp.status_code != 200:
+        return {&quot;content&quot;: [{&quot;type&quot;: &quot;text&quot;, &quot;text&quot;: f&quot;API 错误：{resp.status_code}&quot;}],
+                &quot;is_error&quot;: True}  # 这行是关键：标记失败，Loop 继续
+except Exception as e:
+    return {&quot;content&quot;: [{&quot;type&quot;: &quot;text&quot;, &quot;text&quot;: f&quot;请求失败：{e}&quot;}], &quot;is_error&quot;: True}
+</code></pre>
+<p>工具会接了。想让多个 Agent 一起干活？下一章讲子代理。</p>
+</main>
+<nav class="pager">
+  <span class="pager-side"><a class="pager-link" href="ch07.html">← §07 会话和记忆：让 Agent 记住上下文</a></span>
+  <a class="pager-home" href="index.html">目录</a>
+  <span class="pager-side"><a class="pager-link" href="ch09.html">§09 子代理：一个 Agent 指挥一队 Agent →</a></span>
+</nav>
+<footer class="site-footer">标叔出品 · AI Native Coder · 基于 Claude Agent SDK 文档</footer>
+</body>
+</html>
