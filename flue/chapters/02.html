@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§02 十分钟跑通你的第一个 Agent · Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home" href="../index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch" href="../chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch active" href="../chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch" href="../chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch" href="../chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch" href="../chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch" href="../chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch" href="../chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch" href="../chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch" href="../chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch" href="../chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch" href="../chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="../chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch" href="../chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch" href="../appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<div class="crumb">Part 1 · 起步</div>
+<h1 class="chapter-title">§02 十分钟跑通你的第一个 Agent</h1>
+<p class="chapter-sub">装依赖、写 8 行代码，在终端跑通第一个 Agent</p>
+<details class="toc-details"><summary>📑 本章目录</summary><div class="toc">
+<ul>
+<li><a href="#021-你需要什么">02.1 你需要什么</a></li>
+<li><a href="#022-我们最终要做成什么">02.2 我们最终要做成什么</a></li>
+<li><a href="#023-安装和第一次对话">02.3 安装和第一次对话</a></li>
+<li><a href="#024-两个新手必踩的坑">02.4 两个新手必踩的坑</a></li>
+<li><a href="#025-回顾">02.5 回顾</a></li>
+</ul>
+</div>
+</details>
+<article class="chapter-body">
+<h3 id="021-你需要什么">02.1 你需要什么</h3>
+<p>上周我重装环境。Node 22.18.0、一条命令、30 秒，对话就跑起来了。</p>
+<p>清单很简单：</p>
+<ul>
+<li><strong>Node.js ≥ 22.18.0</strong>（低于这个版本会报错）</li>
+<li><strong>一个模型 API Key</strong>（我用 Anthropic，你用哪家电都行）</li>
+<li><strong>15 分钟</strong>和一杯咖啡</li>
+</ul>
+<h3 id="022-我们最终要做成什么">02.2 我们最终要做成什么</h3>
+<p>一个会讲"hello world"冷笑话的 Agent。跑通后，你能在终端跟它对话。</p>
+<p>为啥从笑话开始？因为它能验证整条链路：模型通了、会话通了、输出通了。</p>
+<h3 id="023-安装和第一次对话">02.3 安装和第一次对话</h3>
+<p><strong>第一步</strong>：建目录，装依赖。</p>
+<pre><code class="language-bash"># 装运行时和命令行工具
+npm install @flue/runtime
+npm install --save-dev @flue/cli
+
+# 把密钥写进 .env，别提交到 git
+echo 'ANTHROPIC_API_KEY=&quot;你的key&quot;' &gt; .env
+
+# 初始化 Node 目标，生成 flue.config.ts
+npx flue init --target node
+</code></pre>
+<p>预期结果：目录里多出 <code>flue.config.ts</code>，<code>package.json</code> 多了两个依赖。</p>
+<p><strong>第二步</strong>：写第一个 Agent 文件。</p>
+<pre><code class="language-typescript">// src/agents/hello-world.ts
+import { createAgent } from '@flue/runtime';
+
+// 文件名就是 Agent 名：hello-world
+export default createAgent(() =&gt; ({
+  model: 'anthropic/claude-sonnet-4-6',        // 模型用 provider/model 格式
+  instructions: 'Tell a funny &quot;hello world&quot; engineering joke.',
+}));
+</code></pre>
+<p>预期结果：文件保存即可，无需编译。Flue 会自动发现它。</p>
+<p><strong>第三步</strong>：连上去，开聊。</p>
+<pre><code class="language-bash"># hello-world 是模块名，local 是这次实例的 id
+npx flue connect hello-world local
+</code></pre>
+<p>预期结果：终端显示已连接。你敲一句回车，它就回一段冷笑话。</p>
+<blockquote class="callout callout-warning">
+<p><strong>注意</strong>：模型写法必须是 <code>provider/model-id</code>。</p>
+<p>写成 <code>deepseek-v4-flash</code> 会报 <code>Invalid model</code>。正确是 <code>deepseek/deepseek-v4-flash</code>。斜杠不能省。</p>
+</blockquote>
+<h3 id="024-两个新手必踩的坑">02.4 两个新手必踩的坑</h3>
+<p>第一坑：<code>valibot</code> 版本。</p>
+<pre><code class="language-bash"># 必须 1.x，用 0.x 会报 TypeError: Cannot read properties of undefined
+npm install valibot@^1.0.0
+</code></pre>
+<p>第二坑：<code>init()</code> 不收普通配置对象。这个我们 §08 细讲，先记住结论。</p>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：环境对，一切顺。</p>
+<p>我第一次卡了 40 分钟，最后发现是 Node 版本是 20。升到 22.18.0，秒通。版本这关，先过。</p>
+</blockquote>
+<h3 id="025-回顾">02.5 回顾</h3>
+<p>我们装了依赖，写了 8 行代码，在终端跟 Agent 聊上了。</p>
+<blockquote class="callout callout-suggestion">
+<p><strong>核心建议</strong>：先跑通再优化。</p>
+<p>别在第一天纠结"prompt 怎么写才完美"。先让它跑起来，看输出，再迭代。卡在完美主义是新手通病。</p>
+</blockquote>
+<p>装完了，账号登了，第一次对话也跑通了。下一章，做个真能干活的项目。</p>
+</article>
+<nav class="pager"><a class="pager-prev" href="../chapters/01.html">← 上一章</a><a class="pager-next" href="../chapters/03.html">下一章 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

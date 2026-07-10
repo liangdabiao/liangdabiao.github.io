@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home active" href="index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch" href="chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch" href="chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch" href="chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch" href="chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch" href="chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch" href="chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch" href="chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch" href="chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch" href="chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch" href="chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch" href="chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch" href="chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch" href="appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<section class="hero">
+  <div class="hero-badge">Flue Agent Framework v0.9.1</div>
+  <h1>Flue 框架从入门到精通</h1>
+  <p class="hero-sub">用 Harness 驱动的架构，搭建可部署到任何平台的 AI Agent</p>
+  <p class="hero-meta">作者 标叔 · 最后更新 2026-07-07</p>
+  <a class="hero-cta" href="chapters/01.html">开始阅读 →</a>
+</section>
+
+<section class="reading-plan">
+  <h2>📅 六天阅读计划</h2>
+  <table class="plan-table"><thead><tr><th>时间</th><th>章节</th><th>目标</th></tr></thead>
+  <tbody><tr><td><strong>Day 1</strong></td><td>§01–§03</td><td>从零到第一个会干活的 Agent</td></tr><tr><td><strong>Day 2-3</strong></td><td>§04–§07</td><td>吃透 Harness 五个零件与核心能力</td></tr><tr><td><strong>Day 4-5</strong></td><td>§08–§11</td><td>工作流、路由安全、可观测、部署</td></tr><tr><td><strong>Day 6-7</strong></td><td>§12 + §13 + 附录</td><td>思维转变、框架选型、查错与速查</td></tr></tbody></table>
+</section>
+
+<section class="toc-full">
+  <h2>📚 全书目录</h2>
+  <h3 class="part-title">Part 1 · 起步</h3>
+<p class="part-intro"></p>
+<ul><li><a href="chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a><span>用公式 Agent = 模型 + Harness，讲清 Flue 的底层哲学</span></li><li><a href="chapters/02.html">§02 十分钟跑通你的第一个 Agent</a><span>装依赖、写 8 行代码，在终端跑通第一个 Agent</span></li><li><a href="chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a><span>给 Agent 装上"手"和"工作间"，让它真的去调 API</span></li></ul>
+<h3 class="part-title">Part 2 · 核心能力</h3>
+<p class="part-intro"></p>
+<ul><li><a href="chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a><span>拆开 Harness 的五个零件：文件、工具、沙箱、会话、子智能体</span></li><li><a href="chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a><span>defineTool 的四部分，以及工具不是鉴权边界</span></li><li><a href="chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a><span>Skills 操作手册 vs Subagents 同事，何时用哪个</span></li><li><a href="chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a><span>三种沙箱怎么选，模型与 provider 的坑</span></li></ul>
+<h3 class="part-title">Part 3 · 进阶实战</h3>
+<p class="part-intro"></p>
+<ul><li><a href="chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a><span>flue run 与一次性确定性任务，以及结构化结果</span></li><li><a href="chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a><span>app.ts + 鉴权中间件，把 Agent 安全接进你的服务</span></li><li><a href="chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a><span>SSE 流式输出与 observe 全局可观测</span></li><li><a href="chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a><span>写一次到处跑：Node、Cloudflare、CI 的部署要点</span></li></ul>
+<h3 class="part-title">Part 4 · 收束与选型</h3>
+<p class="part-intro"></p>
+<ul><li><a href="chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a><span>从"写代码的人"变成"搭舞台的人"——三个思维切换</span></li><li><a href="chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a><span>Flue vs Claude Agent SDK：5 分钟做选型，含决策矩阵与迁移路径</span></li></ul>
+
+</section>
+
+<section class="about">
+  <h2>📖 这本书讲什么</h2>
+  <p>《Flue 框架从入门到精通》用最通俗的方式，讲清楚一个偏底层的 AI Agent 框架怎么用。全书围绕一个核心公式展开——<strong>Agent = 模型 + 马具（Harness）</strong>。我们不堆概念，而是用类比、对比表和大量可直接复制的 TypeScript 代码，带你从装环境、跑通第一个 Agent，一路走到把它部署到 Node、Cloudflare 和 CI。</p>
+</section>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="assets/app.js"></script>
+</body>
+</html>

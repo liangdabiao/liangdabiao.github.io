@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§11 部署到任何地方：Node、Cloudflare 与 CI · Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home" href="../index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch" href="../chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch" href="../chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch" href="../chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch" href="../chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch" href="../chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch" href="../chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch" href="../chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch" href="../chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch" href="../chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch" href="../chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch active" href="../chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="../chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch" href="../chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch" href="../appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<div class="crumb">Part 3 · 进阶实战</div>
+<h1 class="chapter-title">§11 部署到任何地方：Node、Cloudflare 与 CI</h1>
+<p class="chapter-sub">写一次到处跑：Node、Cloudflare、CI 的部署要点</p>
+<details class="toc-details"><summary>📑 本章目录</summary><div class="toc">
+<ul>
+<li><a href="#111-写一次到处跑">11.1 写一次，到处跑</a></li>
+<li><a href="#112-构建与启动">11.2 构建与启动</a></li>
+<li><a href="#113-开发-vs-生产">11.3 开发 vs 生产</a></li>
+<li><a href="#114-部署目的地">11.4 部署目的地</a></li>
+</ul>
+</div>
+</details>
+<article class="chapter-body">
+<h3 id="111-写一次到处跑">11.1 写一次，到处跑</h3>
+<p>去年我把一个 Agent 从 Node 迁到 Cloudflare。原本以为要重写，结果只改了 <code>target</code>。</p>
+<p>这是 Flue 的承诺：同一套 Agent，跑本地、跑 Node 服务器、跑 Cloudflare、跑 CI。</p>
+<p>我把它在 Node 和 Cloudflare 都试过。同一份代码，换 <code>target</code> 就部署。</p>
+<h3 id="112-构建与启动">11.2 构建与启动</h3>
+<pre><code class="language-bash">npm run build   # 构建到 dist/
+npm start       # 启动生产服务器
+</code></pre>
+<p>生产启动脚本要显式加载环境变量和端口：</p>
+<pre><code class="language-json">{
+  &quot;scripts&quot;: {
+    &quot;start&quot;: &quot;bash -c 'set -a &amp;&amp; source .env &amp;&amp; set +a &amp;&amp; PORT=3583 node dist/server.mjs'&quot;
+  }
+}
+</code></pre>
+<h3 id="113-开发-vs-生产">11.3 开发 vs 生产</h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>命令</th>
+<th>行为</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>开发</td>
+<td><code>flue dev</code></td>
+<td>热重载，但一改文件就断连</td>
+<td>只本地调试用</td>
+</tr>
+<tr>
+<td>生产</td>
+<td><code>npm start</code></td>
+<td>稳定，不断连</td>
+<td>上线必须用</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-highlight">
+<p><strong>重点看</strong>："开发"那一行的"断连"。</p>
+<p><code>flue dev</code> 监听项目根目录<strong>所有文件</strong>。你改个 <code>.md</code>，它都重启，正在流的 SSE 直接断。线上服务用生产模式。</p>
+</blockquote>
+<h3 id="114-部署目的地">11.4 部署目的地</h3>
+<table>
+<thead>
+<tr>
+<th>目的地</th>
+<th>适合</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node.js</td>
+<td>普通长驻服务器/容器</td>
+<td>最通用</td>
+</tr>
+<tr>
+<td>Cloudflare</td>
+<td>Worker，免运维</td>
+<td>用 <code>cloudflare/</code> 模型免 Key</td>
+</tr>
+<tr>
+<td>Render</td>
+<td>托管 Node 服务</td>
+<td>带可选持久化</td>
+</tr>
+<tr>
+<td>GitHub Actions</td>
+<td>CI 里跑一次性任务</td>
+<td><code>--target node</code></td>
+</tr>
+</tbody>
+</table>
+<p>Cloudflare 有个爽点：用 <code>cloudflare/@cf/...</code> 模型，靠 Worker 的 <code>AI</code> 绑定，连 API Key 都不用配。</p>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：部署前先 <code>flue build</code>。</p>
+<p>我偷懒直接 <code>dev</code> 上线过，遇到文件监听把连接搞挂。构建一次能提前抓出"Agent 没被发现"这类问题，省心。</p>
+</blockquote>
+<p>四处都能跑了。最后两章，聊点虚但重要的——思维转变和框架选型。</p>
+</article>
+<nav class="pager"><a class="pager-prev" href="../chapters/10.html">← 上一章</a><a class="pager-next" href="../chapters/12.html">下一章 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

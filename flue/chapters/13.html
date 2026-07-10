@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§13 Flue vs Claude Agent SDK：怎么选 · Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home" href="../index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch" href="../chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch" href="../chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch" href="../chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch" href="../chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch" href="../chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch" href="../chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch" href="../chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch" href="../chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch" href="../chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch" href="../chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch" href="../chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="../chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch active" href="../chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch" href="../appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<div class="crumb">Part 4 · 收束与选型</div>
+<h1 class="chapter-title">§13 Flue vs Claude Agent SDK：怎么选</h1>
+<p class="chapter-sub">Flue vs Claude Agent SDK：5 分钟做选型，含决策矩阵与迁移路径</p>
+<details class="toc-details"><summary>📑 本章目录</summary><div class="toc">
+<ul>
+<li><a href="#131-为什么这一章要单写">13.1 为什么这一章要单写</a></li>
+<li><a href="#132-先把两边摆上台">13.2 先把两边摆上台</a></li>
+<li><a href="#133-五个维度比一比">13.3 五个维度比一比</a></li>
+<li><a href="#134-flue-的优点与缺点">13.4 Flue 的优点与缺点</a></li>
+<li><a href="#135-claude-agent-sdk-的优点与缺点">13.5 Claude Agent SDK 的优点与缺点</a></li>
+<li><a href="#136-决策树5-分钟做选择">13.6 决策树：5 分钟做选择</a></li>
+<li><a href="#137-并存两边都用">13.7 并存：两边都用</a></li>
+<li><a href="#138-迁移路径">13.8 迁移路径</a></li>
+<li><a href="#139-一句话总结">13.9 一句话总结</a></li>
+</ul>
+</div>
+</details>
+<article class="chapter-body">
+<h3 id="131-为什么这一章要单写">13.1 为什么这一章要单写</h3>
+<p>三个月前我带团队做 Agent 选型。会议室里摆了三个方案，最后吵的不是"用不用 LLM"，是"用 Flue 还是 Claude Agent SDK"。</p>
+<p>当时没人能把两边讲透。我把这三个月踩的坑整理成这一章。如果我一句话总结：轻量级功能和部署，优先试试flue!</p>
+<p>你看完，应该能在 5 分钟内做选择。</p>
+<h3 id="132-先把两边摆上台">13.2 先把两边摆上台</h3>
+<p>Flue 是"通用马具"。它<strong>不绑模型</strong>，Anthropic、DeepSeek、OpenAI 谁都能上，部署到 Node、Cloudflare、CI 都行。Claude Agent SDK 是 Anthropic 官方出品，<strong>深度绑定 Claude</strong>，CLI 场景里最舒服。</p>
+<p>一个像"乐高"，一个像"主题套装"。都能搭 Agent，但手感不同。</p>
+<h3 id="133-五个维度比一比">13.3 五个维度比一比</h3>
+<p>我把两边用同一把尺子量过。下表是结论，每行下面会展开讲。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Flue</th>
+<th>Claude Agent SDK</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>语言</td>
+<td>TypeScript</td>
+<td>Python、TypeScript</td>
+<td>团队语言定</td>
+</tr>
+<tr>
+<td>模型绑定</td>
+<td>不绑，多家可换</td>
+<td>绑 Claude 系列</td>
+<td>跨家选 Flue</td>
+</tr>
+<tr>
+<td>部署目标</td>
+<td>Node / Cloudflare / CI</td>
+<td>终端、CLI、服务端</td>
+<td>上 Cloudflare 选 Flue</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>多端统一、生产服务</td>
+<td>本地编码助手、CLI 工具</td>
+<td>看场景</td>
+</tr>
+<tr>
+<td>学习成本</td>
+<td>中（要懂 Harness 五个零件）</td>
+<td>低（CLI 直接用）</td>
+<td>快速落地选 SDK</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-highlight">
+<p><strong>重点看</strong>：最后一行"学习成本"。</p>
+<p>这是新人最容易忽略的。Claude Agent SDK 装上 <code>claude</code> 命令就能聊。Flue 要先懂沙箱、工具、技能子智能体，再写代码。</p>
+</blockquote>
+<h3 id="134-flue-的优点与缺点">13.4 Flue 的优点与缺点</h3>
+<p><strong>优点</strong></p>
+<ul>
+<li><strong>不绑模型</strong>。我有个项目上午用 DeepSeek（便宜），下午切 Claude（质量好），只改 <code>model</code> 字符串。这是 SDK 做不到的。</li>
+<li><strong>部署自由</strong>。同一份代码，Node 服务器、Cloudflare Worker、GitHub Actions 都跑。SDK 主要服务 CLI。</li>
+<li><strong>TypeScript 优先</strong>。前端团队直接上手，类型推断、IDE 跳转都顺。</li>
+<li><strong>Harness 显式可配</strong>。五个零件（文件系统、工具、沙箱、会话、子智能体）写在 <code>createAgent</code> 里，一目了然。</li>
+<li><strong>生产特性全</strong>。SSE 流式、Observe 可观测、工作流 runId、App 路由鉴权——都是 SDK 默认没有的。</li>
+</ul>
+<p><strong>缺点</strong></p>
+<ul>
+<li><strong>学习曲线高</strong>。新手要吃透 Harness、TypeBox、沙箱三选一，门槛不低。</li>
+<li><strong>生态年轻</strong>。遇到坑基本要自己查或问作者，没有大社区背书。</li>
+<li><strong>没有官方 CLI 体验</strong>。<code>flue connect</code> 是个能用的 REPL，但和 <code>claude</code> 命令那种丝滑度比，还有差距。</li>
+<li><strong>文档偏少</strong>。这本指南其实是文档的延伸，外面能查到的资料有限。</li>
+</ul>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：Flue 的真正门槛不是 API，是"思维转变"。</p>
+<p>我团队有个写 Python 五年的同事，第一次用 Flue 写 Agent，老想 <code>if/else</code> 控制流程。两周后才转过来。</p>
+</blockquote>
+<h3 id="135-claude-agent-sdk-的优点与缺点">13.5 Claude Agent SDK 的优点与缺点</h3>
+<p><strong>优点</strong></p>
+<ul>
+<li><strong>上手极快</strong>。<code>npm install -g @anthropic-ai/claude-code</code>，一条命令开聊。10 分钟就有产出。</li>
+<li><strong>Claude 深度优化</strong>。所有 Claude 模型特性（extended thinking、prompt caching、tool use）都打通，你不用配。</li>
+<li><strong>内置工具强</strong>。Read、Edit、Bash、Grep、Glob、WebSearch、WebFetch 都是现成的，写代码场景开箱即用。</li>
+<li><strong>权限系统成熟</strong>。allow / deny / ask 三档，可按工具、按路径细粒度控制，企业可用。</li>
+<li><strong>Hooks 系统完整</strong>。PreToolUse、PostToolUse、Stop 都能挂回调，做审计、做安全扫描、做日志都对口。</li>
+<li><strong>Skills 与 Subagents 一等公民</strong>。markdown 写技能、Task 派子体，模型自己协调。</li>
+</ul>
+<p><strong>缺点</strong></p>
+<ul>
+<li><strong>绑死 Claude</strong>。想换 GPT、Gemini、DeepSeek？不行。这是最大硬伤。</li>
+<li><strong>CLI 优先</strong>。服务化部署没那么顺，要自己包一层才能上生产。</li>
+<li><strong>Python 体验明显好于 TypeScript</strong>。TypeScript 版本是后来补的，文档和示例都少。</li>
+<li><strong>定制空间小</strong>。沙箱、文件系统这些底层，能改的有限。</li>
+<li><strong>大上下文贵</strong>。长会话不裁剪，Token 烧起来心疼。</li>
+<li><strong>中文场景偶有水土不服</strong>。复杂中文指令偶尔会跑偏。</li>
+</ul>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：把 Claude Agent SDK 当"瑞士军刀"，别当"生产线"。</p>
+<p>我用它写过 CI 里的 PR Reviewer Bot、好用过。但要做一个对客的客服 Agent 跑在 Cloudflare 上，不行——它天生不是干这个的。</p>
+</blockquote>
+<h3 id="136-决策树5-分钟做选择">13.6 决策树：5 分钟做选择</h3>
+<p>我把这三个月的判断画成一张决策图。你照着走，基本不会错。</p>
+<table>
+<thead>
+<tr>
+<th>你的情况</th>
+<th>选 Flue</th>
+<th>选 Claude Agent SDK</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>团队主力是 TypeScript</td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>团队主力是 Python</td>
+<td></td>
+<td>✓</td>
+</tr>
+<tr>
+<td>要部署到 Cloudflare Workers</td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>写本地编码助手、CLI 工具</td>
+<td></td>
+<td>✓</td>
+</tr>
+<tr>
+<td>必须能换模型（成本/合规考虑）</td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>模型就钉死 Claude</td>
+<td></td>
+<td>✓</td>
+</tr>
+<tr>
+<td>要对接现有 Hono / Node 服务</td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>要做 PR Review / Code Agent / 终端自动化</td>
+<td></td>
+<td>✓</td>
+</tr>
+<tr>
+<td>要做对客的多端产品</td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>团队没人懂 Agent 概念，要最快出活</td>
+<td></td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-suggestion">
+<p><strong>核心建议</strong>：先想"在哪跑"，再想"用什么模型"。</p>
+<p>很多人选框架反着来——先挑模型，再想部署。结果 Claude Agent SDK 跑 Cloudflare 写得很痛苦。<strong>部署目标先定，框架就定一半。</strong></p>
+</blockquote>
+<h3 id="137-并存两边都用">13.7 并存：两边都用</h3>
+<p>这不是二选一。我现在的项目，<strong>两个都用</strong>。</p>
+<ul>
+<li><strong>Claude Agent SDK</strong> 跑在开发者本地，做代码审查、脚本生成、CI 里的 PR 分析。</li>
+<li><strong>Flue</strong> 跑在 Cloudflare，做对客的客服 Agent、数据处理工作流。</li>
+</ul>
+<p>两边用一致的 prompt 模板、共享 SKILL.md。模型层互不依赖。</p>
+<pre><code class="language-typescript">// Flue 这边：导入和 SDK 同样的 SKILL.md
+import reviewChecklist from '../skills/review/SKILL.md' with { type: 'skill' };
+
+// Claude Agent SDK 那边的 settings.json 也指向同一份
+// { &quot;skills&quot;: [&quot;./skills/review/SKILL.md&quot;] }
+</code></pre>
+<p>Agent Skills 规范是 Anthropic 推的，Flue 原生兼容。一份技能，两边用，省维护。</p>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：别把鸡蛋放一个篮子。</p>
+<p>我以前只用 Claude Agent SDK，结果一次 Claude API 抖动，整个研发流程卡了两小时。现在核心流程 Flue 兜底，SDK 做增强。安全感不一样。</p>
+</blockquote>
+<h3 id="138-迁移路径">13.8 迁移路径</h3>
+<p>如果以后想从一边迁到另一边，也不难。它们的"心智模型"高度相似：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>Flue</th>
+<th>Claude Agent SDK</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent 本身</td>
+<td><code>createAgent(() =&gt; ({...}))</code></td>
+<td><code>claude --agent xxx</code></td>
+</tr>
+<tr>
+<td>工具</td>
+<td><code>defineTool({...})</code></td>
+<td><code>tools: [{name, input_schema, ...}]</code></td>
+</tr>
+<tr>
+<td>技能</td>
+<td><code>import skill from 'X/SKILL.md'</code></td>
+<td><code>.claude/skills/.../SKILL.md</code></td>
+</tr>
+<tr>
+<td>子智能体</td>
+<td><code>defineAgentProfile({...})</code></td>
+<td>Task tool 派发</td>
+</tr>
+<tr>
+<td>会话</td>
+<td><code>harness.session()</code></td>
+<td>内置 session</td>
+</tr>
+<tr>
+<td>流式</td>
+<td>SSE <code>text_delta</code></td>
+<td><code>stream: true</code></td>
+</tr>
+</tbody>
+</table>
+<p>两边都遵循 <a href="https://agentskills.io">Agent Skills 规范</a>。技能文件、提示词、心智模型是通的。</p>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：先 Flue 后 SDK，比反过来舒服。</p>
+<p>我团队有个逆向走法：先 SDK 后 Flue，一直骂 Harness 复杂。原因是 SDK 把复杂度藏在内部，先用 SDK 的人不习惯"显式配置"。先 Flue 后 SDK 的人，反倒觉得 SDK 简洁。</p>
+</blockquote>
+<h3 id="139-一句话总结">13.9 一句话总结</h3>
+<blockquote>
+<p><strong>Flue 是给"搭舞台的人"用的，Claude Agent SDK 是给"演员"用的。</strong>
+</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>你是谁</th>
+<th>选谁</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>写产品、写服务、跨多端</td>
+<td>Flue</td>
+</tr>
+<tr>
+<td>写工具、写脚本、自动化</td>
+<td>Claude Agent SDK</td>
+</tr>
+<tr>
+<td>两个都干</td>
+<td>都装，按场景切换</td>
+</tr>
+</tbody>
+</table>
+</article>
+<nav class="pager"><a class="pager-prev" href="../chapters/12.html">← 上一章</a><a class="pager-next" href="../appendix.html">附录 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

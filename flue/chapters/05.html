@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§05 工具（Tools）：给 Agent 一双会干活的手 · Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home" href="../index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch" href="../chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch" href="../chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch" href="../chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch" href="../chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch active" href="../chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch" href="../chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch" href="../chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch" href="../chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch" href="../chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch" href="../chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch" href="../chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="../chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch" href="../chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch" href="../appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<div class="crumb">Part 2 · 核心能力</div>
+<h1 class="chapter-title">§05 工具（Tools）：给 Agent 一双会干活的手</h1>
+<p class="chapter-sub">defineTool 的四部分，以及工具不是鉴权边界</p>
+<details class="toc-details"><summary>📑 本章目录</summary><div class="toc">
+<ul>
+<li><a href="#051-模型只会说话工具让它动手">05.1 模型只会说话，工具让它动手</a></li>
+<li><a href="#052-一个工具的四部分">05.2 一个工具的四部分</a></li>
+<li><a href="#053-工具不是鉴权边界">05.3 工具不是鉴权边界</a></li>
+<li><a href="#054-接-mcp-生态">05.4 接 MCP 生态</a></li>
+</ul>
+</div>
+</details>
+<article class="chapter-body">
+<h3 id="051-模型只会说话工具让它动手">05.1 模型只会说话，工具让它动手</h3>
+<p>我第一次给 Agent 接工具时，激动得不行。因为那一刻它从"只会聊"变成"真能干活"。</p>
+<p>模型本身只能"想"和"说"。查数据库、发短信、改文件，它一样都干不了。</p>
+<p>工具就是它的手。这是 Flue 里<strong>最关键的一步</strong>——把你的业务能力交给 Agent。</p>
+<h3 id="052-一个工具的四部分">05.2 一个工具的四部分</h3>
+<p>我用 <code>defineTool</code> 定义工具。它有四个零件：</p>
+<pre><code class="language-typescript">// src/shared/order-tools.ts
+import { Type, defineTool } from '@flue/runtime';
+
+export const lookupOrderStatus = defineTool({
+  name: 'lookup_order_status',   // 1. 模型调用的名字
+  description: 'Look up order fulfillment status.', // 2. 帮模型判断何时用
+  parameters: Type.Object({      // 3. 输入参数（用 Type，非 valibot）
+    orderId: Type.String({ description: 'Order ID like order_1234' }),
+  }),
+  execute: async ({ orderId }) =&gt; {  // 4. 真正干活的代码
+    // 这行是关键：返回字符串给模型
+    return `Order ${orderId} is packed.`;
+  },
+});
+</code></pre>
+<p>四部分拆开看：名字、说明、参数、执行体。</p>
+<blockquote class="callout callout-warning">
+<p><strong>注意</strong>：<code>execute</code> 必须返回字符串。</p>
+<p>返回对象会出错。要返回结构化数据，用 <code>JSON.stringify(...)</code> 包一层。</p>
+</blockquote>
+<h3 id="053-工具不是鉴权边界">05.3 工具不是鉴权边界</h3>
+<p>这点特别重要。模型的输入不可信，但凭证必须由你的代码给。</p>
+<pre><code class="language-typescript">// 正确：客户 id 由代码定，模型只能选订单号
+export default createAgent(({ id: customerId }) =&gt; ({
+  model: 'anthropic/claude-haiku-4-5',
+  tools: [
+    defineTool({
+      name: 'lookup_customer_order',
+      parameters: Type.Object({ orderId: Type.String() }),
+      execute: async ({ orderId }) =&gt; {
+        // 模型选订单号，但查哪个客户由代码定
+        return await orders.getStatus(customerId, String(orderId));
+      },
+    }),
+  ],
+}));
+</code></pre>
+<p>模型能选订单号，但<strong>选不了客户</strong>。凭证和越权防护，永远握在你代码手里。</p>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：工具里别放密钥。</p>
+<p>我见过有人把 API Key 写进工具参数描述，想让模型自己带。危险。密钥在 <code>env</code> 里，代码注入，模型只传业务参数。</p>
+</blockquote>
+<h3 id="054-接-mcp-生态">05.4 接 MCP 生态</h3>
+<p>你不用自己写所有工具。MCP 服务器能提供远程工具：</p>
+<pre><code class="language-typescript">const inventory = await connectMcpServer('inventory', {
+  url: env.INVENTORY_MCP_URL,
+  headers: { Authorization: `Bearer ${env.INVENTORY_MCP_TOKEN}` },
+});
+// 连上后，工具名会变成 mcp__inventory__lookup_item
+const harness = await init(agent, { tools: inventory.tools });
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>适合</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>自己写 defineTool</td>
+<td>业务逻辑、内部 API</td>
+<td>最灵活，首选</td>
+</tr>
+<tr>
+<td>接 MCP 服务器</td>
+<td>现成生态工具</td>
+<td>省事，但多一跳网络</td>
+</tr>
+</tbody>
+</table>
+<p>工具讲透了。下一章讲"技能"和"子智能体"，让 Agent 既专业又会分工。</p>
+</article>
+<nav class="pager"><a class="pager-prev" href="../chapters/04.html">← 上一章</a><a class="pager-next" href="../chapters/06.html">下一章 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§04 Agent = 模型 + 马具：Harness 的五个零件 · Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home" href="../index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch" href="../chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch" href="../chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch" href="../chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch active" href="../chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch" href="../chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch" href="../chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch" href="../chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch" href="../chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch" href="../chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch" href="../chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch" href="../chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="../chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch" href="../chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch" href="../appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<div class="crumb">Part 2 · 核心能力</div>
+<h1 class="chapter-title">§04 Agent = 模型 + 马具：Harness 的五个零件</h1>
+<p class="chapter-sub">拆开 Harness 的五个零件：文件、工具、沙箱、会话、子智能体</p>
+<details class="toc-details"><summary>📑 本章目录</summary><div class="toc">
+<ul>
+<li><a href="#041-一个公式反复用">04.1 一个公式，反复用</a></li>
+<li><a href="#042-五个零件怎么装">04.2 五个零件怎么装</a></li>
+<li><a href="#043-两个模式别用错">04.3 两个模式，别用错</a></li>
+</ul>
+</div>
+</details>
+<article class="chapter-body">
+<h3 id="041-一个公式反复用">04.1 一个公式，反复用</h3>
+<p>我刚学 Flue 时，最懵的就是"马具里到底有啥"。翻完文档才懂，其实就五个零件。</p>
+<p>今天拆开讲。Flue 的马具有五个零件，各有各的活：</p>
+<table>
+<thead>
+<tr>
+<th>零件</th>
+<th>它干啥</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文件系统</td>
+<td>让 Agent 存东西</td>
+<td>员工的笔记本</td>
+</tr>
+<tr>
+<td>工具</td>
+<td>让 Agent 动手</td>
+<td>员工的软件</td>
+</tr>
+<tr>
+<td>沙箱</td>
+<td>让 Agent 安全地动</td>
+<td>员工的工作间</td>
+</tr>
+<tr>
+<td>会话</td>
+<td>让 Agent 记得上下文</td>
+<td>员工的记忆</td>
+</tr>
+<tr>
+<td>子智能体</td>
+<td>让 Agent 会分工</td>
+<td>员工的同事</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-highlight">
+<p><strong>重点看</strong>：最右一列"类比"。</p>
+<p>把 Agent 当成一个被你雇来的员工。你不用教他每步点哪，你给他工具和工位。</p>
+</blockquote>
+<h3 id="042-五个零件怎么装">04.2 五个零件怎么装</h3>
+<p>它们都写在一个 <code>createAgent(() =&gt; ({...}))</code> 里。看这个真实例子：</p>
+<pre><code class="language-typescript">// src/agents/repository-reviewer.ts
+import { createAgent } from '@flue/runtime';
+import { local } from '@flue/runtime/node';
+import reviewChecklist from '../skills/review-checklist/SKILL.md' with { type: 'skill' };
+import { repositoryTools } from '../shared/repository-tools.ts';
+
+export default createAgent(() =&gt; ({
+  model: 'anthropic/claude-sonnet-4-6',
+  instructions: 'Review the change and report only evidence-based findings.',
+  cwd: '/srv/repositories/catalog-service', // 工作目录
+  tools: repositoryTools,                  // 零件：工具
+  skills: [reviewChecklist],               // 零件：技能
+  sandbox: local(),                        // 零件：沙箱
+}));
+</code></pre>
+<p>这五行，就是给员工配齐了脑子、指令、工具、技能、工位。</p>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：写 Agent 更像"搭环境"而不是"写代码"。</p>
+<p>我最初总想写逻辑。后来明白，难的不是代码，是"给 Agent 什么样的上下文"。上下文给对了，它自己干得比你写的还好。</p>
+</blockquote>
+<h3 id="043-两个模式别用错">04.3 两个模式，别用错</h3>
+<p>Flue 有<strong>两种 Agent 模式</strong>，用错会报错。这个坑我踩过，单独提一下：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>用途</th>
+<th>怎么写</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>交互式 Agent</td>
+<td>网页聊天、SSE、WebSocket</td>
+<td>直接 <code>createAgent()</code>，导出 route/websocket</td>
+<td>持续对话选它</td>
+</tr>
+<tr>
+<td>工作流 Agent</td>
+<td><code>flue run</code> 一次性任务</td>
+<td>handler 里 <code>createAgent()</code> 再 <code>init()</code></td>
+<td>干完即走选它</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-suggestion">
+<p><strong>核心建议</strong>：长聊用交互式，干完就走用工作流。</p>
+<p>分不清时，问自己：这个活要持续对话吗？要，就是 Agent；不要，就是工作流（§08）。</p>
+</blockquote>
+<p>零件讲完了。下一章，先把"工具"这个最关键的零件讲透。</p>
+</article>
+<nav class="pager"><a class="pager-prev" href="../chapters/03.html">← 上一章</a><a class="pager-next" href="../chapters/05.html">下一章 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

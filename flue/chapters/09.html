@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§09 路由与安全：把 Agent 接到你的服务里 · Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home" href="../index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch" href="../chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch" href="../chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch" href="../chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch" href="../chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch" href="../chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch" href="../chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch" href="../chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch" href="../chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch active" href="../chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch" href="../chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch" href="../chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="../chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch" href="../chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch" href="../appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<div class="crumb">Part 3 · 进阶实战</div>
+<h1 class="chapter-title">§09 路由与安全：把 Agent 接到你的服务里</h1>
+<p class="chapter-sub">app.ts + 鉴权中间件，把 Agent 安全接进你的服务</p>
+<details class="toc-details"><summary>📑 本章目录</summary><div class="toc">
+<ul>
+<li><a href="#091-没加鉴权被人刷了">09.1 没加鉴权，被人刷了</a></li>
+<li><a href="#092-appts你的-hono-应用">09.2 app.ts：你的 Hono 应用</a></li>
+<li><a href="#093-暴露哪种传输你自己定">09.3 暴露哪种传输，你自己定</a></li>
+<li><a href="#094-异步事件用-dispatch">09.4 异步事件用 dispatch</a></li>
+</ul>
+</div>
+</details>
+<article class="chapter-body">
+<h3 id="091-没加鉴权被人刷了">09.1 没加鉴权，被人刷了</h3>
+<p>去年一个项目，Agent 直接暴露在公网，没加鉴权。一周被刷掉 200 刀 API 费。</p>
+<p>Agent 写好了，不能谁都能调。这章讲怎么把它接进你的服务，并守好门。</p>
+<h3 id="092-appts你的-hono-应用">09.2 app.ts：你的 Hono 应用</h3>
+<p><code>src/app.ts</code> 是可选的入口。它本质是个 <a href="https://hono.dev/">Hono</a> 应用。你把自己的路由、中间件和 Flue 拼一起。</p>
+<pre><code class="language-typescript">// src/app.ts
+import { flue } from '@flue/runtime/routing';
+import { Hono, type MiddlewareHandler } from 'hono';
+import { authenticate } from './auth.ts';
+
+// 这行是关键：先验证用户
+const requireUser: MiddlewareHandler = async (c, next) =&gt; {
+  const user = await authenticate(c.req.raw);
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  await next();
+};
+
+const app = new Hono();
+app.get('/health', (c) =&gt; c.json({ ok: true }));
+app.use('/agents/*', requireUser);     // 给 Agent 路由加锁
+app.use('/workflows/*', requireUser);
+app.route('/', flue());                // 挂载 Flue
+export default app;
+</code></pre>
+<h3 id="093-暴露哪种传输你自己定">09.3 暴露哪种传输，你自己定</h3>
+<p>每个 Agent 文件用导出决定"怎么被访问"：</p>
+<table>
+<thead>
+<tr>
+<th>导出</th>
+<th>暴露方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>route</code></td>
+<td><code>POST /agents/名/:id</code> 的 HTTP</td>
+</tr>
+<tr>
+<td><code>websocket</code></td>
+<td><code>GET /agents/名/:id</code> 的 WebSocket</td>
+</tr>
+<tr>
+<td>都不导</td>
+<td>只通过 <code>dispatch()</code> 内部调用</td>
+</tr>
+</tbody>
+</table>
+<p>只接 webhook、不对外暴露的 Agent，两个都不用导。安全。</p>
+<h3 id="094-异步事件用-dispatch">09.4 异步事件用 dispatch</h3>
+<p>聊天平台、队列消息，用 <code>dispatch</code> 异步喂给 Agent：</p>
+<pre><code class="language-typescript">app.post('/webhooks/support-comments', async (c) =&gt; {
+  const event = await verifySupportWebhook(c.req.raw);
+  // 这行是关键：异步投递，不等回复
+  const receipt = await dispatch(supportAssistant, {
+    id: event.ticketId,
+    session: 'customer-follow-up',
+    input: { type: 'support.comment.created', text: event.text },
+  });
+  return c.json(receipt, 202);
+});
+</code></pre>
+<blockquote class="callout callout-experience">
+<p><strong>注意</strong>：provider 注册只在 <code>app.ts</code> 有效。</p>
+<p>这是 §07 提过的坑，在路由里再强调一次：<code>registerProvider</code> 放 Agent 文件里会被丢弃。所有顶层副作用，都进 <code>app.ts</code>。</p>
+<p><strong>标叔的经验</strong>：鉴权别只挂在 Agent 上。</p>
+<p>我吃过亏，只在 Agent 的 <code>route</code> 里校验，结果工作流路由漏了。现在统一在 <code>app.ts</code> 用中间件锁 <code>/agents/*</code> 和 <code>/workflows/*</code>，一处管全站，省心。</p>
+</blockquote>
+<p>门守住了。下一章，让 Agent 的运行"看得见"。</p>
+</article>
+<nav class="pager"><a class="pager-prev" href="../chapters/08.html">← 上一章</a><a class="pager-next" href="../chapters/10.html">下一章 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

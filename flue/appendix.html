@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>附录 · Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home" href="index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch" href="chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch" href="chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch" href="chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch" href="chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch" href="chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch" href="chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch" href="chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch" href="chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch" href="chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch" href="chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch" href="chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch" href="chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch active" href="appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<div class="crumb">附录</div>
+<h1 class="chapter-title">附录：排查与速查</h1>
+<p class="chapter-sub">常见错误、核心 API 与六天阅读计划，一页速查</p>
+<article class="chapter-body">
+<h3 id="a-常见错误与排查速查表">A 常见错误与排查速查表</h3>
+<table>
+<thead>
+<tr>
+<th>报错/现象</th>
+<th>原因</th>
+<th>解法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>init() requires an agent created with createAgent(...)</code></td>
+<td>把配置对象直接丢给 <code>init()</code></td>
+<td>先 <code>createAgent()</code>，再 <code>init(agent)</code></td>
+</tr>
+<tr>
+<td><code>Invalid model "xxx"</code></td>
+<td>少了 <code>provider/</code> 前缀</td>
+<td>用 <code>deepseek/deepseek-v4-flash</code></td>
+</tr>
+<tr>
+<td><code>403 Forbidden</code>（Anthropic + DeepSeek）</td>
+<td>端点不兼容</td>
+<td>用内置 <code>deepseek</code> provider 或改 <code>baseUrl</code></td>
+</tr>
+<tr>
+<td><code>registerProvider</code> 不生效</td>
+<td>写在 Agent 文件里</td>
+<td>移到 <code>src/app.ts</code></td>
+</tr>
+<tr>
+<td><code>Agent "xxx" not found</code>（<code>flue run</code>）</td>
+<td>文件在 <code>workflows/</code></td>
+<td><code>flue run</code> 只认 <code>agents/</code></td>
+</tr>
+<tr>
+<td>dev 服务器老断连</td>
+<td>监听所有根文件</td>
+<td>用生产模式 <code>npm start</code></td>
+</tr>
+<tr>
+<td><code>TypeError: Cannot read properties of undefined</code></td>
+<td>valibot 0.x</td>
+<td>升到 <code>valibot@^1.0.0</code></td>
+</tr>
+<tr>
+<td><code>harness.fs is not a function</code></td>
+<td>Agent 里用了 <code>harness.fs</code></td>
+<td>改用 <code>harness.env.writeFile</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="b-核心-api-速查表">B 核心 API 速查表</h3>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>作用</th>
+<th>关键注意</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>createAgent(fn)</code></td>
+<td>定义 Agent</td>
+<td>返回函数，文件名即 Agent 名</td>
+</tr>
+<tr>
+<td><code>defineTool({...})</code></td>
+<td>定义工具</td>
+<td>参数用 <code>Type</code>，<code>execute</code> 返字符串</td>
+</tr>
+<tr>
+<td><code>defineAgentProfile({...})</code></td>
+<td>定义子智能体/档案</td>
+<td><code>name</code>、<code>instructions</code> 必填</td>
+</tr>
+<tr>
+<td><code>init(agent, opts?)</code></td>
+<td>初始化运行环境</td>
+<td>只接 <code>createAgent()</code> 结果</td>
+</tr>
+<tr>
+<td><code>session.prompt(msg, {result})</code></td>
+<td>发消息</td>
+<td>带 result 直接返数据</td>
+</tr>
+<tr>
+<td><code>session.task(msg, {agent})</code></td>
+<td>派给子智能体</td>
+<td>在独立子会话执行</td>
+</tr>
+<tr>
+<td><code>connectMcpServer(name, {...})</code></td>
+<td>接 MCP</td>
+<td>工具名前缀 <code>mcp__名__工具</code></td>
+</tr>
+<tr>
+<td><code>dispatch(agent, {id, input})</code></td>
+<td>异步投递</td>
+<td>不等回复，返回 receipt</td>
+</tr>
+<tr>
+<td><code>observe(fn)</code></td>
+<td>全局可观测</td>
+<td>写在 <code>app.ts</code></td>
+</tr>
+<tr>
+<td><code>local()</code></td>
+<td>本地沙箱</td>
+<td>从 <code>@flue/runtime/node</code> 导入</td>
+</tr>
+</tbody>
+</table>
+<h3 id="阅读指南">阅读指南</h3>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>章节</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 1</td>
+<td>§01-§03</td>
+<td>从零到第一个会干活的 Agent</td>
+</tr>
+<tr>
+<td>Day 2-3</td>
+<td>§04-§07</td>
+<td>吃透 Harness 五个零件与核心能力</td>
+</tr>
+<tr>
+<td>Day 4-5</td>
+<td>§08-§11</td>
+<td>工作流、路由安全、可观测、部署</td>
+</tr>
+<tr>
+<td>Day 6</td>
+<td>§12 + 附录</td>
+<td>思维转变，查错与速查</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-author">
+<p><strong>标叔出品</strong> | AI Native Coder · 独立开发者
+公众号「标叔」 
+代表作：github.com/liangdabiao</p>
+</blockquote>
+<h3 id="参考文档">参考文档：</h3>
+<p>https://mp.weixin.qq.com/s/-QaD5vDZ13v2NXf2rTR7zg?scene=1&amp;click_id=320</p>
+</article>
+<nav class="pager"><a class="pager-prev" href="chapters/13.html">← 上一章</a><span></span></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="assets/app.js"></script>
+</body>
+</html>

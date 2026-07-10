@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§07 沙箱与模型：Agent 的工作间和大脑 · Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home" href="../index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch" href="../chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch" href="../chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch" href="../chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch" href="../chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch" href="../chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch" href="../chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch active" href="../chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch" href="../chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch" href="../chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch" href="../chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch" href="../chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="../chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch" href="../chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch" href="../appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<div class="crumb">Part 2 · 核心能力</div>
+<h1 class="chapter-title">§07 沙箱与模型：Agent 的工作间和大脑</h1>
+<p class="chapter-sub">三种沙箱怎么选，模型与 provider 的坑</p>
+<details class="toc-details"><summary>📑 本章目录</summary><div class="toc">
+<ul>
+<li><a href="#071-模型是大脑沙箱是工作间">07.1 模型是大脑，沙箱是工作间</a></li>
+<li><a href="#072-沙箱三选一">07.2 沙箱三选一</a></li>
+<li><a href="#073-模型用字符串选大脑">07.3 模型：用字符串选大脑</a></li>
+<li><a href="#074-关于-deepseek-的一个坑">07.4 关于 DeepSeek 的一个坑</a></li>
+</ul>
+</div>
+</details>
+<article class="chapter-body">
+<h3 id="071-模型是大脑沙箱是工作间">07.1 模型是大脑，沙箱是工作间</h3>
+<p>我第一次用 <code>local()</code> 沙箱，Agent 直接把我主机文件改了。吓一跳。才认真研究沙箱。</p>
+<p>选错了，要么跑不动（沙箱太弱），要么不安全（沙箱太宽）。这章把这两个旋钮讲清。</p>
+<h3 id="072-沙箱三选一">07.2 沙箱三选一</h3>
+<table>
+<thead>
+<tr>
+<th>沙箱</th>
+<th>用途</th>
+<th>隔离性</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>虚拟沙箱（默认）</td>
+<td>轻量工作，内存文件系统</td>
+<td>中，非网络隔离</td>
+<td>起步首选，够用</td>
+</tr>
+<tr>
+<td>local()</td>
+<td>直接碰主机文件/命令</td>
+<td>无隔离</td>
+<td>只信主机时才用</td>
+</tr>
+<tr>
+<td>远程沙箱</td>
+<td>不信任/多租户任务</td>
+<td>强</td>
+<td>上云或跑代码时用</td>
+</tr>
+</tbody>
+</table>
+<p>虚拟沙箱是默认的，无需配置。一个工作流能先塞文件进去，再让 Agent 处理：</p>
+<pre><code class="language-typescript">const harness = await init(reviewer);
+// 这行是关键：应用代码先放好输入文件
+await harness.fs.writeFile('document.md', payload.document);
+const session = await harness.session();
+await session.prompt('Review document.md and write findings to review.md.');
+// 收结果
+return { review: await harness.fs.readFile('review.md') };
+</code></pre>
+<blockquote class="callout callout-warning">
+<p><strong>注意</strong>：<code>harness.fs</code> 在工作流里用，<code>harness.env</code> 在 Agent 里用。</p>
+<p>没有 <code>harness.fs</code> 这个 API。在 Agent 会话里读写，走 <code>harness.env.writeFile</code>。别记反。</p>
+</blockquote>
+<h3 id="073-模型用字符串选大脑">07.3 模型：用字符串选大脑</h3>
+<p>模型用 <code>provider/model-id</code> 格式指定。Flue 内置多家：</p>
+<pre><code class="language-typescript">createAgent(() =&gt; ({
+  model: 'anthropic/claude-sonnet-4-6',  // Anthropic
+  // model: 'deepseek/deepseek-v4-flash', // DeepSeek，内置，免注册
+  thinkingLevel: 'high',                 // 推理强度：off→xhigh
+}));
+</code></pre>
+<p><code>thinkingLevel</code> 控制模型花多少心思。默认 <code>medium</code>。简单活设 <code>low</code> 省钱。</p>
+<h3 id="074-关于-deepseek-的一个坑">07.4 关于 DeepSeek 的一个坑</h3>
+<p>DeepSeek 是<strong>内置</strong> provider。设个环境变量就能用，不用注册。</p>
+<p>但有人想把 DeepSeek 当 Anthropic 用，走它的 Anthropic 兼容端点。这时要改 <code>baseUrl</code>：</p>
+<pre><code class="language-bash"># .env 里设这两个，让 anthropic provider 指向 DeepSeek
+ANTHROPIC_API_KEY=sk-your-deepseek-key
+ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
+</code></pre>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：<code>registerProvider</code> 必须写在 <code>app.ts</code>。</p>
+<p>我把它写在 Agent 文件里，死活不生效。后来才懂：Flue 构建只抽取 handler 函数，顶层副作用会被丢掉。<code>app.ts</code> 才是注册 provider 的地方。</p>
+</blockquote>
+<p>工作间和大脑都讲清了。下一 Part 进入进阶实战。</p>
+</article>
+<nav class="pager"><a class="pager-prev" href="../chapters/06.html">← 上一章</a><a class="pager-next" href="../chapters/08.html">下一章 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

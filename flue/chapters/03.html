@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§03 第一个真实项目：会调 API 的搜索助手 · Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home" href="../index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch" href="../chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch" href="../chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch active" href="../chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch" href="../chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch" href="../chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch" href="../chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch" href="../chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch" href="../chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch" href="../chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch" href="../chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch" href="../chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="../chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch" href="../chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch" href="../appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<div class="crumb">Part 1 · 起步</div>
+<h1 class="chapter-title">§03 第一个真实项目：会调 API 的搜索助手</h1>
+<p class="chapter-sub">给 Agent 装上"手"和"工作间"，让它真的去调 API</p>
+<details class="toc-details"><summary>📑 本章目录</summary><div class="toc">
+<ul>
+<li><a href="#031-项目需求">03.1 项目需求</a></li>
+<li><a href="#032-思路先想清楚三件事">03.2 思路：先想清楚三件事</a></li>
+<li><a href="#033-写工具和-agent">03.3 写工具和 Agent</a></li>
+<li><a href="#034-让它真正联网">03.4 让它真正联网</a></li>
+<li><a href="#035-回顾">03.5 回顾</a></li>
+</ul>
+</div>
+</details>
+<article class="chapter-body">
+<h3 id="031-项目需求">03.1 项目需求</h3>
+<p>去年帮朋友搭完客服机器人后，我想做个能查热搜的小助手。光会讲笑话不够，得让它真的去调接口。</p>
+<p>需求很具体：用户说"微博热搜 Top3"，Agent 调接口、拿数据、整理成列表。</p>
+<p>这就是 Agent 和"聊天机器人"的分水岭——<strong>它会动手调外部服务</strong>。</p>
+<h3 id="032-思路先想清楚三件事">03.2 思路：先想清楚三件事</h3>
+<p>动手前，先定三件事：</p>
+<ul>
+<li>用什么模型？（我用 deepseek，便宜又快）</li>
+<li>给它什么工具？（一个查热搜的 HTTP 工具）</li>
+<li>在哪运行？（<code>local()</code> 沙箱，能直接发请求）</li>
+</ul>
+<p>类比一下：Agent 是员工，工具是他的办公软件。你不写他每一步点哪，只把软件装好。</p>
+<h3 id="033-写工具和-agent">03.3 写工具和 Agent</h3>
+<pre><code class="language-typescript">// src/agents/social-search.ts
+import { createAgent, defineTool, Type, local } from '@flue/runtime';
+import type { AgentRouteHandler, AgentWebSocketHandler } from '@flue/runtime';
+
+// 定义一个工具：调外部 API
+const apiCall = defineTool({
+  name: 'api_call',
+  description: 'Call an external API',
+  parameters: Type.Object({
+    method: Type.Union([Type.Literal('GET'), Type.Literal('POST')]),
+    path: Type.String({ description: 'API path' }),
+  }),
+  execute: async ({ method, path }) =&gt; {
+    // 这行是关键：直接返回字符串给模型
+    return JSON.stringify({ method, path });
+  },
+});
+
+const agent = createAgent(() =&gt; ({
+  model: 'deepseek/deepseek-v4-flash',
+  instructions: 'You are a social media search assistant.',
+  sandbox: local(),          // 让它能碰主机网络
+  tools: [apiCall],
+}));
+
+// 这两个导出是 HTTP/WS 访问必须的
+export const route: AgentRouteHandler = agent.route;
+export const websocket: AgentWebSocketHandler = agent.websocket;
+export default agent;
+</code></pre>
+<p>预期结果：保存后，<code>flue dev</code> 启动，访问 <code>POST /agents/social-search/我的会话</code> 就能对话。</p>
+<blockquote class="callout callout-warning">
+<p><strong>注意</strong>：工具参数用 <code>Type</code>（TypeBox），不是 <code>valibot</code>。</p>
+<p>这是 Flue 一个反直觉点。工具用 Type，工作流的 <code>result</code> 才用 valibot。混用会报错。</p>
+</blockquote>
+<h3 id="034-让它真正联网">03.4 让它真正联网</h3>
+<p>上面 <code>apiCall</code> 我简化了。真实场景里，<code>execute</code> 直接用 Node 的 <code>https</code> 发请求：</p>
+<pre><code class="language-typescript">import https from 'node:https';
+
+execute: async ({ path }) =&gt; {
+  // 直接调 Node API，不用沙箱里的 shell
+  return new Promise((resolve) =&gt; {
+    const req = https.request(
+      { hostname: 'api.example.com', path },
+      (res) =&gt; {
+        let data = '';
+        res.on('data', (c) =&gt; (data += c));
+        res.on('end', () =&gt; resolve(data));
+      },
+    );
+    req.end();
+  });
+}
+</code></pre>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：工具的 <code>execute</code> 就是普通 Node 函数。</p>
+<p>我一开始以为要在沙箱里跑，绕了弯路。其实它跑在 Node 运行时，啥 Node API 都能用：<code>fs</code>、<code>https</code>、<code>child_process</code>。这点自由度很大。</p>
+</blockquote>
+<h3 id="035-回顾">03.5 回顾</h3>
+<p>我们给 Agent 装了"手"（工具）和"工作间"（沙箱）。它能调外部 API 了。</p>
+<blockquote class="callout callout-suggestion">
+<p><strong>核心建议</strong>：第一个项目，工具越简单越好。</p>
+<p>别一上来搞 MCP、多工具联动。先跑通"一个工具 + 一次调用"，建立手感最重要。</p>
+</blockquote>
+<p>会动手了。下一 Part，我拆开 Harness 的五个零件，让你真正看懂 Flue。</p>
+</article>
+<nav class="pager"><a class="pager-prev" href="../chapters/02.html">← 上一章</a><a class="pager-next" href="../chapters/04.html">下一章 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§10 流式输出与可观测：让 Agent 的运行看得见 · Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home" href="../index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch" href="../chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch" href="../chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch" href="../chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch" href="../chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch" href="../chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch" href="../chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch" href="../chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch" href="../chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch" href="../chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch active" href="../chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch" href="../chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="../chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch" href="../chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch" href="../appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<div class="crumb">Part 3 · 进阶实战</div>
+<h1 class="chapter-title">§10 流式输出与可观测：让 Agent 的运行看得见</h1>
+<p class="chapter-sub">SSE 流式输出与 observe 全局可观测</p>
+<details class="toc-details"><summary>📑 本章目录</summary><div class="toc">
+<ul>
+<li><a href="#101-用户盯着空白屏以为卡了">10.1 用户盯着空白屏，以为卡了</a></li>
+<li><a href="#102-sse把思考过程推给前端">10.2 SSE：把思考过程推给前端</a></li>
+<li><a href="#103-可观测用-observe-看全局">10.3 可观测：用 observe 看全局</a></li>
+</ul>
+</div>
+</details>
+<article class="chapter-body">
+<h3 id="101-用户盯着空白屏以为卡了">10.1 用户盯着空白屏，以为卡了</h3>
+<p>我第一次上线 Agent，用户说"它卡了"。其实它在思考。我才明白要流式输出。</p>
+<p>Agent 思考要几秒。你只回最终答案，用户面对空白，会以为挂了。</p>
+<p>解决两件事：<strong>流式输出</strong>让用户看到过程，<strong>可观测</strong>让你看到运行。</p>
+<h3 id="102-sse把思考过程推给前端">10.2 SSE：把思考过程推给前端</h3>
+<p>加一个 <code>Accept: text/event-stream</code> 头，就能收到实时事件：</p>
+<pre><code class="language-bash">curl -N -X POST http://localhost:3583/agents/social-search/my-session \
+  -H &quot;Content-Type: application/json&quot; \
+  -H &quot;Accept: text/event-stream&quot; \
+  -d '{&quot;message&quot;:&quot;微博热搜Top3&quot;}'
+</code></pre>
+<p>事件类型一览：</p>
+<table>
+<thead>
+<tr>
+<th>事件</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>thinking_start</code> / <code>thinking_delta</code> / <code>thinking_end</code></td>
+<td>Agent 推理过程</td>
+</tr>
+<tr>
+<td><code>tool_execution_start</code> / <code>tool_execution_end</code></td>
+<td>工具开始/结束</td>
+</tr>
+<tr>
+<td><code>text_delta</code></td>
+<td>最终回答的片段流</td>
+</tr>
+<tr>
+<td><code>agent_end</code></td>
+<td>Agent 结束</td>
+</tr>
+</tbody>
+</table>
+<p>每个事件都是 <code>data: &lt;JSON&gt;\n\n</code> 格式。前端边收边渲染，体验立刻不一样。</p>
+<h3 id="103-可观测用-observe-看全局">10.3 可观测：用 observe 看全局</h3>
+<p>上线后，你要知道"哪个工作流慢了、哪个失败了"。在 <code>app.ts</code> 注册观察者：</p>
+<pre><code class="language-typescript">import { observe } from '@flue/runtime';
+
+observe((event) =&gt; {
+  // 这行是关键：慢操作告警
+  if (event.type === 'operation' &amp;&amp; event.durationMs &gt; 5000) {
+    console.warn('Slow operation', event.operationKind, event.durationMs);
+  }
+});
+</code></pre>
+<p>工作流内部还能写结构化日志：</p>
+<pre><code class="language-typescript">export async function run({ init, log, payload }: FlueContext&lt;{ text: string }&gt;) {
+  log.info('Summarization requested', { characters: payload.text.length });
+  // ... 干活 ...
+  log.info('Completed', { tokens: response.usage.totalTokens });
+}
+</code></pre>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：先盯"结果类"信号。</p>
+<p>失败的工作流、慢操作、模型用量，这三样先接上。嵌套的工具报错别全都当事故，Agent 常常自己恢复了，全告警会吵死人。</p>
+</blockquote>
+<p>看得见运行了。下一章，把它部署到任何地方。</p>
+</article>
+<nav class="pager"><a class="pager-prev" href="../chapters/09.html">← 上一章</a><a class="pager-next" href="../chapters/11.html">下一章 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

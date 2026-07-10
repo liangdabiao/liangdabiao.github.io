@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§08 工作流（Workflows）：一次性的确定性任务 · Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home" href="../index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch" href="../chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch" href="../chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch" href="../chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch" href="../chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch" href="../chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch" href="../chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch" href="../chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch active" href="../chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch" href="../chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch" href="../chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch" href="../chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="../chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch" href="../chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch" href="../appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<div class="crumb">Part 3 · 进阶实战</div>
+<h1 class="chapter-title">§08 工作流（Workflows）：一次性的确定性任务</h1>
+<p class="chapter-sub">flue run 与一次性确定性任务，以及结构化结果</p>
+<details class="toc-details"><summary>📑 本章目录</summary><div class="toc">
+<ul>
+<li><a href="#081-不是所有事都要长聊">08.1 不是所有事都要长聊</a></li>
+<li><a href="#082-agent-还是工作流">08.2 Agent 还是工作流？</a></li>
+<li><a href="#083-写一个工作流">08.3 写一个工作流</a></li>
+<li><a href="#084-结构化结果别让模型自由发挥">08.4 结构化结果，别让模型自由发挥</a></li>
+</ul>
+</div>
+</details>
+<article class="chapter-body">
+<h3 id="081-不是所有事都要长聊">08.1 不是所有事都要长聊</h3>
+<p>上周我要批量总结 50 篇文档。开 50 个对话太傻。用工作流，一条命令全搞定。</p>
+<p>有些活，干完就走。比如：收到一篇文档，总结它；收到一张工单，分类它。</p>
+<p>你不想为它开一个"持续对话"。这就是<strong>工作流</strong>。</p>
+<h3 id="082-agent-还是工作流">08.2 Agent 还是工作流？</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>交互式 Agent</th>
+<th>工作流 Workflow</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对话</td>
+<td>持续多轮</td>
+<td>一次性，干完即走</td>
+<td>多轮选 Agent</td>
+</tr>
+<tr>
+<td>触发</td>
+<td>HTTP/WS 实时</td>
+<td><code>flue run</code> 或 CI</td>
+<td>CI 选工作流</td>
+</tr>
+<tr>
+<td>适合</td>
+<td>客服、聊天</td>
+<td>总结、分类、CI 任务</td>
+<td>看是否长聊</td>
+</tr>
+<tr>
+<td>有 runId</td>
+<td>否</td>
+<td>是，可查运行记录</td>
+<td>要查账用工作流</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-highlight">
+<p><strong>重点看</strong>：最后一行"有 runId"。</p>
+<p>工作流每次执行都有独立 <code>runId</code>，能查历史、查事件。Agent 的对话没有这个。</p>
+</blockquote>
+<h3 id="083-写一个工作流">08.3 写一个工作流</h3>
+<pre><code class="language-typescript">// src/workflows/summarize.ts
+import { createAgent, type FlueContext } from '@flue/runtime';
+
+const summarizer = createAgent(() =&gt; ({
+  model: 'anthropic/claude-haiku-4-5',
+  instructions: 'Summarize the supplied document clearly.',
+}));
+
+// 文件名就是工作流名：summarize
+export async function run({ init, payload }: FlueContext&lt;{ text: string }&gt;) {
+  const harness = await init(summarizer);  // 这行初始化
+  const session = await harness.session();
+  const response = await session.prompt(payload.text);
+  return { summary: response.text };        // 返回值就是结果
+}
+</code></pre>
+<p>跑它：</p>
+<pre><code class="language-bash">pnpm exec flue run summarize --payload '{&quot;text&quot;:&quot;要总结的内容&quot;}'
+</code></pre>
+<h3 id="084-结构化结果别让模型自由发挥">08.4 结构化结果，别让模型自由发挥</h3>
+<p>工作流常被别的代码调用。你要的是字段，不是散文。用 <code>result</code> 要结构化数据：</p>
+<pre><code class="language-typescript">import * as v from 'valibot';
+const response = await session.prompt(payload.ticket, {
+  result: v.object({
+    priority: v.picklist(['low', 'medium', 'high']),
+    summary: v.string(),
+  }),
+});
+// 注意：直接拿数据，不是 response.data
+return response.data;
+</code></pre>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：<code>init()</code> 只要 <code>createAgent()</code> 的结果。</p>
+<p>我最常报的错就是 <code>init() requires an agent created with createAgent(...)</code>。把配置对象直接丢给 <code>init</code>，不行。必须 <code>const agent = createAgent(...); init(agent)</code>。这条记死。</p>
+</blockquote>
+<p>工作流讲完。下一章，把 Agent 接到你自己的服务里，并加上鉴权。</p>
+</article>
+<nav class="pager"><a class="pager-prev" href="../chapters/07.html">← 上一章</a><a class="pager-next" href="../chapters/09.html">下一章 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

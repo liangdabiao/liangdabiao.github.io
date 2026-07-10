@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§06 技能与子智能体：让 Agent 既专业又会分工 · Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home" href="../index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch" href="../chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch" href="../chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch" href="../chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch" href="../chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch" href="../chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch active" href="../chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch" href="../chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch" href="../chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch" href="../chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch" href="../chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch" href="../chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="../chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch" href="../chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch" href="../appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<div class="crumb">Part 2 · 核心能力</div>
+<h1 class="chapter-title">§06 技能与子智能体：让 Agent 既专业又会分工</h1>
+<p class="chapter-sub">Skills 操作手册 vs Subagents 同事，何时用哪个</p>
+<details class="toc-details"><summary>📑 本章目录</summary><div class="toc">
+<ul>
+<li><a href="#061-一个人干所有活会累">06.1 一个人干所有活，会累</a></li>
+<li><a href="#062-技能skills可复用的操作手册">06.2 技能（Skills）：可复用的"操作手册"</a></li>
+<li><a href="#063-子智能体subagents会分工的同事">06.3 子智能体（Subagents）：会分工的同事</a></li>
+<li><a href="#064-技能-vs-子智能体">06.4 技能 vs 子智能体</a></li>
+</ul>
+</div>
+</details>
+<article class="chapter-body">
+<h3 id="061-一个人干所有活会累">06.1 一个人干所有活，会累</h3>
+<p>上个月我做客服 Agent，把查库存、写工单全塞一个 prompt。它开始胡说。我才懂要分工。</p>
+<p>Agent 也一样。一个客服 Agent，又要查库存、又要写工单、又要判断情绪，全塞一个 prompt，它会乱。</p>
+<p>Flue 给两种解法：<strong>技能</strong>让它变专业，<strong>子智能体</strong>让它会分工。</p>
+<h3 id="062-技能skills可复用的操作手册">06.2 技能（Skills）：可复用的"操作手册"</h3>
+<p>技能是 Agent Skills 规范：一批指令和参考文件，Agent 按需加载。它<strong>不执行代码</strong>，只指导怎么干。</p>
+<pre><code class="language-typescript">// 用 skill 导入属性加载 SKILL.md
+import review from '../skills/review/SKILL.md' with { type: 'skill' };
+import triage from '../skills/triage/SKILL.md' with { type: 'skill' };
+
+export default createAgent(() =&gt; ({
+  model: 'anthropic/claude-sonnet-4-6',
+  skills: [review, triage],  // 两个技能随时可用
+}));
+</code></pre>
+<p>技能也能放在沙箱里，Agent 自己发现：<code>&lt;cwd&gt;/.agents/skills/review/</code>。</p>
+<blockquote class="callout callout-warning">
+<p><strong>注意</strong>：技能目录别放密钥。</p>
+<p>Flue 打包技能时会拒绝常见敏感文件。凭证走 <code>env</code>，别塞进 SKILL.md。</p>
+</blockquote>
+<h3 id="063-子智能体subagents会分工的同事">06.3 子智能体（Subagents）：会分工的同事</h3>
+<p>子智能体是一个"专家档案"，父 Agent 能把活派给它。</p>
+<pre><code class="language-typescript">// src/agents/policy-assistant.ts
+import { createAgent, defineAgentProfile } from '@flue/runtime';
+import { local } from '@flue/runtime/node';
+
+// 定义一个专家：政策检索员
+const policyResearcher = defineAgentProfile({
+  name: 'policy_researcher',
+  description: 'Finds relevant policy text and quotes it.',
+  instructions: 'Read the policy workspace and return quoted passages.',
+});
+
+export default createAgent(() =&gt; ({
+  model: 'anthropic/claude-sonnet-4-6',
+  instructions: 'Delegate source lookup to policy_researcher first.',
+  sandbox: local(),
+  cwd: '/srv/company-policies',
+  subagents: [policyResearcher],  // 挂上专家
+}));
+</code></pre>
+<p>子智能体在<strong>独立的子会话</strong>里干活，不污染父 Agent 的对话历史。</p>
+<h3 id="064-技能-vs-子智能体">06.4 技能 vs 子智能体</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>技能（Skill）</th>
+<th>子智能体（Subagent）</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本质是</td>
+<td>指令/手册</td>
+<td>另一个 Agent</td>
+<td>轻的用技能</td>
+</tr>
+<tr>
+<td>是否执行代码</td>
+<td>否</td>
+<td>是，有自己的会话</td>
+<td>重的派子体</td>
+</tr>
+<tr>
+<td>适合</td>
+<td>复用流程、规范</td>
+<td>委派研究、分类</td>
+<td>看是否独立</td>
+</tr>
+<tr>
+<td>调用方式</td>
+<td>模型自动或 <code>session.skill()</code></td>
+<td>模型自动或 <code>session.task()</code></td>
+<td>都不用手动</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：先技能，后子智能体。</p>
+<p>我一开始啥都用子智能体，结果开销大、调试难。能写成"操作手册"的，用技能更轻。真要独立研究的，才派子智能体。</p>
+</blockquote>
+<p>分工讲完。下一章讲"沙箱"和"模型"——Agent 的工作间和大脑。</p>
+</article>
+<nav class="pager"><a class="pager-prev" href="../chapters/05.html">← 上一章</a><a class="pager-next" href="../chapters/07.html">下一章 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>

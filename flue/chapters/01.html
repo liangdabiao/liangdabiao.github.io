@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§01 为什么是 Flue：Agent 是被"套上马具"的模型 · Flue 框架从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  <span class="topbar-title">Flue 框架从入门到精通</span>
+  <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌙</button>
+</div>
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <a class="nav-brand" href="../index.html">Flue 框架<br>从入门到精通</a>
+  <a class="nav-home" href="../index.html">🏠 总览 / 阅读指南</a>
+  <div class="nav-part">Part 1 · 起步</div>
+<a class="nav-ch active" href="../chapters/01.html">§01 为什么是 Flue：Agent 是被"套上马具"的模型</a>
+<a class="nav-ch" href="../chapters/02.html">§02 十分钟跑通你的第一个 Agent</a>
+<a class="nav-ch" href="../chapters/03.html">§03 第一个真实项目：会调 API 的搜索助手</a>
+<div class="nav-part">Part 2 · 核心能力</div>
+<a class="nav-ch" href="../chapters/04.html">§04 Agent = 模型 + 马具：Harness 的五个零件</a>
+<a class="nav-ch" href="../chapters/05.html">§05 工具（Tools）：给 Agent 一双会干活的手</a>
+<a class="nav-ch" href="../chapters/06.html">§06 技能与子智能体：让 Agent 既专业又会分工</a>
+<a class="nav-ch" href="../chapters/07.html">§07 沙箱与模型：Agent 的工作间和大脑</a>
+<div class="nav-part">Part 3 · 进阶实战</div>
+<a class="nav-ch" href="../chapters/08.html">§08 工作流（Workflows）：一次性的确定性任务</a>
+<a class="nav-ch" href="../chapters/09.html">§09 路由与安全：把 Agent 接到你的服务里</a>
+<a class="nav-ch" href="../chapters/10.html">§10 流式输出与可观测：让 Agent 的运行看得见</a>
+<a class="nav-ch" href="../chapters/11.html">§11 部署到任何地方：Node、Cloudflare 与 CI</a>
+<div class="nav-part">Part 4 · 收束与选型</div>
+<a class="nav-ch" href="../chapters/12.html">§12 思维转变：你不是写代码的人，你是搭舞台的人</a>
+<a class="nav-ch" href="../chapters/13.html">§13 Flue vs Claude Agent SDK：怎么选</a>
+
+  <div class="nav-part">附录</div>
+  <a class="nav-ch" href="../appendix.html">📎 附录：排查与速查</a>
+</aside>
+<main class="content">
+<div class="crumb">Part 1 · 起步</div>
+<h1 class="chapter-title">§01 为什么是 Flue：Agent 是被"套上马具"的模型</h1>
+<p class="chapter-sub">用公式 Agent = 模型 + Harness，讲清 Flue 的底层哲学</p>
+<details class="toc-details"><summary>📑 本章目录</summary><div class="toc">
+<ul>
+<li><a href="#011-我踩过的最疼的坑">01.1 我踩过的最疼的坑</a></li>
+<li><a href="#012-旧方案-vs-新方案">01.2 旧方案 vs 新方案</a></li>
+<li><a href="#013-一个公式讲清-flue">01.3 一个公式讲清 Flue</a></li>
+<li><a href="#014-适合谁不适合谁">01.4 适合谁，不适合谁</a></li>
+</ul>
+</div>
+</details>
+<article class="chapter-body">
+<h3 id="011-我踩过的最疼的坑">01.1 我踩过的最疼的坑</h3>
+<p>去年我帮一个朋友搭客服机器人。他用官方 SDK 直接调模型 API，把"先查库存、再判断意图、最后回复"全写死成代码。</p>
+<p>写了 800 行流程控制。改一个需求，全要重写。</p>
+<p>模型越强，这套写死的逻辑越脆。现实一变，脚本就崩。</p>
+<blockquote class="callout callout-experience">
+<p><strong>标叔的经验</strong>：手写流程只适合窄而固定的活。</p>
+<p>我做过一个文档分类脚本，写死 5 步。上线第 3 天，用户传了个格式异常的文档，整个流程报错。模型其实能处理，但被我的脚本卡死了。</p>
+</blockquote>
+<h3 id="012-旧方案-vs-新方案">01.2 旧方案 vs 新方案</h3>
+<p>Flue 的思路完全相反。你不再写"怎么干"，而是给模型一个"环境"，让它自己找路。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>手写流程脚本</th>
+<th>Flue（Harness 驱动）</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>谁决定步骤</td>
+<td>你写死</td>
+<td>模型自己选</td>
+<td>让模型掌舵</td>
+</tr>
+<tr>
+<td>改需求成本</td>
+<td>重写流程</td>
+<td>改指令/工具</td>
+<td>Flue 省 10 倍</td>
+</tr>
+<tr>
+<td>抗意外能力</td>
+<td>弱，一变就崩</td>
+<td>强，模型能绕路</td>
+<td>现实不按脚本走</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>窄而固定</td>
+<td>开放、长尾</td>
+<td>看你的活儿</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-highlight">
+<p><strong>重点看</strong>：最后一列"标叔的结论"。</p>
+<p>这些数字背后的信号就一个：你越想让 Agent 干复杂活，越不能写死流程。</p>
+</blockquote>
+<h3 id="013-一个公式讲清-flue">01.3 一个公式讲清 Flue</h3>
+<p>先给结论：<strong>Agent = 模型 + 马具（Harness）</strong>。</p>
+<p>模型你熟。马具是啥？英文叫 harness，原意是"给马套上的挽具"。</p>
+<p>类比级联一下：</p>
+<ul>
+<li>模型是<strong>马的大脑</strong>。它只想事，不会动。</li>
+<li>马具是<strong>缰绳、鞍、眼罩</strong>。它决定马能去哪、能看啥、能拉啥。</li>
+<li>没有马具的马，是<strong>罐子里的大脑</strong>。再聪明，也动不了。</li>
+</ul>
+<p>Flue 就是那套马具。它用 TypeScript 写成，给你现成的：记忆、工具、技能、沙箱。</p>
+<blockquote class="callout callout-suggestion">
+<p><strong>核心建议</strong>：先把"模型"和"马具"分开想。</p>
+<p>很多人学 Agent 框架卡住，是因为把"模型能力"和"运行环境"混在一起。分开后，Flue 一切都顺了。</p>
+</blockquote>
+<h3 id="014-适合谁不适合谁">01.4 适合谁，不适合谁</h3>
+<ul>
+<li>你是 TypeScript 开发者，想用代码搭 Agent → <strong>适合</strong>。</li>
+<li>你要一个开箱即用的聊天界面 → 不太适合，Flue 是 headless（无界面）。</li>
+<li>你只想要一句话调模型 → 太重了，直接用 SDK 更轻。</li>
+</ul>
+<p>下一章，我带你 10 分钟跑通第一个 Agent。不讲虚的。</p>
+</article>
+<nav class="pager"><a class="pager-prev" href="../index.html">← 总览</a><a class="pager-next" href="../chapters/02.html">下一章 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>《Flue 框架从入门到精通》· 基于 Flue Agent Framework v0.9.1 · 内容改编自标叔著作</p>
+</footer>
+<script src="../assets/app.js"></script>
+</body>
+</html>
