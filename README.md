@@ -1,6 +1,6 @@
 # 标叔的 AI 教学站
 
-> 多个 AI 技术框架的「从入门到精通」教程合集 — 讲人话、能跑通、能上线。
+> 多个 AI 技术框架的「从入门到精通」教程合集 — 讲人话、能跑通、能上线。liangdabiao 的 agent 小册子，介绍我认识的各种有用agent ai技术. AI 技术框架教学站：阿里云百炼、LangGraph、Claude Agent SDK、OpenAI Agents SDK、DeepAgents、DeerFlow、Flue、Vercel Eve、Cloudflare Agents、EdgeOne Makers、Agent Skills 等多门课程，从入门到精通。
 
 ## 这是什么
 
@@ -12,18 +12,18 @@
 
 | 类别 | 课程 | 入口 |
 | --- | --- | --- |
-| 入门先行 | 真·AI Agent 小蓝书 | [`agent-action/index.html`](./agent-action/index.html) |
-| 入门先行 | 阿里云百炼 从入门到精通 | [`bailian/index.html`](./bailian/index.html) |
-| 入门先行 | LangGraph 从入门到精通 | [`langgraph/index.html`](./langgraph/index.html) |
-| 入门先行 | Agent Skills 从入门到精通 | [`skills-site/index.html`](./skills-site/index.html) |
-| Agent 框架 | Claude Agent SDK 从入门到精通 | [`Claude-Agent-SDK/index.html`](./Claude-Agent-SDK/index.html) |
-| Agent 框架 | DeepAgents 从入门到精通 | [`deepagents/index.html`](./deepagents/index.html) |
-| Agent 框架 | DeerFlow 2.0 从入门到精通 | [`deerflow/index.html`](./deerflow/index.html) |
-| Agent 框架 | Flue 框架从入门到精通 | [`flue/index.html`](./flue/index.html) |
-| Agent 框架 | OpenAI Agents SDK 从入门到精通 | [`openai-agent/index.html`](./openai-agent/index.html) |
-| Agent 框架 | Vercel Eve 从入门到精通 | [`Vercel-Eve/index.html`](./Vercel-Eve/index.html) |
-| Agent 部署 | Cloudflare Agents 从入门到精通 | [`Cloudflare-Agents/index.html`](./Cloudflare-Agents/index.html) |
-| Agent 部署 | EdgeOne Makers 从入门到精通 | [`edgeone/index.html`](./edgeone/index.html) |
+| 入门先行 | 真·AI Agent 小蓝书 | [`agent-action/AI-Agent-小蓝书.md`](./agent-action/AI-Agent-小蓝书.md) |
+| 入门先行 | 阿里云百炼 从入门到精通 | [`bailian/百炼AI服务从入门到精通.md`](./bailian/百炼AI服务从入门到精通.md) |
+| 入门先行 | LangGraph 从入门到精通 | [`langgraph/LangGraph从入门到精通.md`](./langgraph/LangGraph从入门到精通.md) |
+| 入门先行 | Agent Skills 从入门到精通 | [`skills-site/Agent Skills 从入门到精通.md`](./skills-site/Agent%20Skills%20从入门到精通.md) |
+| Agent 框架 | Claude Agent SDK 从入门到精通 | [`Claude-Agent-SDK/Claude-Agent-SDK-从入门到精通.md`](./Claude-Agent-SDK/Claude-Agent-SDK-从入门到精通.md) |
+| Agent 框架 | DeepAgents 从入门到精通 | [`deepagents/DeepAgents从入门到精通.md`](./deepagents/DeepAgents从入门到精通.md) |
+| Agent 框架 | DeerFlow 2.0 从入门到精通 | [`deerflow/DeerFlow从入门到精通.md`](./deerflow/DeerFlow从入门到精通.md) |
+| Agent 框架 | Flue 框架从入门到精通 | [`flue/Flue框架从入门到精通.md`](./flue/Flue框架从入门到精通.md) |
+| Agent 框架 | OpenAI Agents SDK 从入门到精通 | [`openai-agent/OpenAI Agents SDK 从入门到精通.md`](./openai-agent/OpenAI%20Agents%20SDK%20从入门到精通.md) |
+| Agent 框架 | Vercel Eve 从入门到精通 | [`Vercel-Eve/Vercel-Eve-从入门到精通.md`](./Vercel-Eve/Vercel-Eve-从入门到精通.md) |
+| Agent 部署 | Cloudflare Agents 从入门到精通 | [`Cloudflare-Agents/Cloudflare-Agents-从入门到精通.md`](./Cloudflare-Agents/Cloudflare-Agents-从入门到精通.md) |
+| Agent 部署 | EdgeOne Makers 从入门到精通 | [`edgeone/EdgeOne-Makers-从入门到精通.md`](./edgeone/EdgeOne-Makers-从入门到精通.md) |
 
 ## 怎么读
 

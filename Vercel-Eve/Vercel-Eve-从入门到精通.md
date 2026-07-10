@@ -10,7 +10,7 @@ Vercel's Agent Framework, Explained Like a Friend
 
 ---
 
-这本书用大白话讲清楚 Vercel Eve 是什么、为什么值得看、怎么上手、怎么进阶。我会用一个 SpringForAll 内容团队的真实例子，把它的全部能力串起来。
+这本书用大白话讲清楚 Vercel Eve 是什么、为什么值得看、怎么上手、怎么进阶。我会用一个 SpringXX内容团队的真实例子，把它的全部能力串起来。
 
 ---
 
@@ -435,7 +435,7 @@ Vercel Connect 负责 OAuth 授权、同意页和 token 刷新，模型不直接
 
 ### 09.1 我们要做成什么
 
-我有一个面向 Java 开发者的 SpringForAll 社区，一直没空维护。这一章用 Eve 从零搭一支 AI 内容团队：研究员、撰稿人、审核人，加一个当主编的主 Agent。
+我有一个面向 Java 开发者的 SpringXX社区，一直没空维护。这一章用 Eve 从零搭一支 AI 内容团队：研究员、撰稿人、审核人，加一个当主编的主 Agent。
 
 （这个例子改编自社区教程，已按 0.22.0 的 API 简化。）
 
