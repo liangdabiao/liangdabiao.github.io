@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§17 可观测与生产部署 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§17 可观测与生产部署</h2>
+<h3>可观测：LangSmith + Langfuse 双轨</h3>
+<p>DeerFlow 的追踪配置从「只支持 LangSmith」扩展成了<strong>多 provider</strong>。加了一个 tracing callback 工厂，按环境变量决定挂 0 个、1 个还是 2 个回调。</p>
+<p>关键行为：<strong>如果某个 provider 被显式启用但配置错了，模型创建阶段就直接报错</strong>，明确点名是哪个 provider。不会「静默没追踪」让你以为正常。</p>
+<h3>部署：Docker 一条龙</h3>
+<p>生产部署就是前面 §02 的 <code>make up</code> / <code>make down</code>，访问 <code>http://localhost:2026</code>。</p>
+<p>部署规模照这张表配（再贴一次，因为重要）：</p>
+<table>
+<thead>
+<tr>
+<th>目标</th>
+<th>起步</th>
+<th>推荐</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>长驻服务 <code>make up</code></td>
+<td>8C / 16G / 40G</td>
+<td>16C / 32G</td>
+</tr>
+</tbody>
+</table>
+<h3>数据库与配置</h3>
+<p><code>config.yaml</code> 里 <code>database.backend</code> 设 <code>sqlite</code> 或 <code>postgres</code>。它<strong>同时供 LangGraph checkpointer/store 和应用数据使用</strong>——一套库，别分开建。</p>
+<p>排障用 <code>make doctor</code> 和 <code>make support-bundle</code>（生成隐私安全的打包信息给社区求助）。</p>
+<p><strong>标叔的结论</strong>：DeerFlow 的「可观测」默认就接好了 LangSmith/Langfuse，你上生产前先把追踪 key 配上，不然出了问题只能盲调。数据库用 postgres 起，别拿 sqlite 扛并发——checkpointer 和 app 数据抢同一库，sqlite 会先跪。</p>
+<p>选型是读者最关心的。下一章横向比。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="16.html">← §16 上下文工程</a>
+  <a class="pager-btn" href="18.html">§18 选型对比 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

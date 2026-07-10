@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§18 选型对比 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§18 选型对比</h2>
+<p>市面上代理框架不少。我用事实（不是情怀）横向比一下 DeerFlow 2.0 和另外两个常被拿来比的。</p>
+<h3>DeerFlow vs deepagents</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>deepagents</th>
+<th>DeerFlow 2.0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>形态</td>
+<td>轻量 Python 库</td>
+<td>产品级服务栈</td>
+</tr>
+<tr>
+<td>编排内核</td>
+<td>各家（本书另一本讲过）</td>
+<td>LangGraph</td>
+</tr>
+<tr>
+<td>界面</td>
+<td>无，你自己接</td>
+<td>Web UI + TUI + IM</td>
+</tr>
+<tr>
+<td>定时任务</td>
+<td>无</td>
+<td>内置 MVP</td>
+</tr>
+<tr>
+<td>生成技能</td>
+<td>无</td>
+<td>图/视频/播客/音乐</td>
+</tr>
+<tr>
+<td>护栏</td>
+<td>看实现</td>
+<td>内置 Guardrail + 读写门</td>
+</tr>
+<tr>
+<td>模型</td>
+<td>看库</td>
+<td>模型中立，多家通吃</td>
+</tr>
+</tbody>
+</table>
+<p><strong>标叔的结论</strong>：deepagents 适合「我要在代码里嵌代理」；DeerFlow 适合「我要一个能直接给团队用的代理工作台」。需求决定选型，不是谁更先进。</p>
+<h3>DeerFlow vs Claude Agent SDK</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Claude Agent SDK</th>
+<th>DeerFlow 2.0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型绑定</td>
+<td>偏 Claude 生态</td>
+<td>模型中立</td>
+</tr>
+<tr>
+<td>多租户</td>
+<td>需自建</td>
+<td>内建 user 隔离 + owner 作用域</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>无</td>
+<td>内置定时任务</td>
+</tr>
+<tr>
+<td>终端</td>
+<td>有 CLI</td>
+<td>有 TUI（共享持久层）</td>
+</tr>
+<tr>
+<td>上层服务</td>
+<td>偏库/SDK</td>
+<td>完整服务栈</td>
+</tr>
+</tbody>
+</table>
+<p><strong>标叔的结论</strong>：如果你团队已经深度用 Claude、只要 SDK 接进去，Claude Agent SDK 顺。如果你要「模型随便换 + 多用户 + 调度 + 界面」一把梭，DeerFlow 更省事。</p>
+<h3>一句话总判断</h3>
+<p>DeerFlow 2.0 的定位是：<strong>在「纯库」和「纯SaaS」之间，给你一个能自托管、能改、能扩的开源超级代理产品</strong>。它重，但重得有道理。</p>
+<p>最后一章，把文档里那些真实的坑，集中交给你。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="17.html">← §17 可观测与生产部署</a>
+  <a class="pager-btn" href="19.html">§19 避坑指南 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

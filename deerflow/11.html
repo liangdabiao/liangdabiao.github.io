@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§11 人机协同 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§11 人机协同</h2>
+<p>DeerFlow 的代理不是闷头干。它会在关键节点停下来，找你确认。这就是 <strong>Human-in-the-loop（HITL）</strong>。</p>
+<h3>三种协同入口</h3>
+<ol>
+<li><strong><code>ask_clarification</code></strong>：需求模糊时反问。注意官方强调过——<strong>非内部调用方不能剥离澄清请求</strong>。也就是说，你接 DeerFlow 做自己产品时，不能偷偷把「问用户」这一步删掉，否则代理会瞎猜。</li>
+<li><strong>Session Goals</strong>：给一次会话设目标，让代理知道「这次要做到哪」。</li>
+<li><strong>手动上下文压缩（Manual Context Compaction）</strong>：你主动触发压缩，控制上下文体积。</li>
+</ol>
+<h3>协同背后是归因</h3>
+<p>每次工具调用、每次澄清，系统都带着<strong>归因信息</strong>走。哪些信息？看 §12 的 <code>GuardrailRequest</code> 字段——<code>user_id</code>、<code>run_id</code>、<code>thread_id</code>、<code>tool_call_id</code> 都在。这让「谁、在哪次运行、调了什么」全程可追溯。</p>
+<p><strong>标叔的结论</strong>：HITL 不是「功能」，是信任机制。DeerFlow 把「问人」当成一等公民，而不是可选项。你做严肃场景，千万别为了「自动化」把澄清关了。</p>
+<p>工具调用要安全，得有护栏守着。下一章讲。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="10.html">← §10 MCP 工具接入</a>
+  <a class="pager-btn" href="12.html">§12 护栏与权限沙箱 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§01 DeerFlow 到底是什么 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§01 DeerFlow 到底是什么</h2>
+<p>DeerFlow 是一个开源的「超级代理框架」（super agent harness）。它能编排子代理、记忆和沙箱，去完成几乎任何任务，而驱动这一切的是一套可扩展的技能（Skills）。</p>
+<p>名字拆开看：<strong>D</strong>eep <strong>E</strong>xploration and <strong>E</strong>fficient <strong>R</strong>esearch <strong>F</strong>low。它从「深度研究」起家，2.0 已经长成一个通用代理底座。</p>
+<p><strong>2.0 是一次彻底重写</strong>。它和 v1 没有任何代码共享。原来的 Deep Research 框架留在 <code>1.x</code> 分支维护。所以你看到的老文章，很多对 2.0 不适用——别拿 v1 的经验套 2.0。</p>
+<p>几个关键事实，先钉死：</p>
+<ul>
+<li><strong>2026 年 2 月 28 日</strong>，v2 发布后登上 GitHub Trending 榜首。</li>
+<li>官方站点 <code>deerflow.tech</code> 有真实演示。</li>
+<li>它集成了字节跳动火山引擎的智能搜索抓取工具集 <strong>InfoQuest</strong>。</li>
+<li>官方推荐搭配 <strong>Doubao-Seed-2.0-Code、DeepSeek v3.2、Kimi 2.5</strong> 使用。</li>
+</ul>
+<h3>DeerFlow 和你见过的框架不一样在哪</h3>
+<p>很多人第一反应是：「这不就是又一个 Agent 库？」不是。DeerFlow 的定位是<strong>产品级 harness</strong>，它交付的是一整套可运行的服务，而不只是一个 <code>import</code> 就能用的类。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>纯 Agent 库（如 deepagents）</th>
+<th>DeerFlow 2.0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>交付形态</td>
+<td>Python 包，代码里调用</td>
+<td>服务栈：Gateway + Frontend + 沙箱 + 可选 Provisioner</td>
+</tr>
+<tr>
+<td>运行界面</td>
+<td>你自己在代码里接</td>
+<td>自带 Web UI、终端 TUI、IM 接入</td>
+</tr>
+<tr>
+<td>编排内核</td>
+<td>各家不同</td>
+<td>基于 <strong>LangGraph</strong>（图、checkpointer、store）</td>
+</tr>
+<tr>
+<td>调度能力</td>
+<td>一般没有</td>
+<td>内置定时任务（§15）</td>
+</tr>
+<tr>
+<td>模型绑定</td>
+<td>看库</td>
+<td><strong>模型中立</strong>，OpenAI/OpenRouter/vLLM/Codex/Claude/MiniMax 通吃</td>
+</tr>
+</tbody>
+</table>
+<p><strong>标叔的结论</strong>：如果你只想在代码里嵌一个会调工具的 Agent，DeerFlow 重了；如果你想要一个「开箱即用的研究/自动化工作台」，DeerFlow 正中靶心。</p>
+<p>下一章，我们不讲道理，先把服务跑起来。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="index.html">← 返回目录</a>
+  <a class="pager-btn" href="02.html">§02 五分钟跑通 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

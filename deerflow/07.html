@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§07 Skills 技能系统 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§07 Skills 技能系统</h2>
+<p>DeerFlow 把「怎么做好某类事」外置成一个个 <strong>Skill 目录</strong>。这是它和很多框架最不一样的地方——能力不是写死在代码里的，是目录里读出来的。</p>
+<h3>一个 Skill 长什么样</h3>
+<p>每个 Skill 是自包含目录，典型结构：</p>
+<pre><code>skills/public/image-generation/
+  SKILL.md          # frontmatter: name + description + 给代理的使用说明
+  scripts/
+    generate.py     # 纯 requests 调用外部 API 的 CLI（argparse）
+  templates/        # 可选模板
+</code></pre>
+<p><code>SKILL.md</code> 的 frontmatter 有 <code>name</code> 和 <code>description</code>，后面是给 Agent 看的操作说明。运行时，公共技能挂在 <code>/mnt/skills/public/&lt;name&gt;/</code>，产物写到 <code>/mnt/user-data/...</code>。</p>
+<h3>public 与 custom，靠组合键区分</h3>
+<p>Skill 分两类：<code>public</code>（仓库自带）和 <code>custom</code>（你自己装）。早期有个坑：同名 public 和 custom 技能会互相串门。2.0 的解法是<strong>组合键</strong> <code>{category}:{name}</code>。</p>
+<p>配置里这么写：</p>
+<pre><code class="language-json">{
+  &quot;skills&quot;: {
+    &quot;public:my-skill&quot;:  { &quot;enabled&quot;: true },
+    &quot;custom:my-skill&quot;:  { &quot;enabled&quot;: false }
+  }
+}
+</code></pre>
+<p>旧格式（只用 <code>name</code>）依然兼容——系统会自动识别。加载时还会在同一类别内查重，撞名直接抛 <code>ValueError</code>，把错误说在前面。</p>
+<h3>通过 API 管理技能</h3>
+<p>Gateway 暴露了技能管理端点：</p>
+<table>
+<thead>
+<tr>
+<th>端点</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /api/skills</code></td>
+<td>列出技能</td>
+</tr>
+<tr>
+<td><code>GET /api/skills/{skill_name}</code></td>
+<td>查详情，可带 <code>?category=public</code></td>
+</tr>
+<tr>
+<td><code>PUT /api/skills/{skill_name}</code></td>
+<td>改启用状态，可带 <code>?category=</code></td>
+</tr>
+<tr>
+<td><code>POST /api/skills/install</code></td>
+<td>从 <code>.skill</code> 归档安装</td>
+</tr>
+</tbody>
+</table>
+<p>同名时，API 会要求你补 <code>category</code> 参数，否则返回 400，把「到底改哪个」抛回给你。</p>
+<h3>用 skill-creator 造新技能</h3>
+<p>仓库里自带一个 <code>skill-creator</code> 公共技能，提供 <code>scripts/init_skill.py</code> 脚手架。想加自己的能力，先用它生成骨架，再填 <code>SKILL.md</code> 和 <code>scripts/</code>。</p>
+<p><strong>标叔的结论</strong>：Skill 目录化，是 DeerFlow 能「越用越聪明」的根本。你别急着改核心代码，先想「这事能不能做成一个 Skill」。能，就外置；外置了，就能热插拔、能隔离、能审计。</p>
+<p>记忆是代理的「长期脑子」。下一章讲它怎么不丢历史。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="06.html">← §06 子代理与编排</a>
+  <a class="pager-btn" href="08.html">§08 长期记忆与历史 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

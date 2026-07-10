@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§16 上下文工程 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§16 上下文工程</h2>
+<p>代理跑久了，上下文会爆。DeerFlow 在「上下文工程」上做了三件事：自动压缩、手动压缩、事件历史兜底。</p>
+<h3>自动压缩：SummarizationMiddleware</h3>
+<p>LangGraph 的 <code>SummarizationMiddleware</code> 会在消息超长时，把旧消息原地替换成一段摘要（前缀 <code>Here is a summary of the conversation to date:</code>）。这是 token 预算的刚需。</p>
+<p>代价前面说过：checkpointer 里的原话没了。所以 DeerFlow 用 <strong>event store 兜底</strong>（§08）——原始消息在 event store 里一动没动，<code>/history</code> 改读 event store，前端还能插压缩标记卡片（§14）。</p>
+<h3>手动压缩：Manual Context Compaction</h3>
+<p>除了自动，你也能主动触发压缩，在长任务中段把上下文「瘦身」一次，控制成本和时延。</p>
+<h3>Session Goals</h3>
+<p>给会话设目标，本质是给代理一个「这次要收敛到哪」的锚。目标明确，代理少跑弯路，上下文少走偏。</p>
+<h3>一个真实踩坑的启示</h3>
+<p>DeerFlow 自己修过一个有意思的 bug：summarize 之后，前端 feedback（点赞）的 <code>run_id</code> 映射会错位——因为 <code>/history</code>（checkpoint）和 <code>/messages</code>（event store）两条数据链的 AI 消息数量不一致。修法是让 <code>/history</code> 也读 event store，<strong>两边对齐</strong>，顺手把点赞打错 run 的隐藏 bug 也修了。</p>
+<p><strong>标叔的结论</strong>：上下文工程的本质是「在「记得住」和「装得下」之间找平衡。DeerFlow 的答案是——自动压缩管当下，event store 管真相，手动压缩管成本。三层一起用，长任务才稳。</p>
+<p>东西写完了，得上线、要能看。下一章讲可观测与部署。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="15.html">← §15 定时任务</a>
+  <a class="pager-btn" href="17.html">§17 可观测与生产部署 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

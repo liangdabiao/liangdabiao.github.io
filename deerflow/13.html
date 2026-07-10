@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§13 流式与终端工作台 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§13 流式与终端工作台</h2>
+<p>不是所有人都爱开浏览器。DeerFlow 给了<strong>终端工作台（TUI）</strong>，而且它和 Web 共享同一套会话。</p>
+<h3><code>deerflow</code> 命令</h3>
+<p>装好之后，控制台脚本叫 <code>deerflow</code>。默认交互路径：</p>
+<pre><code class="language-bash">deerflow            # TTY 下直接进交互界面
+deerflow --tui      # 强制 TUI
+deerflow chat       # 同上，进对话
+deerflow --continue # 续上最近一次会话
+deerflow --resume THREAD_ID   # 续指定会话
+</code></pre>
+<p>无头（脚本用）模式也保留着：</p>
+<pre><code class="language-bash">deerflow chat --print &quot;summarize this repo&quot;
+deerflow models list --json
+deerflow threads list --json
+deerflow skills list|get|enable|disable|install
+deerflow mcp list|export|apply
+deerflow memory status|show|export|import|clear|fact add
+</code></pre>
+<h3>TUI 和 Web 怎么互通</h3>
+<p>这是设计上最巧的一点：TUI 跑在<strong>嵌入式模式</strong>，不需要 Gateway / 前端 / Nginx / Docker。但它<strong>复用同一个 <code>thread_meta</code> 持久层</strong>。</p>
+<p>也就是说——你在终端建一个会话，关掉终端，打开 Web UI，那个会话出现在侧边栏里。因为它写的是同一个 <code>thread_meta</code> 表，而 Web UI 正是从这张表读会话列表的。<strong>Web 可见性靠共享存储，不靠 Gateway 进程在跑。</strong></p>
+<h3>终端里的斜杠命令</h3>
+<p>TUI 支持一套 slash 命令，覆盖你能想到的所有操作：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/help</code></td>
+<td>分类命令与快捷键</td>
+</tr>
+<tr>
+<td><code>/new</code></td>
+<td>新会话</td>
+</tr>
+<tr>
+<td><code>/resume</code> <code>/threads</code> <code>/switch</code></td>
+<td>会话切换</td>
+</tr>
+<tr>
+<td><code>/model</code></td>
+<td>模型选择器</td>
+</tr>
+<tr>
+<td><code>/skills</code></td>
+<td>浏览已启用/可用技能</td>
+</tr>
+<tr>
+<td><code>/tools</code> <code>/mcp</code></td>
+<td>工具与 MCP 状态</td>
+</tr>
+<tr>
+<td><code>/memory</code></td>
+<td>记忆状态与已注入事实</td>
+</tr>
+<tr>
+<td><code>/uploads</code> <code>/artifacts</code></td>
+<td>上传与产物</td>
+</tr>
+<tr>
+<td><code>/details</code> <code>/usage</code></td>
+<td>活动明细 / token 用量</td>
+</tr>
+<tr>
+<td><code>/config</code> <code>/quit</code></td>
+<td>配置路径 / 退出</td>
+</tr>
+</tbody>
+</table>
+<p><strong>标叔的结论</strong>：DeerFlow 的 TUI 不是「阉割版 CLI」，是和 Web 平起平坐的一等界面。它背后是同一个 <code>DeerFlowClient</code> 运行时。你习惯终端，就全程终端；习惯浏览器，就全程浏览器；两边会话还打通——这点很香。</p>
+<p>核心能力到此讲完。进入实战与进阶。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="12.html">← §12 护栏与权限沙箱</a>
+  <a class="pager-btn" href="14.html">§14 生成与报告能力 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

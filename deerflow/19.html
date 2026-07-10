@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§19 避坑指南 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§19 避坑指南</h2>
+<p>这些坑不是我编的，来自 DeerFlow 自己的设计文档和代码改动记录。每一条都附正确姿势。</p>
+<h3>坑 1：同名 public/custom 技能互相串</h3>
+<p><strong>现象</strong>：开 public 技能时，同名的 custom 技能也被开；配置键只用了 <code>skill_name</code>，两类技能分不清。</p>
+<p><strong>正确姿势</strong>：配置用组合键 <code>{category}:{name}</code>，如 <code>public:my-skill</code> 和 <code>custom:my-skill</code> 分开。同名时 API 补 <code>?category=</code>。</p>
+<pre><code class="language-json">{ &quot;skills&quot;: { &quot;public:my-skill&quot;: { &quot;enabled&quot;: true }, &quot;custom:my-skill&quot;: { &quot;enabled&quot;: false } } }
+</code></pre>
+<h3>坑 2：TUI 建的会话 Web 看不见</h3>
+<p><strong>现象</strong>：终端跑的会话，开 Web 侧边栏不显示。</p>
+<p><strong>根因</strong>：早期 <code>DeerFlowClient</code> 只写 checkpointer，不写 <code>thread_meta</code>，而 Web 从 <code>thread_meta</code> 读列表。</p>
+<p><strong>正确姿势</strong>：用 2.0 的新版——TUI 复用同一 <code>thread_meta</code> 持久层，终端会话自动进 Web。老版本请升级，别自己补同步逻辑。</p>
+<h3>坑 3：改文件前没读，被读写门拦</h3>
+<p><strong>现象</strong>：代理想改已存在文件，返回「请先读该文件」，写入失败。</p>
+<p><strong>根因</strong>：<code>ReadBeforeWriteMiddleware</code> 默认开，要求改前 read-mark 的 hash 和当前文件一致。</p>
+<p><strong>正确姿势</strong>：让代理先 <code>read_file</code> 再 <code>write_file</code> / <code>str_replace</code>。这是护栏不是 bug——它治的是「只追加不回读」导致的重复产物。别为了省事关掉它。</p>
+<h3>坑 4：护栏里客户端伪造身份</h3>
+<p><strong>现象</strong>：有人试图在请求体里塞 <code>user_id=admin</code> 提权。</p>
+<p><strong>正确姿势</strong>：DeerFlow 注入<strong>只信服务端认证态</strong> <code>request.state.user</code>，客户端 body 里的身份字段不覆盖。你写自己的 provider，也别读客户端传的 user 字段——读 <code>runtime.context</code> 里 Gateway 注入的那个。</p>
+<h3>坑 5：定时任务租约和重叠</h3>
+<p><strong>现象</strong>：多实例部署时任务重复跑；或上一个 run 没结束又触发。</p>
+<p><strong>正确姿势</strong>：调度器靠 <strong>DB 租约</strong>原子认领，强制 <code>enabled: true</code> 才跑；重叠按 <code>skip</code>、错过按 <code>run_once</code>。部署多实例时，别自己加 leader 开关——DB 租约就是护栏。注意 <code>min_interval_seconds</code> 默认 60，短于它的用户任务会被拒。</p>
+<h3>坑 6：生成 provider 被自动切走</h3>
+<p><strong>现象</strong>：半夜生成突然走了不同的供应商，产物风格变了。</p>
+<p><strong>根因</strong>：<code>_resolve_provider()</code> 自动判断，两套密钥都在时按「现有 provider 优先」，但你若只配了覆盖变量又改了名，行为会偏。</p>
+<p><strong>正确姿势</strong>：想锁定，显式设 <code>IMAGE_GENERATION_PROVIDER=gemini</code> 这类环境变量，覆盖自动判断。别依赖「自动」做生产决策。</p>
+<h3>坑 7：历史被压缩后 feedback 错位</h3>
+<p><strong>现象</strong>：给历史消息点赞，赞到了错误的 run。</p>
+<p><strong>根因</strong>：<code>/history</code>（checkpoint）和 <code>/messages</code>（event store）两条数据链 AI 消息数不一致。</p>
+<p><strong>正确姿势</strong>：2.0 已让 <code>/history</code> 改读 event store，两边对齐，顺手修好。确保你用的是新版本；老版本别在压缩后的长对话里依赖点赞归属。</p>
+<p><strong>标叔的结论</strong>：这七个坑，本质都指向 DeerFlow 的设计哲学——<strong>默认安全、显式优先、持久层单一真相</strong>。你顺着这三条走，坑基本都绕得开。</p>
+<hr />
+<h2>写在最后</h2>
+<p>DeerFlow 2.0 不是一个「又一个小代理库」。它是字节把内部研究代理产品化后，开源出来的<strong>完整工作台</strong>：底层 LangGraph 编排，上层 Gateway/Frontend/TUI/Provisioner 服务栈，中间用 Skills 做扩展、用护栏做安全、用 event store 做不可篡改的历史。</p>
+<p>你如果只想嵌个代理，它重；你想给团队一个「能搜、能写、能生成、能定时、能审计」的代理平台，它刚好。</p>
+<p>书到这里。下一步建议：把 §02 跑起来，照 §07 写一个自己的 Skill，再用 §12 加一道你业务的护栏。动起手，比读十遍都管用。</p>
+<blockquote>
+<p>本文所有事实均来自 DeerFlow 官方仓库（README、CLAUDE.md 摘要、规格与代码改动文档）。2.0 为重写版本，v1 经验不照搬。</p>
+</blockquote>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="18.html">← §18 选型对比</a>
+  <a class="pager-btn" href="index.html">返回目录 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

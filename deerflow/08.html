@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§08 长期记忆与历史 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§08 长期记忆与历史</h2>
+<p>DeerFlow 的记忆分成两层，一定要分清：<strong>长期记忆（Long-Term Memory）</strong> 和 <strong>事件历史（event store）</strong>。</p>
+<h3>为什么需要两套</h3>
+<p>LangGraph 的 checkpointer 存的是「当前消息列表」的快照。问题是——当上下文太长，系统会做<strong>压缩（summarization）</strong>，把旧消息原地替换成摘要。结果就是：你去查历史，最早的用户原话不见了，只剩一段摘要。</p>
+<p>DeerFlow 的解法：再加一条 <strong>event store（RunJournal）</strong>，追加式记录每一次事件，不覆盖、不压缩。</p>
+<h3>RunJournal 记了什么</h3>
+<p><code>RunJournal</code> 把运行过程写成 <code>run_events</code> 表，按类别分：</p>
+<table>
+<thead>
+<tr>
+<th>category</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>trace</td>
+<td>LLM 请求、工具调用等链路追踪</td>
+</tr>
+<tr>
+<td>message</td>
+<td>每一条消息</td>
+</tr>
+<tr>
+<td>lifecycle</td>
+<td>run 开始/结束/出错</td>
+</tr>
+<tr>
+<td>middleware</td>
+<td>中间件事件（如压缩发生点）</td>
+</tr>
+</tbody>
+</table>
+<p>关键点：<strong>event store 不受 summarization 影响</strong>。即使消息被压缩成摘要，原始 human 消息还在 event store 里。</p>
+<h3>/history 读的是 event store</h3>
+<p>前端历史接口原本从 checkpointer 读，压缩后丢原话。2.0 改成了<strong>优先读 event store 的 <code>list_messages()</code></strong>，覆盖 checkpointer 的 messages 字段。这样你在界面上能看到压缩之前的真实对话。</p>
+<p>技术上还有两个细节值得记：</p>
+<ul>
+<li>消息 ID 用 <code>uuid5(NAMESPACE_URL, f"{thread_id}:{seq}")</code> 确定性生成，稳定可复现。</li>
+<li>历史分页不能用固定 <code>limit=1000</code>，长对话会丢头——必须 <code>count_messages()</code> 后全量拉，或游标翻页。</li>
+</ul>
+<p><strong>标叔的结论</strong>：DeerFlow 对「记忆不可丢」这件事很较真。checkpointer 管「当下状态」，event store 管「完整真相」。你做审计、做复盘，永远信 event store。</p>
+<p>代码要执行，得有隔离环境。下一章讲沙箱。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="07.html">← §07 Skills 技能系统</a>
+  <a class="pager-btn" href="09.html">§09 沙箱与文件系统 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

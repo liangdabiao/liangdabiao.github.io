@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§09 沙箱与文件系统 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§09 沙箱与文件系统</h2>
+<p>DeerFlow 让代理写代码、跑命令，但这些动作必须关在<strong>沙箱</strong>里，不能碰你本机。</p>
+<h3>沙箱给你什么</h3>
+<p>沙箱提供两层能力：</p>
+<ul>
+<li><strong>Bash 访问</strong>：代理能在隔离环境里执行命令。</li>
+<li><strong>文件写工具</strong>：<code>write_file</code>、<code>str_replace</code>、<code>read_file</code> 等。</li>
+</ul>
+<p>向导初始化时你会配置安全偏好，决定沙箱能碰多大范围。</p>
+<h3>沙箱后端可换</h3>
+<p>DeerFlow 支持多种沙箱 provider，在 <code>config.yaml</code> 里指定：</p>
+<pre><code class="language-yaml">sandbox:
+  use: deerflow.community.aio_sandbox:AioSandboxProvider
+</code></pre>
+<p>可选后端包括：</p>
+<table>
+<thead>
+<tr>
+<th>provider</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>aio_sandbox</code></td>
+<td>社区版异步沙箱（provisioner 模式会自动拉起 provisioner）</td>
+</tr>
+<tr>
+<td><code>e2b</code></td>
+<td>E2B 云端沙箱</td>
+</tr>
+<tr>
+<td><code>kubernetes</code></td>
+<td>K8s  Pod 沙箱</td>
+</tr>
+<tr>
+<td><code>docker</code></td>
+<td>Docker 容器沙箱</td>
+</tr>
+</tbody>
+</table>
+<h3>技能目录互相隔离</h3>
+<p>每个 Skill 在沙箱里是独立目录，互不 import。MiniMax 那篇设计文档明确写了：MiniMax 代码在每个 skill 内各自内联，不做跨 skill 共享模块——少量重复可接受，换来的是强隔离。</p>
+<p><strong>标叔的结论</strong>：沙箱是 DeerFlow 敢让代理「动手」的底气。本地玩建议先用 <code>aio_sandbox</code>，别一上来就给代理裸 Bash 权限。</p>
+<p>外部工具除了沙箱里跑，还能通过 MCP 接进来。下一章讲。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="08.html">← §08 长期记忆与历史</a>
+  <a class="pager-btn" href="10.html">§10 MCP 工具接入 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

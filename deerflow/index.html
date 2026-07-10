@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DeerFlow 2.0 从入门到精通 · 阅读导航</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<section class="hero">
+  <h1>DeerFlow 2.0<br><span class="hero-sub">从入门到精通</span></h1>
+  <p class="tagline">一本写给「想用起来、想看懂、想改得动」的人的书。<br>不是官方文档的翻译，是看过源码与规格后的白话拆解。</p>
+  <a class="cta" href="01.html">开始阅读 →</a>
+  <p class="meta">共 3 大部分 · 19 章 · 按 Part / 章节分页阅读</p>
+</section>
+
+<section class="intro">
+<h1>DeerFlow 2.0 从入门到精通</h1>
+<blockquote>
+<p>一本写给「想用起来、想看懂、想改得动」的人的书。
+不是官方文档的翻译，是站在你肩膀上看过源码与规格后的白话拆解。</p>
+</blockquote>
+<hr />
+<h2>阅读指南</h2>
+<p>我自己用 DeerFlow 踩过的坑，总结成三条建议：</p>
+<ol>
+<li><strong>先跑再读</strong>。DeerFlow 是一个「产品级」的超级代理框架，不是纯库。它自带 Web UI、网关、沙箱和终端。先把 §02 跑起来，你才会有体感。</li>
+<li><strong>分两层理解</strong>。底层是 LangGraph 编排的 Agent 运行时；上层是 Gateway / Frontend / Provisioner 组成的服务栈。两边要分开看，合起来才是 DeerFlow。</li>
+<li><strong>技能是灵魂</strong>。DeerFlow 把「能做什么」几乎全部外置成 Skill 目录。看懂 §07，你就看懂了扩展性。</li>
+</ol>
+<blockquote>
+<p><strong>核心建议</strong>：第一次读，先照 §02 把例子跑起来。等你有体感了，再回来看机制。</p>
+</blockquote>
+<hr />
+</section>
+
+<section class="toc">
+  <h2 class="toc-h">目录</h2>
+<div class="part">
+  <h2>Part 1 · 起步</h2>
+  <ol class="ch-list">
+    <li><a href="01.html"><span class="ch-no">§01</span><span class="ch-title">DeerFlow 到底是什么</span></a></li>
+    <li><a href="02.html"><span class="ch-no">§02</span><span class="ch-title">五分钟跑通</span></a></li>
+    <li><a href="03.html"><span class="ch-no">§03</span><span class="ch-title">一次对话背后发生了什么</span></a></li>
+    <li><a href="04.html"><span class="ch-no">§04</span><span class="ch-title">模型随便换</span></a></li>
+  </ol>
+</div>
+<div class="part">
+  <h2>Part 2 · 核心能力</h2>
+  <ol class="ch-list">
+    <li><a href="05.html"><span class="ch-no">§05</span><span class="ch-title">五大内置能力</span></a></li>
+    <li><a href="06.html"><span class="ch-no">§06</span><span class="ch-title">子代理与编排</span></a></li>
+    <li><a href="07.html"><span class="ch-no">§07</span><span class="ch-title">Skills 技能系统</span></a></li>
+    <li><a href="08.html"><span class="ch-no">§08</span><span class="ch-title">长期记忆与历史</span></a></li>
+    <li><a href="09.html"><span class="ch-no">§09</span><span class="ch-title">沙箱与文件系统</span></a></li>
+    <li><a href="10.html"><span class="ch-no">§10</span><span class="ch-title">MCP 工具接入</span></a></li>
+    <li><a href="11.html"><span class="ch-no">§11</span><span class="ch-title">人机协同</span></a></li>
+    <li><a href="12.html"><span class="ch-no">§12</span><span class="ch-title">护栏与权限沙箱</span></a></li>
+    <li><a href="13.html"><span class="ch-no">§13</span><span class="ch-title">流式与终端工作台</span></a></li>
+  </ol>
+</div>
+<div class="part">
+  <h2>Part 3 · 实战与进阶</h2>
+  <ol class="ch-list">
+    <li><a href="14.html"><span class="ch-no">§14</span><span class="ch-title">生成与报告能力</span></a></li>
+    <li><a href="15.html"><span class="ch-no">§15</span><span class="ch-title">定时任务</span></a></li>
+    <li><a href="16.html"><span class="ch-no">§16</span><span class="ch-title">上下文工程</span></a></li>
+    <li><a href="17.html"><span class="ch-no">§17</span><span class="ch-title">可观测与生产部署</span></a></li>
+    <li><a href="18.html"><span class="ch-no">§18</span><span class="ch-title">选型对比</span></a></li>
+    <li><a href="19.html"><span class="ch-no">§19</span><span class="ch-title">避坑指南</span></a></li>
+  </ol>
+</div>
+</section>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

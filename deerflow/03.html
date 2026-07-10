@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§03 一次对话背后发生了什么 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§03 一次对话背后发生了什么</h2>
+<p>你点下发送，到答案回来，中间跨了四层服务、两套运行路径。先把拓扑画清楚。</p>
+<h3>服务拓扑</h3>
+<p>DeerFlow 2.0 的生产拓扑是这样的：</p>
+<pre><code>Nginx (2026)
+  ├── /api/langgraph/*  → Gateway 的 LangGraph 兼容运行时
+  └── /api/*            → Gateway REST API（端口 8001）
+Frontend (Next.js，端口 3000)
+Provisioner (可选，端口 8002，负责按需拉起沙箱)
+</code></pre>
+<p>注意：Nginx 在前，Gateway 在后。所有 <code>/api/*</code> 都进 Gateway，只有 <code>/api/langgraph/*</code> 走 LangGraph 兼容运行时。</p>
+<h3>两套运行路径，一个 Agent 工厂</h3>
+<p>这是 DeerFlow 架构里最容易被误解的点。现在代码里有<strong>两条运行路径</strong>，但它们共用同一个 Agent 工厂：</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>触发方</th>
+<th>运行方式</th>
+<th>持久化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Web/Gateway <code>run_agent()</code></td>
+<td>浏览器/API</td>
+<td>异步 <code>astream</code> + <code>StreamBridge</code> 做 SSE</td>
+<td>写 <code>thread_meta</code></td>
+</tr>
+<tr>
+<td><code>DeerFlowClient.stream()</code></td>
+<td>终端 TUI / 嵌入</td>
+<td>同步、进程内</td>
+<td>只写 checkpointer</td>
+</tr>
+</tbody>
+</table>
+<p>两条路都通过同一个 <code>make_lead_agent</code> / <code>create_agent()</code> 工厂构建 Agent。也就是说，<strong>Agent 行为一致，编排外壳不同</strong>。</p>
+<h3>一次对话的完整生命周期</h3>
+<pre><code>你的消息
+  → Gateway 接收，注入已认证用户上下文
+  → run-launch helper 启动一个 run
+  → lead agent（主代理）拿到 prompt
+      → 命中 Skill？加载对应技能
+      → 需要子任务？拆给子代理并行跑
+      → 要执行代码？进沙箱（bash / 写文件）
+      → 要调外部能力？走 MCP 或内置工具
+      → 工具调用前过护栏（GuardrailMiddleware）
+  → 中间状态写 checkpointer + event store
+  → 流式结果经 StreamBridge 回前端
+  → 会话索引写 thread_meta，前端侧边栏可见
+</code></pre>
+<p>关键存储有两个，别混：</p>
+<ul>
+<li><strong>checkpointer</strong>：LangGraph 的状态快照，记录「当前消息列表」。</li>
+<li><strong>event store（RunJournal）</strong>：追加式事件流水，记录每一条 trace / message / lifecycle / middleware 事件。<strong>它不受上下文压缩影响</strong>——这点 §08、§16 会展开讲。</li>
+</ul>
+<p><strong>标叔的结论</strong>：理解 DeerFlow，先记住「Gateway 管调度和持久化，Agent 工厂管智能，LangGraph 管状态和流式」。三层职责分清，后面每章都不乱。</p>
+<p>下一章，我们聊最容易让人兴奋也最容易踩坑的事：换模型。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="02.html">← §02 五分钟跑通</a>
+  <a class="pager-btn" href="04.html">§04 模型随便换 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§10 MCP 工具接入 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§10 MCP 工具接入</h2>
+<p>MCP（Model Context Protocol）是接外部工具和数据源的开放标准。DeerFlow 原生支持 MCP Server。</p>
+<h3>怎么配</h3>
+<p>MCP 服务器在 <code>extensions_config</code> 里声明：</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;my-server&quot;: {
+      &quot;tool_call_timeout&quot;: 30
+    }
+  }
+}
+</code></pre>
+<p>几个要点：</p>
+<ul>
+<li><strong>每服务器超时</strong>：<code>tool_call_timeout</code> 控制单个工具调用最长等多久。</li>
+<li><strong>会话池生命周期</strong>：MCP 连接的会话池和 DeerFlow 会话生命周期同步，避免孤儿连接。</li>
+<li><strong>缓存重置端点</strong>：提供端点手动清 MCP 缓存，改了外部工具后不用重启。</li>
+</ul>
+<h3>和 Skills 同居一个配置</h3>
+<p>注意 <code>extensions_config.json</code> 同时管两件事：<strong>mcpServers</strong> 和 <strong>skills</strong>。它是 DeerFlow 扩展能力的「总开关文件」。</p>
+<p><strong>标叔的结论</strong>：MCP 让 DeerFlow 能接任意兼容服务——数据库、内部 API、第三方 SaaS。但每接一个，记得设 <code>tool_call_timeout</code>，不然一个卡死的外部工具能拖垮整个 run。</p>
+<p>代理要调工具、要问人，得有协同机制。下一章讲人机协同。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="09.html">← §09 沙箱与文件系统</a>
+  <a class="pager-btn" href="11.html">§11 人机协同 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

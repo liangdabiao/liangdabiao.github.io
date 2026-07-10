@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§02 五分钟跑通 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§02 五分钟跑通</h2>
+<p>DeerFlow 给了 <code>make</code> 一条龙脚本。照做，五分钟能看到界面。</p>
+<h3>第一步：克隆与初始化</h3>
+<pre><code class="language-bash">git clone https://github.com/bytedance/deer-flow.git
+cd deer-flow
+make setup        # 交互向导，生成 config.yaml 和 .env（约 2 分钟）
+</code></pre>
+<p><code>make setup</code> 是个交互式向导。它会问你 API Key、搜索源、沙箱偏好，最后吐出两份配置：</p>
+<ul>
+<li><code>config.yaml</code> —— 模型、数据库、沙箱、调度等核心配置</li>
+<li><code>.env</code> —— 密钥类环境变量</li>
+</ul>
+<p>跑完用两个命令自检：</p>
+<pre><code class="language-bash">make doctor            # 验证依赖和配置是否就绪
+make support-bundle    # 排障时生成隐私安全的打包信息
+</code></pre>
+<h3>第二步：用 Docker 跑（推荐）</h3>
+<pre><code class="language-bash">make docker-init    # 拉取沙箱镜像
+make docker-start   # 启动开发用服务栈
+</code></pre>
+<p>开发栈起来后，访问 <strong>http://localhost:2026</strong> 就能用 Web UI 了。</p>
+<h3>第三步：生产栈（可选）</h3>
+<pre><code class="language-bash">make up     # 构建并启动生产服务
+make down   # 停止
+</code></pre>
+<h3>本地开发模式</h3>
+<p>不想碰 Docker，也可以纯本地跑：</p>
+<pre><code class="language-bash">make dev
+</code></pre>
+<p>它对机器有要求，下面这张表照着配：</p>
+<table>
+<thead>
+<tr>
+<th>目标</th>
+<th>起步</th>
+<th>推荐</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本地评估 <code>make dev</code></td>
+<td>4C / 8G / 20G SSD</td>
+<td>8C / 16G</td>
+</tr>
+<tr>
+<td>Docker 开发</td>
+<td>4C / 8G / 25G</td>
+<td>8C / 16G</td>
+</tr>
+<tr>
+<td>长驻服务 <code>make up</code></td>
+<td>8C / 16G / 40G</td>
+<td>16C / 32G</td>
+</tr>
+</tbody>
+</table>
+<p><strong>标叔的结论</strong>：第一次玩，直接 <code>make setup</code> + <code>make docker-init</code> + <code>make docker-start</code>，别在资源配置上省。沙箱镜像不拉，后面代码执行会报错。</p>
+<p>下一章，我们钻进「你在界面里发一句话」之后，系统内部到底走了什么路。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="01.html">← §01 DeerFlow 到底是什么</a>
+  <a class="pager-btn" href="03.html">§03 一次对话背后发生了什么 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

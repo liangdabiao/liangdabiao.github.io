@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§04 模型随便换 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§04 模型随便换</h2>
+<p>DeerFlow 是<strong>模型中立</strong>的。这不是口号，是 <code>config.yaml</code> 里真能配出来的。</p>
+<h3>配置长什么样</h3>
+<p>模型在 <code>config.yaml</code> 里以列表形式声明，每一项是 <code>name</code> + <code>use</code>（LangChain 类路径）+ <code>model</code> + <code>api_key</code>：</p>
+<pre><code class="language-yaml">models:
+  - name: gpt-4o
+    use: langchain_openai:ChatOpenAI
+    model: gpt-4o
+    api_key: $OPENAI_API_KEY
+</code></pre>
+<p><code>use</code> 字段决定用哪个 LangChain 聊天模型类。DeerFlow 已经接好了多家：</p>
+<table>
+<thead>
+<tr>
+<th>提供方</th>
+<th>示例模型</th>
+<th>接入方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI</td>
+<td><code>gpt-4o</code>、<code>gpt-5-responses</code>（Responses API）</td>
+<td><code>langchain_openai:ChatOpenAI</code></td>
+</tr>
+<tr>
+<td>OpenRouter</td>
+<td><code>gemini-2.5-flash-preview</code>（基址转发）</td>
+<td>转发基址</td>
+</tr>
+<tr>
+<td>vLLM 本地</td>
+<td><code>Qwen/Qwen3-32B</code></td>
+<td><code>VllmChatModel</code></td>
+</tr>
+<tr>
+<td>Codex CLI</td>
+<td>Codex 命令行后端</td>
+<td><code>CodexChatModel</code></td>
+</tr>
+<tr>
+<td>Claude Code</td>
+<td>Claude Code OAuth</td>
+<td><code>ClaudeChatModel</code></td>
+</tr>
+<tr>
+<td>MiniMax</td>
+<td>文本/生成模型</td>
+<td>自带 patched 适配</td>
+</tr>
+</tbody>
+</table>
+<p>官方推荐搭配 <strong>Doubao-Seed-2.0-Code、DeepSeek v3.2、Kimi 2.5</strong> 当主力模型。</p>
+<h3>两个注意点</h3>
+<ul>
+<li><strong>环境变量占位符</strong>。上面 <code>$OPENAI_API_KEY</code> 会从环境或 <code>.env</code> 读取，别写死明文。</li>
+<li><strong>多模型共存</strong>。你可以同时列五六个模型，运行时用 <code>/model</code>（终端）或界面切换。DeerFlow 默认就用第一个，但切模型是常态操作，不是改配置重启。</li>
+</ul>
+<p><strong>标叔的结论</strong>：DeerFlow 把「换模型」降到了改一行配置的事。但你真要稳定，建议先用官方推荐模型跑通，再试验本地 vLLM——本地模型的工具调用格式差异，是新手最常见的坑。</p>
+<p>模型讲完，进入核心能力。下面九章，是 DeerFlow 真正的骨架。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="03.html">← §03 一次对话背后发生了什么</a>
+  <a class="pager-btn" href="05.html">§05 五大内置能力 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

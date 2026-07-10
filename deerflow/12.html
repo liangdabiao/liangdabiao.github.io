@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§12 护栏与权限沙箱 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§12 护栏与权限沙箱</h2>
+<p>DeerFlow 在工具调用真正发生前，会过一道<strong>护栏</strong>。这是它敢默认放开工具调用的原因。</p>
+<h3>GuardrailMiddleware + GuardrailProvider</h3>
+<p>架构是「中间件 + 可插拔 provider」：</p>
+<ul>
+<li><code>GuardrailMiddleware</code>：在工具调用前拦截，构造 <code>GuardrailRequest</code>，交给 provider 判定。</li>
+<li><code>GuardrailProvider</code>：你实现的判定逻辑，返回 <code>GuardrailDecision</code>。</li>
+</ul>
+<p><code>GuardrailRequest</code> 携带的字段（2.0 已补全运行时归因）：</p>
+<pre><code class="language-python">@dataclass
+class GuardrailRequest:
+    tool_name: str
+    tool_input: dict
+    agent_id: str | None = None
+    thread_id: str | None = None
+    is_subagent: bool = False
+    timestamp: str = &quot;&quot;
+    user_id: str | None = None        # DeerFlow 内部稳定用户 ID
+    user_role: str | None = None      # admin / user
+    oauth_provider: str | None = None # 未来 OAuth/SSO
+    oauth_id: str | None = None
+    run_id: str | None = None         # run 级审计
+    tool_call_id: str | None = None   # 单次调用定位
+</code></pre>
+<p><code>GuardrailDecision</code> 表达 <code>allow</code> / <code>deny</code>、原因、<code>policy_id</code>、元数据。</p>
+<h3>身份只信服务端</h3>
+<p>关键安全点：<strong>Gateway 注入只信任服务端认证态 <code>request.state.user</code></strong>。客户端 body 里伪造的 <code>user_id</code> / <code>user_role</code> / <code>oauth_*</code> 不会覆盖服务端身份。这堵死了「假装是 admin」的越权路。</p>
+<h3>第二道护栏：ReadBeforeWriteMiddleware</h3>
+<p>代码写入还有一道<strong>新鲜度护栏</strong>。规则很硬：</p>
+<ol>
+<li><code>read_file</code> 成功 → 记一个 read-mark：<code>sha256(当前完整文件内容)</code>。</li>
+<li>改已存在文件（<code>write_file</code> 覆盖 / <code>append</code> / <code>str_replace</code>）前，校验「最新 read-mark 的 hash == 当前文件 hash」。</li>
+<li>不匹配 → <strong>拦截，不执行写入</strong>，返回「请先读该文件」。</li>
+<li>写入成功会立刻让上一次 read-mark 过期 → 连续改之间被逼着重读。</li>
+<li>写不存在的新文件 → 放行。</li>
+</ol>
+<p>它<strong>默认开启</strong>，挂在中间件链尾、SandboxAudit 之后。对并行同文件写入，用 per-path 锁保证确定性拦截。</p>
+<p><strong>标叔的结论</strong>：DeerFlow 的安全是「双层 + 默认开」。护栏管「能不能调」，读写门管「改文件前看没看」。你做自己的 provider，至少把 <code>user_role</code> 用起来——比如 <code>admin:bash</code> 才放行危险工具。</p>
+<p>能力讲完，来到界面与流式。下一章讲终端工作台。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="11.html">← §11 人机协同</a>
+  <a class="pager-btn" href="13.html">§13 流式与终端工作台 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

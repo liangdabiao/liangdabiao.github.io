@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§14 生成与报告能力 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§14 生成与报告能力</h2>
+<p>DeerFlow 不只是「聊天 + 搜网页」。它自带一类<strong>生成技能</strong>，能出图、出视频、出播客、出音乐，还能写结构化研究报告。</p>
+<h3>四类生成技能</h3>
+<table>
+<thead>
+<tr>
+<th>技能</th>
+<th>现有 provider</th>
+<th>端点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>image-generation</code></td>
+<td>Gemini（<code>gemini-3-pro-image-preview</code>）</td>
+<td><code>generativelanguage.googleapis.com</code></td>
+</tr>
+<tr>
+<td><code>video-generation</code></td>
+<td>Gemini Veo（<code>veo-3.1</code>）</td>
+<td>长任务轮询</td>
+</tr>
+<tr>
+<td><code>podcast-generation</code></td>
+<td>火山引擎 TTS</td>
+<td><code>openspeech.bytedance.com</code></td>
+</tr>
+<tr>
+<td><code>music-generation</code></td>
+<td><strong>MiniMax</strong>（新增）</td>
+<td><code>api.minimaxi.com</code></td>
+</tr>
+</tbody>
+</table>
+<h3>provider 怎么选</h3>
+<p>每个生成脚本里有 <code>_resolve_provider()</code>，判定顺序很讲理：</p>
+<ol>
+<li><strong>显式覆盖</strong>：环境变量 <code>IMAGE_GENERATION_PROVIDER</code> 等设了，直接用。</li>
+<li><strong>现有 provider 优先</strong>：原 provider 密钥齐全 → 用原来的，保证向后兼容。</li>
+<li><strong>回退 MiniMax</strong>：原 provider 没密钥但 <code>MINIMAX_API_KEY</code> 有 → 走 MiniMax。</li>
+<li>都没有 → 抛清晰错误，告诉你两套环境变量怎么配。</li>
+</ol>
+<p>默认行为不变——你原来配了 Gemini，一切照旧；只配了 MiniMax 的用户自动走新路。</p>
+<h3>研究报告与「压缩标记」</h3>
+<p>DeerFlow 继承了 v1 的 Deep Research 血统，能产出带引用的研究报告。这里有个细节体验很好：当运行中触发了上下文压缩，前端历史里会插入一个 <strong><code>[N messages condensed]</code> 标记卡片</strong>，点开能看到被压缩成的摘要。</p>
+<p>实现上，它包装了 LangChain 的 <code>SummarizationMiddleware</code>，在每次真正压缩时 <code>adispatch_custom_event("summarization", ...)</code>，把 <code>replaced_count</code> 和摘要文本写进 event store，前端再在正确时间线位置渲染这张卡片。这样你不会疑惑「我前面的话怎么没了」。</p>
+<p><strong>标叔的结论</strong>：生成技能是 DeerFlow「产品感」的来源。你做个内容工作流，直接复用 <code>image-generation</code> / <code>podcast-generation</code> 比自己接 API 省太多事。记得用 <code>&lt;SKILL&gt;_PROVIDER</code> 锁定 provider，别让自动判断在半夜切了供应商。</p>
+<p>定时跑任务，是自动化刚需。下一章讲。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="13.html">← §13 流式与终端工作台</a>
+  <a class="pager-btn" href="15.html">§15 定时任务 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§15 定时任务 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§15 定时任务</h2>
+<p>DeerFlow 2.0 有<strong>定时任务 MVP</strong>——注意是 MVP，有明确边界，但已经能打。</p>
+<h3>它解决什么</h3>
+<p>之前仓库里有内部定时器，但用户没法从产品里「创建、查看、暂停、触发、删除」常驻后台任务。MVP 先把这些管理面做出来，自然语言建任务留到后面。</p>
+<h3>支持的形态</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>支持</th>
+<th>不支持</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任务类型</td>
+<td><code>once</code>（一次性）、<code>cron</code>（周期）</td>
+<td><code>interval</code>（间隔）</td>
+</tr>
+<tr>
+<td>上下文模式</td>
+<td><code>fresh_thread_per_run</code>（默认）、<code>reuse_thread</code></td>
+<td>——</td>
+</tr>
+<tr>
+<td>触发</td>
+<td>定时 + 手动 <code>trigger</code></td>
+<td>IM/Channel 派发</td>
+</tr>
+</tbody>
+</table>
+<p>为什么不支持 <code>interval</code>？MVP 故意砍掉，因为它要多一套解析、多前端校验、多边界 case，而 <code>once</code> + <code>cron</code> 足以证明调度架构。</p>
+<h3>它靠 DB 租约保证安全</h3>
+<p>调度器<strong>默认关闭</strong>，要显式开：</p>
+<pre><code class="language-yaml">scheduler:
+  enabled: false
+  poll_interval_seconds: 5
+  lease_seconds: 120
+  max_concurrent_runs: 3
+  min_interval_seconds: 60
+</code></pre>
+<p>核心保障是 <strong>DB 租约（lease）</strong>：每个轮询周期，调度器用一条 DB 事务原子地「认领」到期任务（设 <code>lease_owner</code> + <code>lease_expires_at</code> + 临时 <code>running</code>），避免多实例重复跑。任务 owner 隔离——别人的任务你列不到也改不了。</p>
+<p>每次触发，都走<strong>和手动触发相同的 run-launch helper</strong>，不另搞一套运行时。重叠时按固定规则 <code>skip</code>，错过按 <code>run_once</code> 补最新一次。</p>
+<p>REST 端点集中在 <code>/api/scheduled-tasks</code>：<code>GET / POST / PATCH</code>、<code>/pause</code> <code>/resume</code> <code>/trigger</code>、<code>/runs</code> 历史。</p>
+<p><strong>标叔的结论</strong>：定时任务的「工程克制」值得学——先管理面、后自然语言；先 <code>once</code>/<code>cron</code>、后 <code>interval</code>；默认关、显式开。每一刀都为了「第一个 PR 能被审、能被安全运维」。你做功能，也该这么切。</p>
+<p>上下文会膨胀。下一章讲怎么管。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="14.html">← §14 生成与报告能力</a>
+  <a class="pager-btn" href="16.html">§16 上下文工程 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

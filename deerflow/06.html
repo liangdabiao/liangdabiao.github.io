@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§06 子代理与编排 · DeerFlow 2.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeerFlow 2.0 · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§06 子代理与编排</h2>
+<p>DeerFlow 的主代理（lead agent）不把所有活都自己干。遇到复杂任务，它进入<strong>编排者模式（Orchestrator Mode）</strong>，把任务拆成并行子任务，甩给多个子代理同时跑，最后自己只做综合。</p>
+<p>官方 prompt 里写得很直白：</p>
+<blockquote>
+<p>You are a task orchestrator - decompose complex tasks into parallel sub-tasks and launch multiple subagents simultaneously. Synthesize results, don't execute directly.</p>
+</blockquote>
+<p>翻译过来：<strong>你是调度员，不是执行员。拆、派、合，三件事。</strong></p>
+<h3>两个内置纪律</h3>
+<p>主代理的 prompt 里还钉了两条铁律，对你写自己的代理很有参考：</p>
+<ol>
+<li><strong>先澄清，再动手</strong>（Clarification First）：<blockquote>
+<p>ALWAYS clarify unclear/missing/ambiguous requirements BEFORE starting work - never assume or guess</p>
+</blockquote>
+</li>
+</ol>
+<p>代理在需求模糊时，会调用 <code>ask_clarification</code> 反问你，而不是直接猜。</p>
+<ol start="2">
+<li><strong>复杂任务先找技能</strong>（Skill First）：遇到复杂任务，先加载相关 Skill，再动手。</li>
+</ol>
+<h3>轮次预算</h3>
+<p>子代理不是无限跑。系统有 <code>MAX_TURNS_REACHED</code> 这样的轮次上限做保护。任务太深、循环太久，会被预算打断，避免烧光 token 还不出结果。</p>
+<p><strong>标叔的结论</strong>：DeerFlow 的「编排」不是花活，是工程约束。并行 + 预算 + 先澄清，三件套把「代理跑飞」的概率压到了最低。你自定义代理时，这套纪律值得抄。</p>
+<p>技能是 DeerFlow 扩展性的核心。下一章细说。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="05.html">← §05 五大内置能力</a>
+  <a class="pager-btn" href="07.html">§07 Skills 技能系统 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeerFlow 2.0 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>
