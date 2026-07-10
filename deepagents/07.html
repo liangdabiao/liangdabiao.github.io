@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§07 后端系统决定数据存在哪 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§07 后端系统决定数据存在哪</h2>
+<p>先给结论：所有文件操作都走 <code>BackendProtocol</code> 抽象层。换后端，不换业务代码。</p>
+<p>我第一次没搞懂后端，直接上了 <code>FilesystemBackend</code> + <code>CompositeBackend</code>。 结果 <code>.agent_data/</code> 目录不透明、不持久、gitignore 忽略。 其实我那个场景，用默认的 <code>StateBackend</code> 就够了。</p>
+<h3>后端全家福</h3>
+<table>
+<thead>
+<tr>
+<th>后端</th>
+<th>范围</th>
+<th>execute</th>
+<th>适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>StateBackend</code></td>
+<td>线程作用域</td>
+<td>否</td>
+<td>默认；中间结果草稿纸</td>
+</tr>
+<tr>
+<td><code>FilesystemBackend</code></td>
+<td>本地磁盘</td>
+<td>否</td>
+<td>本地开发、CI</td>
+</tr>
+<tr>
+<td><code>StoreBackend</code></td>
+<td>跨线程</td>
+<td>否</td>
+<td>长期记忆、多会话</td>
+</tr>
+<tr>
+<td><code>ContextHubBackend</code></td>
+<td>LangSmith Hub</td>
+<td>否</td>
+<td>不要单独 store 的持久化</td>
+</tr>
+<tr>
+<td><code>LocalShellBackend</code></td>
+<td>本地+Shell</td>
+<td>是</td>
+<td>本地开发带命令行</td>
+</tr>
+<tr>
+<td>沙箱后端</td>
+<td>隔离环境</td>
+<td>是</td>
+<td>Modal/Daytona/Runloop/LangSmith</td>
+</tr>
+<tr>
+<td><code>CompositeBackend</code></td>
+<td>按路径前缀路由</td>
+<td>按路由</td>
+<td>混合：默认 State + /memories/ 用 Store</td>
+</tr>
+</tbody>
+</table>
+<h3>最常用的 CompositeBackend</h3>
+<pre><code class="language-python">from deepagents import create_deep_agent
+from deepagents.backends import CompositeBackend, StateBackend, StoreBackend
+from langgraph.store.memory import InMemoryStore
+
+agent = create_deep_agent(
+    model="anthropic:claude-sonnet-4-6",
+    backend=CompositeBackend(
+        default=StateBackend(),                      # 默认走内存
+        routes={"/memories/": StoreBackend(...)},    # /memories/ 走持久
+    ),
+    store=InMemoryStore(),
+)</code></pre>
+<p>一句话理解：默认存内存，特定路径存长久。</p>
+<p><strong>标叔的结论</strong>：开发用 <code>StateBackend</code> 或 <code>FilesystemBackend</code>。生产用 <code>CompositeBackend</code>（内存 + Store 持久）。代码执行才上沙箱。别像我一样过度设计。</p>
+<blockquote><p><strong>标叔的经验</strong>：StateBackend 把数据存在 LangGraph state 里，线程隔离，无外部依赖。对纯内存场景，它是首选。我后来把那个项目从 FilesystemBackend 退回 StateBackend，清爽很多。</p></blockquote>
+<p>下一章，讲子代理——DeepAgents 最被低估的能力。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="06.html">← §06 中间件是 DeepAgents 的灵魂</a>
+  <a class="pager-btn" href="08.html">§08 子代理：把脏活分给干净上下文 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

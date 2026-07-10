@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§03 一次调用背后，框架帮你干了四件事 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§03 一次调用背后，框架帮你干了四件事</h2>
+<p>先给结论：你只调了一次 <code>invoke()</code>，框架在背后跑了规划、搜索、存文件、委派、压缩。</p>
+<p>2026 年初，我用 DeepAgents 搭了个研究助手。 我让它"研究 2025 年的 agentic 框架，写份报告"。 我以为就一句 LLM 调用。结果它干了五件事。</p>
+<p>它自动做了这些：</p>
+<ol><li>调 <code>write_todos</code> 把任务拆成步骤。</li><li>调 <code>internet_search</code> 搜资料。</li><li>把大段搜索结果存进虚拟文件系统。</li><li>必要时 spawn 子代理处理分支。</li><li>回读文件，综合成报告。</li></ol>
+<p>全程我没写一行调度代码。</p>
+<blockquote><p><strong>标叔的经验</strong>：最让我意外的是第 3 步。一次搜索返回几千字，直接塞进上下文会爆窗。DeepAgents 自动把大结果"驱逐"到文件系统，只在上下文留个指针。这是我手动写 LangGraph 时最头疼的事——它默认就处理了。</p></blockquote>
+<p>这背后是五个内置能力的配合：</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>内置工具</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>规划</td>
+<td><code>write_todos</code></td>
+<td>任务分解，状态存 agent state</td>
+</tr>
+<tr>
+<td>文件系统</td>
+<td><code>read_file</code> <code>write_file</code> <code>edit_file</code> <code>ls</code> <code>glob</code> <code>grep</code></td>
+<td>大结果自动 offload</td>
+</tr>
+<tr>
+<td>Shell 执行</td>
+<td><code>execute</code></td>
+<td>仅在沙箱后端可用</td>
+</tr>
+<tr>
+<td>子代理</td>
+<td><code>task</code></td>
+<td>上下文隔离的任务委派</td>
+</tr>
+<tr>
+<td>上下文压缩</td>
+<td><code>compact_conversation</code></td>
+<td>窗口到 85% 自动摘要</td>
+</tr>
+</tbody>
+</table>
+<p><strong>标叔的结论</strong>：你写的是"做什么"，框架管的是"怎么做"。这正是 harness 的价值。</p>
+<blockquote><p><strong>注意</strong>：<code>execute</code>（跑 shell）默认不可用。它只在沙箱后端开启。别在本地直接指望它。详见 §13。</p></blockquote>
+<p>下一章，我把"模型随便换"这件事讲透。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="02.html">← §02 五分钟跑通你的第一个 Agent</a>
+  <a class="pager-btn" href="04.html">§04 模型随便换，是 DeepAgents 的底层优势 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§09 Skills：随用随取的技能包 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§09 Skills：随用随取的技能包</h2>
+<p>先给结论：Skill 是带 <code>SKILL.md</code> 的目录。用到才加载全文，平时只占元数据。这叫渐进式披露。</p>
+<p>传统做法是把所有提示词塞进 system prompt。 我见过一个 <code>IMAGE_GENERATOR_PROMPT</code>，是包含所有规则的巨型字符串。 每次对话都消耗大量 token。浪费。</p>
+<p>DeepAgents 的 Skills 不这么干。</p>
+<h3>三步机制</h3>
+<ol><li><strong>匹配</strong>：看 skill 的 name + description 是否对上任务。</li><li><strong>加载</strong>：用 <code>read_file</code> 读完整 <code>SKILL.md</code>。</li><li><strong>执行</strong>：按指令调工具或脚本。</li></ol>
+<p>平时只加载 frontmatter（name + description）。 相关时才读全文。省 token，也省上下文。</p>
+<h3>SKILL.md 长这样</h3>
+<pre><code class="language-markdown">---
+name: location-detector
+description: 获取用户所在城市。需要基于位置的服务时调用。
+---
+
+# 位置检测器
+## 使用方法
+python scripts/location_detector.py
+## 响应格式
+当前位置：{城市名}</code></pre>
+<h3>目录结构</h3>
+<pre><code class="language-text">skills/
+└── my-skill/
+    ├── SKILL.md          # 必需
+    ├── scripts/          # 可选：脚本
+    ├── references/       # 可选：模板/文档
+    └── assets/           # 可选：输出资源</code></pre>
+<h3>挂到 Agent 上</h3>
+<pre><code class="language-python">agent = create_deep_agent(
+    model="...",
+    skills=["/skills/"],          # 指向含 SKILL.md 的目录
+    backend=StateBackend(),
+    checkpointer=MemorySaver(),
+)</code></pre>
+<blockquote><p><strong>标叔的经验</strong>：我把一个电商图片生成的硬规则，从巨型 prompt 迁到 <code>SKILL.md</code>。每次对话 token 消耗降了一大截。而且 rules 改了只动一个文件，不再翻巨型字符串。这就是渐进式披露的好处。</p></blockquote>
+<p><strong>标叔的结论</strong>：长提示词、领域知识、固定流程——都该做成 Skill。别堆在 system prompt 里。</p>
+<blockquote><p><strong>注意</strong>：Skill 的 <code>description</code> 决定它何时被触发。写清楚"何时用"，比写"它能干啥"更重要。</p></blockquote>
+<p>下一章，讲让代理记得住的长期记忆。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="08.html">← §08 子代理：把脏活分给干净上下文</a>
+  <a class="pager-btn" href="10.html">§10 长期记忆：AGENTS.md 让代理记得住 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§10 长期记忆：AGENTS.md 让代理记得住 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§10 长期记忆：AGENTS.md 让代理记得住</h2>
+<p>先给结论：用 <code>AGENTS.md</code> 文件存"持久偏好"。它每轮都加载——和 Skills 的渐进式披露不同。</p>
+<p>我一开始把 AGENTS.md 和 Skills 搞混了。 区别一句话：Skills 用到才加载，AGENTS.md 每轮都加载。</p>
+<p>AGENTS.md 该放什么？放"身份、约定、偏好"这种恒定信息。</p>
+<pre><code class="language-python">agent = create_deep_agent(
+    model="...",
+    memory=["/AGENTS.md"],    # 每轮加载
+    checkpointer=MemorySaver(),
+)</code></pre>
+<h3>它和 Skills 的关键差别</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>AGENTS.md (memory)</th>
+<th>SKILL.md (skills)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>加载时机</td>
+<td>每轮都加载</td>
+<td>用到才加载</td>
+</tr>
+<tr>
+<td>适合内容</td>
+<td>身份、偏好、约定</td>
+<td>领域知识、流程</td>
+</tr>
+<tr>
+<td>是否可被忽略</td>
+<td>否</td>
+<td>模型自行判断是否触发</td>
+</tr>
+</tbody>
+</table>
+<h3>两种后端的播种方式</h3>
+<pre><code class="language-python"># StateBackend：用 files 参数播种
+agent = create_deep_agent(
+    model="...",
+    memory=["/AGENTS.md"],
+    backend=StateBackend(),
+)
+
+# StoreBackend：用 store.put() 预填
+store.put(("namespace",), key="AGENTS.md", value=content)</code></pre>
+<blockquote><p><strong>标叔的经验</strong>：我曾把"运行时指令"塞进 AGENTS.md，比如"严格保留原图外观"。结果每轮都占上下文，还很怪。运行时指令该放 Skill 或 system_prompt。AGENTS.md 只放真正持久的东西。</p></blockquote>
+<p><strong>标叔的结论</strong>：AGENTS.md 是代理的"性格与习惯"。少而精，别当垃圾桶。</p>
+<blockquote><p><strong>注意</strong>：AGENTS.md 每轮加载。内容越长，每轮越费 token。只放恒定信息。</p></blockquote>
+<p>下一章，讲怎么看清代理在干嘛：流式输出。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="09.html">← §09 Skills：随用随取的技能包</a>
+  <a class="pager-btn" href="11.html">§11 流式输出：看清代理在干嘛 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

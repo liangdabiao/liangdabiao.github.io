@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§12 人机协同：关键操作必须你点头 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§12 人机协同：关键操作必须你点头</h2>
+<p>先给结论：敏感工具执行前，可以让代理停下来等人类批准。这叫 Human-in-the-Loop（HITL）。</p>
+<p>删除文件、发邮件、部署代码——这些不能让 Agent 自作主张。 DeepAgents 用 <code>interrupt_on</code> 配置哪些工具要人确认。</p>
+<h3>配置中断</h3>
+<pre><code class="language-python">from langgraph.checkpoint.memory import MemorySaver
+
+agent = create_deep_agent(
+    tools=[delete_file, send_email],
+    interrupt_on={
+        "delete_file": True,   # 全部决策都允许
+        "send_email": {"allowed_decisions": ["approve", "reject"]},
+    },
+    checkpointer=MemorySaver(),   # 必须！否则恢复不了
+)</code></pre>
+<h3>中断与恢复（v2 格式）</h3>
+<pre><code class="language-python">result = agent.invoke(
+    {"messages": [{"role": "user", "content": "删掉 temp.txt"}]},
+    config=config, version="v2",
+)
+
+if result.interrupts:                    # v2：属性访问
+    action = result.interrupts[0].value["action_requests"][0]
+    print(f"要执行: {action['name']}, 参数: {action['args']}")
+
+    decisions = [{"type": "approve"}]    # approve/edit/reject
+    result = agent.invoke(
+        Command(resume={"decisions": decisions}),  # 恢复执行
+        config=config, version="v2",
+    )</code></pre>
+<p>四种决策：<code>approve</code>（批准）、<code>edit</code>（改参数再执行）、<code>reject</code>（拒绝）、<code>respond</code>（回复）。</p>
+<h3>风险分级建议</h3>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>工具</th>
+<th>允许决策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>高</td>
+<td>删除/发送/部署</td>
+<td>approve、edit、reject</td>
+</tr>
+<tr>
+<td>中</td>
+<td>写文件/改配置</td>
+<td>approve、reject（禁 edit）</td>
+</tr>
+<tr>
+<td>低</td>
+<td>读/列</td>
+<td>不打断</td>
+</tr>
+</tbody>
+</table>
+<blockquote><p><strong>标叔的经验</strong>：我见过的真实 bug：在父 Agent 层面对 <code>generate_image</code> 设中断。但那是子代理的工具，父 Agent 的中断传不到它。正确做法是去子代理自己的 <code>interrupt_on</code> 里设。这个坑后面 §19 会展开。</p></blockquote>
+<p><strong>标叔的结论</strong>：敏感操作，宁可多问一次。HITL 配置错，比不配置更危险——因为它给你"已保护"的错觉。</p>
+<blockquote><p><strong>注意</strong>：HITL 必须配 <code>checkpointer</code>。中断恢复靠它。没有 checkpointer，流程断不了也续不上。</p></blockquote>
+<p>下一章，讲给代理划边界：权限与沙箱。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="11.html">← §11 流式输出：看清代理在干嘛</a>
+  <a class="pager-btn" href="13.html">§13 权限与沙箱：给代理划好边界 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

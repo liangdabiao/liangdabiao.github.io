@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§16 上下文工程：别让窗口爆掉 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§16 上下文工程：别让窗口爆掉</h2>
+<p>先给结论：DeepAgents 把"上下文管理"做成默认流水线。你理解它，长任务才稳。</p>
+<p>我做过一个超长研究任务。没管上下文，跑到一半，Agent 开始"失忆"——前面搜的重点全丢了。 后来我懂了：上下文窗口是稀缺资源，得主动管。</p>
+<p>DeepAgents 的上下文管理靠三件套：</p>
+<ol><li><strong>大结果驱逐</strong>：&gt;20k token 的工具结果，写文件系统，留指针。</li><li><strong>自动压缩</strong>：窗口到 85%，摘要老消息。</li><li><strong>子代理隔离</strong>：把脏活丢给干净上下文。</li></ol>
+<h3>手动触发压缩</h3>
+<pre><code class="language-python"># 代理自己或你手动调用
+compact_conversation()</code></pre>
+<p>85% 是阈值。到了就自动摘要。 老消息被压缩，原文 offload 到后端存储，上下文只留摘要。</p>
+<h3>给开发者的建议</h3>
+<table>
+<thead>
+<tr>
+<th>做法</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>大结果写文件，不全塞上下文</td>
+<td>省窗口</td>
+</tr>
+<tr>
+<td>长任务拆子代理</td>
+<td>主上下文干净</td>
+</tr>
+<tr>
+<td>用 Skills 渐进披露</td>
+<td>不预载长提示词</td>
+</tr>
+<tr>
+<td>用 AGENTS.md 放恒定信息</td>
+<td>不重复注入</td>
+</tr>
+</tbody>
+</table>
+<blockquote><p><strong>标叔的经验</strong>：我那个"失忆"的任务，改成"每步结果写 /memories/ 文件 + 拆子代理"后，跑到两万字上下文也没丢重点。上下文工程不是玄学，是这几条具体动作。</p></blockquote>
+<p><strong>标叔的结论</strong>：上下文窗口是有限的。会管理上下文的 Agent，才跑得动长任务。</p>
+<p>下一章，讲上线：生产部署。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="15.html">← §15 Deep Agents Code：开箱即用的终端编程代理</a>
+  <a class="pager-btn" href="17.html">§17 生产部署：多租户、安全与扩展 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

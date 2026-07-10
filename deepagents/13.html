@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§13 权限与沙箱：给代理划好边界 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§13 权限与沙箱：给代理划好边界</h2>
+<p>先给结论：用 <code>FilesystemPermission</code> 声明"能读哪、能写哪"。用沙箱隔离代码执行。边界在工具层强制。</p>
+<p>DeepAgents 的安全哲学很明确：<strong>信任 LLM，但在工具/沙箱层强制边界</strong>。 靠"请你别删重要文件"这种提示词设防，没用。</p>
+<h3>文件权限</h3>
+<pre><code class="language-python">from deepagents import create_deep_agent, FilesystemPermission
+
+agent = create_deep_agent(
+    model="...",
+    permissions=[
+        FilesystemPermission(operations=["write"], paths=["/policies/**"], mode="deny"),
+        FilesystemPermission(operations=["read", "write"], paths=["/workspace/**"], mode="allow"),
+    ],
+)</code></pre>
+<p>规则是<strong>首匹配生效</strong>。没匹配上的，默认允许。 模式：<code>allow</code> 放行，<code>deny</code> 拒绝。操作：<code>read</code> / <code>write</code>。</p>
+<h3>沙箱：代码执行的隔离舱</h3>
+<p><code>execute</code> 跑 shell，只在沙箱后端开。 沙箱把代码执行关进隔离环境，不碰你本机。</p>
+<p>支持的后端：Daytona、Modal、Runloop、LangSmith、AgentCore。</p>
+<pre><code class="language-python">agent = create_deep_agent(
+    model="...",
+    backend=LocalShellBackend(root_dir="./workspace", virtual_mode=True),
+)</code></pre>
+<p><code>virtual_mode=True</code> 限制路径，本地开发更安全。</p>
+<blockquote><p><strong>标叔的经验</strong>：一个真实项目把 <code>generate_image</code> 工具内部写成轮询 180 秒。结果 Agent 被冻住 180 秒，啥也干不了。长任务别在工具里轮询。要么直接 <code>await</code>，要么用 AsyncSubAgent。详见 §19。</p></blockquote>
+<p><strong>标叔的结论</strong>：安全不是一句"请注意"。是声明式规则 + 隔离执行环境。两层都要有。</p>
+<blockquote><p><strong>注意</strong>：<code>permissions</code> 对沙箱后端不生效。沙箱要用后端自己的策略钩子（如 <code>PolicyWrapper</code>）来限制。</p></blockquote>
+<p>Part 2 结束。下一 part 进实战。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="12.html">← §12 人机协同：关键操作必须你点头</a>
+  <a class="pager-btn" href="14.html">§14 实战：搭一个会写报告的研究助手 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

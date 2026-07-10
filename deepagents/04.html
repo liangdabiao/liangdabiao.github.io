@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§04 模型随便换，是 DeepAgents 的底层优势 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§04 模型随便换，是 DeepAgents 的底层优势</h2>
+<p>先给结论：DeepAgents 是模型中立的。Anthropic、OpenAI、Google、DeepSeek、本地 Ollama，通吃。</p>
+<p>这点和 Claude Agent SDK 形成直接对比。 Claude Agent SDK 绑死在 Anthropic 模型上。 DeepAgents 不挑。你用谁家的模型都行。</p>
+<p>写法统一成 <code>provider:model</code>：</p>
+<pre><code class="language-python">agent = create_deep_agent(
+    model="openai:gpt-5.4",   # 想换就换
+    tools=[get_weather],
+)</code></pre>
+<p>我做过一个实验。同一个研究助手，下午用 Claude，晚上换 GPT。 代码一行没改，只动了 model 字符串。 报告质量有差异，但工程层完全不用动。</p>
+<blockquote><p><strong>标叔的经验</strong>：这种"模型可插拔"在生产里太重要了。供应商涨价、某个模型抽风，你当天就能切。绑死一家，迁移成本以周计。</p></blockquote>
+<p>如果你要传额外参数（temperature、thinking 开关），可以手动初始化模型：</p>
+<pre><code class="language-python">from langchain.chat_models import init_chat_model
+
+llm = init_chat_model(model="openai:gpt-5.4", temperature=0.2)
+agent = create_deep_agent(model=llm, tools=[get_weather])</code></pre>
+<p>但注意！别把 <code>callbacks</code> 挂模型上。 那会和 DeepAgents 的中间件打架。日志要用中间件写，见 §06。</p>
+<p><strong>标叔的结论</strong>：能用字符串，就别手动实例化。要额外参数，才手动建。手动建就别挂 callback。</p>
+<blockquote><p><strong>注意</strong>：模型必须支持 tool calling。纯补全模型（不带工具调用）跑不了 Agent。</p></blockquote>
+<p>到这里，起步 part 结束。下一 part，我们拆骨架。</p>
+<hr />
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="03.html">← §03 一次调用背后，框架帮你干了四件事</a>
+  <a class="pager-btn" href="05.html">§05 五大内置能力，你写代码前就已经在了 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

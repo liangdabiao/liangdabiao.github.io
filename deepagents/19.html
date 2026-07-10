@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§19 避坑指南：从一个真实重构说起 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§19 避坑指南：从一个真实重构说起</h2>
+<p>先给结论：绝大多数 DeepAgents 问题，是"没按框架设计意图用"。下面 6 个坑，我都亲眼见过。</p>
+<p>我手头有个真实案例：一个图片生成系统，把 DeepAgents 当普通 LangGraph wrapper 用。 结果 HITL 失效、子代理不注册、Skills 架空、工具冻结。 我把它重构了一遍。下面这些坑，都来自那次。</p>
+<h3>坑 1：HITL 用了旧格式</h3>
+<p>错误：检查 <code>__interrupt__</code>（v1 格式），调用没传 <code>version="v2"</code>。 后果：中断信息取不到，恢复不了。</p>
+<p>正确：</p>
+<pre><code class="language-python">result = await agent.ainvoke(input_data, config=config, version="v2")
+# 检查用属性
+if getattr(result, "interrupts", None):
+    ...
+# 恢复
+await agent.ainvoke(Command(resume={"decisions": decisions}), config=config, version="v2")</code></pre>
+<h3>坑 2：子代理配置缺字段</h3>
+<p>错误：<code>description</code> 太模糊，没 <code>skills</code>，没 <code>response_format</code>。 后果：主 Agent 不知何时委派；返回自由文本要靠脆弱正则解析。</p>
+<p>正确：<code>description</code> 写触发条件；用 <code>response_format</code> 拿结构化 JSON：</p>
+<pre><code class="language-python">class ImageGenResult(BaseModel):
+    status: str
+    task_id: str
+    file_url: str | None = None
+
+{"name": "image-generator",
+ "description": "用户要生成任何电商/营销图片时调用",
+ "system_prompt": "...",
+ "tools": [generate_image],
+ "skills": ["skills/ecom-details-image"],
+ "response_format": ImageGenResult}</code></pre>
+<h3>坑 3：Skills 被架空</h3>
+<p>错误：模板硬编码进巨型 prompt，没有 <code>SKILL.md</code>。 后果：<code>SkillsMiddleware</code> 完全不介入；每轮白烧 token。</p>
+<p>正确：建 <code>skills/xxx/SKILL.md</code>，用渐进式披露。删掉硬编码函数。</p>
+<h3>坑 4：工具内部轮询冻住 Agent</h3>
+<p>错误：<code>generate_image</code> 内部 <code>for i in range(180): sleep(1)</code> 轮询。 后果：Agent 被冻 180 秒。</p>
+<p>正确：直接 <code>await run_generation(task, ...)</code>。要真异步，用 AsyncSubAgent。</p>
+<h3>坑 5：每线程新建 Agent 实例</h3>
+<p>错误：<code>_agent_sessions</code> 对每个 thread_id 建新 Agent + 新 checkpointer。 后果：实例浪费，checkpointer 不共享。</p>
+<p>正确：全局只建一次 Agent + checkpointer，用 <code>thread_id</code> 区分会话：</p>
+<pre><code class="language-python">_checkpointer = MemorySaver()
+_agent = None
+
+def get_agent():
+    global _agent
+    if _agent is None:
+        _agent = create_deep_agent(model=..., checkpointer=_checkpointer)
+    return _agent</code></pre>
+<h3>坑 6：模型手动初始化 + 挂 callback</h3>
+<p>错误：<code>ChatDeepSeek(... callbacks=[...])</code>。 正确：用 <code>"provider:model"</code> 字符串；日志走中间件：</p>
+<pre><code class="language-python">agent = create_deep_agent(model="deepseek:deepseek-v4-flash", ...)
+
+@wrap_tool_call
+def log_tool_calls(request, handler):
+    print(f"[TOOL] {request.name}")
+    return handler(request)</code></pre>
+<h3>一张表记住</h3>
+<table>
+<thead>
+<tr>
+<th>坑</th>
+<th>现象</th>
+<th>修法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HITL 旧格式</td>
+<td>中断取不到</td>
+<td>加 <code>version="v2"</code>，用 <code>.interrupts</code></td>
+</tr>
+<tr>
+<td>子代理缺字段</td>
+<td>不委派/脆弱解析</td>
+<td>写好 description + response_format</td>
+</tr>
+<tr>
+<td>Skills 架空</td>
+<td>token 浪费</td>
+<td>建 SKILL.md，渐进披露</td>
+</tr>
+<tr>
+<td>工具轮询</td>
+<td>Agent 冻结</td>
+<td>直接 await / AsyncSubAgent</td>
+</tr>
+<tr>
+<td>每线程建实例</td>
+<td>资源浪费</td>
+<td>全局单例 + thread_id</td>
+</tr>
+<tr>
+<td>模型挂 callback</td>
+<td>中间件冲突</td>
+<td>用字符串 + 中间件日志</td>
+</tr>
+</tbody>
+</table>
+<blockquote><p><strong>标叔的经验</strong>：这 6 个坑，根子都是一个——"我没按框架的意思用"。DeepAgents 给了默认最佳实践。你绕过它自己造，往往造出它已经解决的问题。先用默认，遇到真瓶颈再改。</p></blockquote>
+<p><strong>标叔的结论</strong>：学框架，先信它的默认。踩坑大多来自"我以为这样写也行"。</p>
+<hr />
+<h2>写在最后</h2>
+<p>DeepAgents 不是又一个 Agent 框架。 它是 LangChain 把"成功的深度 Agent"长什么样，做成默认配置。</p>
+<p>你只要写 <code>create_deep_agent()</code>，就拿到： 规划、文件系统、子代理、记忆、压缩、HITL、Skills。</p>
+<p>从五分钟跑通，到生产部署。 这本书的 19 章，是一条完整路径。</p>
+<p>我最想说的就一句： <strong>先用默认，跑起来，再谈优化。</strong> 别像我一样，先造轮子，再发现轮子框架早就给了。</p>
+<blockquote><p>标叔出品 | AI Native Coder · 独立开发者 公众号「标叔」| B站「AI进化论-花生」</p></blockquote>
+<hr />
+<h2>附录：核心 API 速查</h2>
+<h3>create_deep_agent 常用参数</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>model</code></td>
+<td><code>"provider:model"</code> 或模型实例</td>
+</tr>
+<tr>
+<td><code>tools</code></td>
+<td>自定义工具列表</td>
+</tr>
+<tr>
+<td><code>system_prompt</code></td>
+<td>自定义指令（置顶）</td>
+</tr>
+<tr>
+<td><code>middleware</code></td>
+<td>额外中间件</td>
+</tr>
+<tr>
+<td><code>subagents</code></td>
+<td>子代理定义</td>
+</tr>
+<tr>
+<td><code>skills</code></td>
+<td>SKILL.md 目录路径</td>
+</tr>
+<tr>
+<td><code>memory</code></td>
+<td>AGENTS.md 路径（每轮加载）</td>
+</tr>
+<tr>
+<td><code>permissions</code></td>
+<td>文件权限规则</td>
+</tr>
+<tr>
+<td><code>backend</code></td>
+<td>存储后端</td>
+</tr>
+<tr>
+<td><code>interrupt_on</code></td>
+<td>HITL 配置</td>
+</tr>
+<tr>
+<td><code>response_format</code></td>
+<td>结构化输出 schema</td>
+</tr>
+<tr>
+<td><code>checkpointer</code></td>
+<td>持久化层（HITL/多轮必配）</td>
+</tr>
+<tr>
+<td><code>store</code></td>
+<td>跨线程存储</td>
+</tr>
+</tbody>
+</table>
+<h3>五大内置能力工具</h3>
+<pre><code class="language-text">规划：write_todos
+文件：ls read_file write_file edit_file glob grep
+Shell：execute（沙箱）
+子代理：task
+压缩：compact_conversation</code></pre>
+<h3>常用命令</h3>
+<pre><code class="language-bash">pip install deepagents          # 装 SDK
+curl -LsSf https://langch.in/dcode | bash   # 装 dcode
+dcode                            # 启动终端编程代理</code></pre>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="18.html">← §18 和 Claude Agent SDK 怎么选</a>
+  <a class="pager-btn" href="index.html">返回目录 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

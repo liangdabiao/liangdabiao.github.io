@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§17 生产部署：多租户、安全与扩展 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§17 生产部署：多租户、安全与扩展</h2>
+<p>先给结论：DeepAgents 为生产而设计。多租户、RBAC、自带 Agent Server，开箱有。</p>
+<p>我帮一个团队上线 Agent 服务时，最怕两件事：多用户隔离、服务可运维。 Claude Agent SDK 这两件都要自己搭。DeepAgents 默认带了不少。</p>
+<h3>多租户</h3>
+<p>DeepAgents 内建多租户：</p>
+<ul><li>按用户/助手隔离的沙箱</li><li>作用域化的 thread</li><li>运行历史隔离</li><li>RBAC（基于角色的访问控制）</li></ul>
+<p>用 LangSmith Sandbox，还自带 auth 代理。 用户从沙箱调第三方 API，你不用每人配凭证。</p>
+<h3>Agent Server 开箱即用</h3>
+<p>自托管 Claude Agent SDK，你要自己写 HTTP/WebSocket/SSE 服务。 DeepAgents 部署自带 Agent Server：流式端点、thread 管理、运行历史、webhook、鉴权。</p>
+<h3>两种部署模式（无代码改动）</h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>做法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>托管</td>
+<td>LangSmith 的 Managed Deep Agents</td>
+</tr>
+<tr>
+<td>自托管</td>
+<td><code>langgraph build</code> 生成独立 Docker 镜像，到处部署</td>
+</tr>
+</tbody>
+</table>
+<h3>生产要点清单</h3>
+<pre><code class="language-text">☐ checkpointer 必配（HITL、多轮都靠它）
+☐ store 配好（跨线程记忆）
+☐ 权限规则声明（FilesystemPermission）
+☐ 沙箱隔离代码执行
+☐ 流式用 version="v2"
+☐ 监控接 LangSmith tracing</code></pre>
+<blockquote><p><strong>标叔的经验</strong>：上线前我漏了 checkpointer。结果 HITL 恢复不了，多轮对话也串了。生产环境，checkpointer 不是可选项，是必选项。</p></blockquote>
+<p><strong>标叔的结论</strong>：DeepAgents 把生产该有的骨架都备好了。你填业务，别重造轮子。</p>
+<blockquote><p><strong>注意</strong>：多租户隔离靠后端 + 沙箱配置。配错，用户数据会串。上线前务必测隔离。</p></blockquote>
+<p>下一章，讲选型：和 Claude Agent SDK 怎么选。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="16.html">← §16 上下文工程：别让窗口爆掉</a>
+  <a class="pager-btn" href="18.html">§18 和 Claude Agent SDK 怎么选 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

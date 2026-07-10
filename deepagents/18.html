@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§18 和 Claude Agent SDK 怎么选 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§18 和 Claude Agent SDK 怎么选</h2>
+<p>先给结论：要模型/基础设施灵活、要内置多租户——选 DeepAgents。深度绑 Anthropic 且愿自建——选 Claude Agent SDK。</p>
+<p>这俩都是 harness，但取舍不同。我做了张对比表。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Deep Agents</th>
+<th>Claude Agent SDK</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent 在哪跑</td>
+<td>沙箱内或外用沙箱当工具</td>
+<td>只在沙箱内</td>
+</tr>
+<tr>
+<td>模型供应商</td>
+<td>任意（Anthropic/OpenAI/Google/100+）</td>
+<td>仅 Anthropic 系</td>
+</tr>
+<tr>
+<td>多租户</td>
+<td>内建（隔离 thread、沙箱、RBAC）</td>
+<td>自己搭</td>
+</tr>
+<tr>
+<td>部署</td>
+<td>托管或自托管镜像</td>
+<td>自托管（自己写服务）</td>
+</tr>
+<tr>
+<td>许可证</td>
+<td>MIT</td>
+<td>MIT（Claude Code 本身闭源）</td>
+</tr>
+</tbody>
+</table>
+<h3>关键差异一：执行位置</h3>
+<p>Claude Agent SDK 只支持"Agent 跑在沙箱里"。 DeepAgents 两种都行，还能"Agent 跑外面，把远程沙箱当工具用"。 这叫"两种连接沙箱的模式"。生产架构正往这个方向走。</p>
+<h3>关键差异二：多租户</h3>
+<p>给每个用户隔离环境，Claude Agent SDK 要你写 API 包装层： 每用户起沙箱、追踪归属、用完销毁。 DeepAgents 在 harness 里直接配：按用户/助手隔离沙箱，带 thread 隔离和 RBAC。</p>
+<h3>谁在用</h3>
+<p>DeepAgents 已在生产使用：OpenSWE、LangSmith Fleet。 这不是玩具框架。</p>
+<p><strong>标叔的结论</strong>：模型中立 + 内建多租户 + 托管/自托管任选——这三个是 DeepAgents 的硬优势。你若已深绑 Anthropic 且愿自建，Claude Agent SDK 也行。</p>
+<blockquote><p><strong>标叔的经验</strong>：我给客户选型时，先问一句"模型锁死 Anthropic 了吗？"。没锁，基本选 DeepAgents。锁了，再看团队能不能扛多租户自建。这一问，省了三天纠结。</p></blockquote>
+<p>下一章，收尾：从一个真实重构，讲避坑。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="17.html">← §17 生产部署：多租户、安全与扩展</a>
+  <a class="pager-btn" href="19.html">§19 避坑指南：从一个真实重构说起 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

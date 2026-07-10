@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§11 流式输出：看清代理在干嘛 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§11 流式输出：看清代理在干嘛</h2>
+<p>先给结论：DeepAgents 内建流式。三种模式，对应三种观察粒度。</p>
+<p>我第一次跑长任务，终端一片静默。十几秒没输出，我以为它挂了。 后来开了流式，才看到它在一步步调工具、写文件。安心多了。</p>
+<h3>三种模式</h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>粒度</th>
+<th>适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>updates</code></td>
+<td>节点级进度</td>
+<td>宏观进度追踪</td>
+</tr>
+<tr>
+<td><code>messages</code></td>
+<td>token 级</td>
+<td>聊天式打字机</td>
+</tr>
+<tr>
+<td><code>custom</code></td>
+<td>自定义事件</td>
+<td>进度百分比等</td>
+</tr>
+</tbody>
+</table>
+<h3>updates 模式：看节点</h3>
+<pre><code class="language-python">for event in agent.stream(
+    {"messages": [{"role": "user", "content": "你好"}]},
+    config={"configurable": {"thread_id": "123"}},
+    stream_mode="updates",
+    subgraphs=True,        # 看子代理
+    version="v2",
+):
+    print(event)</code></pre>
+<h3>messages 模式：打字机</h3>
+<pre><code class="language-python">for chunk in agent.stream(input, stream_mode="messages",
+                           subgraphs=True, version="v2"):
+    if chunk["type"] == "messages":
+        token, _ = chunk["data"]
+        if token.type == "tool":          # 工具结果
+            print(f"\n工具结果: {str(token.content)[:150]}")
+        elif token.type == "ai" and token.content:  # 文本
+            print(token.content, end="", flush=True)</code></pre>
+<h3>v2 格式与命名空间</h3>
+<p>新版本用 <code>version="v2"</code>。每个 chunk 带 <code>ns</code>（命名空间）：</p>
+<pre><code class="language-text">()                        → 主 Agent
+("tools:abc123",)         → task 创建的子 Agent
+("tools:abc123", "...")   → 子 Agent 内部节点</code></pre>
+<p>这样你能分清：这段输出，是主代理还是子代理说的。</p>
+<p><strong>标叔的结论</strong>：做 UI 用 <code>messages</code>，做后台监控用 <code>updates</code>，做进度条用 <code>custom</code>。按需选。</p>
+<blockquote><p><strong>注意</strong>：看子代理细节，必须 <code>subgraphs=True</code>（旧版 <code>stream_subgraphs=True</code>）且 <code>version="v2"</code>。漏了就只见主代理。</p></blockquote>
+<p>下一章，讲最该认真对待的能力：人机协同。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="10.html">← §10 长期记忆：AGENTS.md 让代理记得住</a>
+  <a class="pager-btn" href="12.html">§12 人机协同：关键操作必须你点头 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

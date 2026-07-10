@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§05 五大内置能力，你写代码前就已经在了 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§05 五大内置能力，你写代码前就已经在了</h2>
+<p>先给结论：规划、文件系统、Shell、子代理、压缩，是出厂自带。不写代码就有。</p>
+<p>我刚用时有个错觉：这些是"可选功能"。 错了。它们是默认中间件塞进来的。你不用，它们在；你用，它们更强。</p>
+<h3>规划（write_todos）</h3>
+<p>Agent 自己把大任务拆成小步骤。 状态：<code>pending</code> → <code>in_progress</code> → <code>completed</code>。 存在 agent state 里，跨轮次不丢。</p>
+<h3>文件系统（6 个工具）</h3>
+<pre><code class="language-text">ls          列出目录
+read_file   读文件（带行号，支持分页）
+write_file  写文件（冲突即报错，不覆盖）
+edit_file   精确字符串替换
+glob        模式匹配找文件
+grep        搜文件内容</code></pre>
+<p>关键能力：<strong>大结果自动驱逐</strong>。 超过 20k token 的工具结果，会被写到文件系统，上下文只留 <code>read_file</code> 指针。</p>
+<h3>Shell 执行（execute）</h3>
+<p>跑 shell 命令。默认 120 秒超时。 但只有沙箱后端才开。本地默认没有。</p>
+<h3>子代理（task）</h3>
+<p>把子任务派给一个"干净上下文"的新 Agent。 主 Agent 的上下文不被污染。详见 §08。</p>
+<h3>上下文压缩（compact_conversation）</h3>
+<p>上下文用到 85%，自动摘要老消息。 让长任务不爆窗。详见 §16。</p>
+<p><strong>标叔的结论</strong>：这五个能力，单独看都不稀奇。稀奇的是它们默认协同、默认开箱。你省下的，是搭脚手架的时间。</p>
+<blockquote><p><strong>标叔的经验</strong>：我手动搭 LangGraph 时，光"大结果 offload"和"上下文压缩"就写了两百行。DeepAgents 默认就有了。这二百行，我永远不想再写。</p></blockquote>
+<p>下一章，讲这五个能力背后的真正灵魂：中间件。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="04.html">← §04 模型随便换，是 DeepAgents 的底层优势</a>
+  <a class="pager-btn" href="06.html">§06 中间件是 DeepAgents 的灵魂 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

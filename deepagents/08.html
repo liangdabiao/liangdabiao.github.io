@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§08 子代理：把脏活分给干净上下文 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§08 子代理：把脏活分给干净上下文</h2>
+<p>先给结论：子代理是"上下文隔离的任务委派"。主 Agent 不被子任务的细节淹没。</p>
+<p>我做长研究时吃过亏。所有中间步骤塞进一个上下文，读到后面，前面的重点全被挤掉。 子代理的解法很妙：主 Agent 把活派给一个<strong>全新、干净上下文</strong>的 Agent。 子代理干完，只回一个总结给主 Agent。</p>
+<h3>最简单的字典定义</h3>
+<pre><code class="language-python">research_subagent = {
+    "name": "researcher",          # 必需：唯一标识
+    "description": "深度搜索网络信息",  # 必需：触发条件
+    "system_prompt": "你是搜索大师",  # 必需：不继承主代理
+    "tools": [internet_search],    # 可选：写了就全覆盖
+    "model": "openai:gpt-5.4",     # 可选：换模型
+}</code></pre>
+<p>三个字段是必需的：<code>name</code>、<code>description</code>、<code>system_prompt</code>。 <code>description</code> 要写<strong>触发条件</strong>，不是功能介绍。这很关键。</p>
+<blockquote><p><strong>标叔的经验</strong>：我见过一个真实 bug：<code>description</code> 写得太模糊，主 Agent 不知道何时委派，子代理从没被调用。把描述改成"用户要生成任何图片时调用"，委派准确率立刻上来了。</p></blockquote>
+<h3>多专家协作</h3>
+<pre><code class="language-python">subagents = [
+    {"name": "data-collector", "description": "收集原始数据",
+     "system_prompt": "全面收集数据", "tools": [web_search]},
+    {"name": "data-analyzer", "description": "分析数据",
+     "system_prompt": "提取洞察", "tools": [statistical_analysis]},
+    {"name": "report-writer", "description": "撰写报告",
+     "system_prompt": "写专业报告", "tools": [format_document]},
+]
+agent = create_deep_agent(system_prompt="你协调多专家", subagents=subagents)</code></pre>
+<h3>其他两种形态</h3>
+<ul><li><code>CompiledSubAgent</code>：传预编译的 LangGraph 图，要完全控制拓扑时用。</li><li><code>AsyncSubAgent</code>：后台长任务，<code>start</code>/<code>check</code>/<code>update</code>/<code>cancel</code> 管理。</li></ul>
+<p>默认会有一个 <code>general-purpose</code> 子代理。你不定义也会自动加。 想关掉：<code>GeneralPurposeSubagentProfile(enabled=False)</code>。</p>
+<p><strong>标叔的结论</strong>：子代理的核心价值是"上下文隔离"。复杂任务不拆，上下文迟早爆。拆，就干净。</p>
+<blockquote><p><strong>注意</strong>：子代理不继承父代理的工具（除非不写 <code>tools</code>）。不继承 middleware、skills。要用的，显式传。详见 §19 配置规范。</p></blockquote>
+<p>下一章，讲随用随取的技能包：Skills。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="07.html">← §07 后端系统决定数据存在哪</a>
+  <a class="pager-btn" href="09.html">§09 Skills：随用随取的技能包 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

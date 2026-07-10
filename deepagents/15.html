@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§15 Deep Agents Code：开箱即用的终端编程代理 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§15 Deep Agents Code：开箱即用的终端编程代理</h2>
+<p>先给结论：<code>dcode</code> 是官方用 Deep Agents SDK 做的终端编程 Agent。装好就能用，像 Claude Code。</p>
+<p>你不想写代码，只想有个能帮你写代码的命令行工具？<code>dcode</code> 就是答案。 它和 DeepAgents SDK 是同一套内核。</p>
+<h3>安装</h3>
+<pre><code class="language-bash">curl -LsSf https://langch.in/dcode | bash
+dcode</code></pre>
+<p>默认支持 OpenAI、Anthropic、Google。其他家（Ollama、Groq、xAI）是可选扩展：</p>
+<pre><code class="language-bash">DEEPAGENTS_EXTRAS="fireworks,nvidia" curl -LsSf https://langch.in/dcode | bash</code></pre>
+<h3>给任务</h3>
+<pre><code class="language-text">Create a Python script that prints "Hello, World!"</code></pre>
+<p>它会用 diff 形式提修改方案，等你批准再动文件。 还能跑 shell 测代码、查文档、搜网页。</p>
+<h3>常用斜杠命令</h3>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/model</code></td>
+<td>切换模型</td>
+</tr>
+<tr>
+<td><code>/auth</code></td>
+<td>管理 API key</td>
+</tr>
+<tr>
+<td><code>/remember</code></td>
+<td>更新记忆与技能</td>
+</tr>
+<tr>
+<td><code>/offload</code></td>
+<td>压缩上下文腾空间</td>
+</tr>
+<tr>
+<td><code>/mcp</code></td>
+<td>看 MCP 服务与工具</td>
+</tr>
+<tr>
+<td><code>/threads</code></td>
+<td>浏览历史会话</td>
+</tr>
+</tbody>
+</table>
+<h3>非交互模式（CI 友好）</h3>
+<pre><code class="language-bash">git diff | dcode -n "审查这些改动"
+dcode -n "修复失败的测试" --max-turns 10</code></pre>
+<p><code>-n</code> 跑单任务即退出。<code>-S</code> 设命令白名单。<code>--max-turns</code> 防死循环。</p>
+<h3>远程沙箱</h3>
+<pre><code class="language-bash">dcode --sandbox modal "部署这个服务"</code></pre>
+<p>支持 langsmith、agentcore、modal、daytona、runloop。</p>
+<blockquote><p><strong>标叔的经验</strong>：<code>dcode</code> 让我最快验证了 DeepAgents 的能力。不用写一行 SDK 代码，就体验了子代理、记忆、HITL、Skills。想快速感受框架，先装 dcode。</p></blockquote>
+<p><strong>标叔的结论</strong>：要落地能力，写 SDK。要马上用，装 dcode。两者同源，学一个懂两个。</p>
+<blockquote><p><strong>注意</strong>：<code>dcode</code> 官方不支持 Windows。Windows 用户用 WSL 跑。另外 <code>-S all</code> 会放开任意 shell 命令，慎用。</p></blockquote>
+<p>下一章，讲一个深层话题：上下文工程。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="14.html">← §14 实战：搭一个会写报告的研究助手</a>
+  <a class="pager-btn" href="16.html">§16 上下文工程：别让窗口爆掉 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

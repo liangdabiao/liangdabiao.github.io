@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§02 五分钟跑通你的第一个 Agent · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§02 五分钟跑通你的第一个 Agent</h2>
+<p>先给结论：装一个包，写十行代码，你的第一个深度代理就活了。</p>
+<p>我用一个天气助手做例子。够简单，一眼看懂。</p>
+<h3>第一步：安装</h3>
+<pre><code class="language-bash">pip install deepagents tavily-python
+# 或用 uv
+uv add deepagents tavily-python</code></pre>
+<p><code>tavily-python</code> 是搜索工具，第三章实战会用到。先不装也行。</p>
+<h3>第二步：设 API Key</h3>
+<pre><code class="language-bash">export ANTHROPIC_API_KEY="你的key"
+# 用 OpenAI 就设 OPENAI_API_KEY</code></pre>
+<h3>第三步：写第一个 Agent</h3>
+<pre><code class="language-python">from deepagents import create_deep_agent
+
+def get_weather(city: str) -&gt; str:
+    """查询某个城市的天气。"""
+    return f"{city} 永远是晴天！"   # 这里是假数据
+
+agent = create_deep_agent(
+    model="anthropic:claude-sonnet-4-6",  # provider:model 格式
+    tools=[get_weather],                  # 挂上你的工具
+    system_prompt="你是个乐于助人的助手",
+)
+
+result = agent.invoke(
+    {"messages": [{"role": "user", "content": "旧金山天气怎么样？"}]}
+)
+print(result["messages"][-1].content)</code></pre>
+<p>跑一下。它会输出："旧金山永远是晴天！"</p>
+<p>就这？就这。</p>
+<p>你没写任何规划逻辑。没写文件系统。没写上下文管理。 但这些能力，已经在那儿了。只是这个例子用不上。</p>
+<blockquote><p><strong>标叔的经验</strong>：我第一次跑通时，愣了一下。十行代码，连 <code>write_todos</code> 都不用调，就有了一个能扩展的 Agent 底座。这种"默认即强大"的感觉，是 DeepAgents 最值钱的地方。</p></blockquote>
+<h3>model 怎么写</h3>
+<p>注意 <code>model="anthropic:claude-sonnet-4-6"</code> 这个写法。 <code>provider:model</code>，冒号分隔。这是 DeepAgents 的约定。</p>
+<p>它支持一大票模型：</p>
+<pre><code class="language-python">model="anthropic:claude-sonnet-4-6"   # Anthropic
+model="openai:gpt-5.4"                 # OpenAI
+model="google_genai:gemini-3.1-pro-preview"  # Google
+model="ollama:devstral-2"              # 本地 Ollama
+model="deepseek:deepseek-v4-flash"     # DeepSeek</code></pre>
+<p>换模型，只改这一行。不用动其他代码。</p>
+<p><strong>标叔的结论</strong>：能用字符串写模型，就别手动 <code>ChatOpenAI(...)</code>。让框架替你初始化。后面 §19 会讲为什么。</p>
+<p>下一章，我们看一次调用背后，框架到底帮你做了什么。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="01.html">← §01 DeepAgents 是套在 LangChain 上的工具套件</a>
+  <a class="pager-btn" href="03.html">§03 一次调用背后，框架帮你干了四件事 →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

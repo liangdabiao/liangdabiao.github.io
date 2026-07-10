@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§01 DeepAgents 是套在 LangChain 上的工具套件 · DeepAgents</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<header class="topbar">
+  <a class="brand" href="index.html">DeepAgents · 从入门到精通</a>
+  <a class="navlink" href="index.html">目录</a>
+</header>
+<main class="container">
+<article class="chapter">
+<h2>§01 DeepAgents 是套在 LangChain 上的工具套件</h2>
+<p>先给结论：DeepAgents 不是新框架，是 LangChain 之上的"有主见的默认配置"。</p>
+<p>2025 年底，我第一次读它的源码。一句话记住它：<strong>它是一个 agent harness（智能体工具套件）</strong>。</p>
+<p>什么意思？看这三层关系。</p>
+<pre><code>LangChain  → 基础构件（model、tool、prompt）
+LangGraph  → 运行时（持久化、流式、中断、状态图）
+DeepAgents → 工具套件（规划、文件系统、子代理、记忆）</code></pre>
+<p>LangChain 给你积木。LangGraph 给你跑积木的跑道。 DeepAgents 直接把积木拼好，还配好了说明书。</p>
+<p>你看，它不替代 LangGraph。它站在 LangGraph 肩膀上。 核心函数只有一个：<code>create_deep_agent()</code>。 它返回一个编译好的 LangGraph 状态图（<code>CompiledStateGraph</code>）。</p>
+<blockquote><p><strong>标叔的经验</strong>：我踩过最大的坑，是把 DeepAgents 当普通 LangGraph wrapper 用。结果 HITL 失效、子代理不注册、Skills 用不上。后面 §19 我会细讲。先记住：用框架，就按框架的设计意图用。</p></blockquote>
+<p>为什么需要它？因为成功的"深度 Agent"都有四个共同点： 规划工具、子代理、文件系统、精细提示词。</p>
+<p>Claude Code 有。Deep Research 有。Manus 也有。 DeepAgents 把这套模式，做成开箱即用的默认能力。</p>
+<p>所以你写几行代码，就拥有别人要自己搭很久的东西。</p>
+<p><strong>标叔的结论</strong>：如果你要做多步骤、长任务、要记忆的 Agent，DeepAgents 值得一试。简单的一次性调用，它反而重了。</p>
+<blockquote><p><strong>注意</strong>：DeepAgents 需要支持 tool calling 的模型。纯文本模型跑不了。</p></blockquote>
+<p>下一章，我带你 5 分钟跑通第一个 Agent。</p>
+</article>
+<nav class="pager">
+  <a class="pager-btn" href="index.html">← 返回目录</a>
+  <a class="pager-btn" href="02.html">§02 五分钟跑通你的第一个 Agent →</a>
+</nav>
+</main>
+<footer class="footer">
+  <span>DeepAgents 从入门到精通</span>
+  <span class="muted">基于 huashu-bookwriter 风格整理 · 多页阅读版</span>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>
