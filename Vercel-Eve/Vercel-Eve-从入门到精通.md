@@ -579,5 +579,5 @@ Vercel 的类很大胆：像 Next.js 之于 Web App，但这次面向 Agent。
 ---
 
 > **标叔出品** | AI Native Coder · 独立开发者
-> 公众号「标叔」| B站「AI进化论-花生」
+> 公众号「标叔」| B站「Liangdabiao」
 > 基于 Vercel Eve 0.22.0（2026-07）撰写，框架仍在 Beta，API 可能变化，请以官方文档为准。

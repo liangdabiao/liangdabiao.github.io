@@ -876,5 +876,5 @@ Realtime Agent 同样支持 guardrails。打断、注入这类攻击，输入护
 | Day 6 | 附录 | 速查与排坑 |
 
 > **标叔出品** | AI Native Coder · 独立开发者
-> 公众号「标叔」| B站「AI进化论-花生」
+> 公众号「标叔」| B站「Liangdabiao」
 > 代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通

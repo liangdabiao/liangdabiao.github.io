@@ -1004,4 +1004,4 @@ options = ClaudeAgentOptions(
 ---
 
 *标叔出品 · AI Native Coder · 独立开发者*
-*公众号「标叔」| B站「AI进化论-花生」*
+*公众号「标叔」| B站「Liangdabiao」*

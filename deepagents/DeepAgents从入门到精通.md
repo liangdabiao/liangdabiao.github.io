@@ -1125,7 +1125,7 @@ DeepAgents 不是又一个 Agent 框架。
 别像我一样，先造轮子，再发现轮子框架早就给了。
 
 > 标叔出品 | AI Native Coder · 独立开发者
-> 公众号「标叔」| B站「AI进化论-花生」
+> 公众号「标叔」| B站「Liangdabiao」
 
 ***
 

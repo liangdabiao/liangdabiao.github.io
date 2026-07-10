@@ -1543,5 +1543,5 @@ Cloudflare Agents 把"有状态的 Agent"这件最难的事，焊进了 Durable 
 ---
 
 **标叔出品** | AI Native Coder · 独立开发者
-公众号「标叔」| B站「AI进化论-花生」
+公众号「标叔」| B站「Liangdabiao」
 代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通 · EdgeOne Makers从入门到精通 · Cloudflare Agents从入门到精通
