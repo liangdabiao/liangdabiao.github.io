@@ -198,6 +198,7 @@ blockquote p { margin: 6px 0; }
   text-align: left;
   font-size: 14.5px;
 }
+.hero-meta li { display: contents; }
 .hero-meta .mk {
   color: var(--muted);
   font-weight: 600;
