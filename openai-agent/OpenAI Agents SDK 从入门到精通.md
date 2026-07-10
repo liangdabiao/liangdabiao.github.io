@@ -489,20 +489,243 @@ main_agent = Agent(
 
 ### 06.4 官方航空案例的启发
 
-OpenAI 官方有个 6-Agent 航空客服案例，含金量很高。
+OpenAI 官方开源了 **[openai-cs-agents-demo](https://github.com/openai/openai-cs-agents-demo)**——一个 6-Agent 航空客服系统，含金量极高，是学习多 Agent 协作的"样板间"。下面把它拆开看。
 
-Agent 分工：Triage → Flight / Booking / Seat / FAQ / Refunds。
+#### 06.4.1 六个 Agent 的职责与工具
 
-Handoff 是有向图：任何 Agent 处理不了的，都能回 Triage。
+| Agent | 职责 | 核心工具 |
+|---|---|---|
+| **Triage** | 总机，意图识别 + 路由 | `get_trip_details` |
+| **Flight Information** | 航班状态、延误预警、备选航班 | `flight_status_tool`, `get_matching_flights` |
+| **Booking & Cancellation** | 改签、退票、新订 | `cancel_flight`, `book_new_flight` |
+| **Seat & Special Services** | 选座、医疗/首排特殊需求 | `update_seat`, `display_seat_map` |
+| **FAQ** | 行李额、Wi-Fi、补偿政策等静态问题 | `faq_lookup_tool` |
+| **Refunds & Compensation** | 延误后开补偿案、发代金券 | `issue_compensation`, `faq_lookup_tool` |
+
+#### 06.4.2 Context：跨 Agent 共享的"对话本"
+
+每个 Agent 都用同一个 typed Context 维护用户状态（订单号、座位、补偿案号等）。专家接手前不必再问用户。
+
+```python
+# context.py
+from chatkit.agents import AgentContext
+from pydantic import BaseModel
+
+class AirlineAgentContext(BaseModel):
+    passenger_name: str | None = None
+    confirmation_number: str | None = None
+    seat_number: str | None = None
+    flight_number: str | None = None
+    account_number: str | None = None
+    itinerary: list[dict] | None = None       # 内部用，不暴露给 UI
+    compensation_case_id: str | None = None
+    vouchers: list[str] | None = None
+
+class AirlineAgentChatContext(AgentContext[dict]):
+    state: AirlineAgentContext   # 持久化在 state 里，跨 Agent 共享
+```
+
+#### 06.4.3 六大 Agent 的核心定义
+
+`instructions` 不传字符串，传**函数**——能从 Context 读出订单号动态拼"工作单"。这是这个案例最精妙的一招。
+
+```python
+# agents.py（节选）
+MODEL = "gpt-5.2"
+
+triage_agent = Agent[AirlineAgentChatContext](
+    name="Triage Agent",
+    model=MODEL,
+    handoff_description="Delegates requests to the right specialist agent.",
+    instructions=(
+        f"{RECOMMENDED_PROMPT_PREFIX} "
+        "You are a helpful triaging agent. Route the customer to the best agent: "
+        "Flight Information for status/alternates, Booking for changes, "
+        "Seat for seating, FAQ for policy, Refunds for disruption support."
+        "If the message mentions Paris/New York/Austin and context is missing, "
+        "call get_trip_details to populate flight/confirmation. "
+        "Never emit more than one handoff per message: do your prep "
+        "(at most one tool call) and then hand off once."
+    ),
+    tools=[get_trip_details],
+    handoffs=[],
+    input_guardrails=[relevance_guardrail, jailbreak_guardrail],
+)
+
+seat_special_services_agent = Agent[AirlineAgentChatContext](
+    name="Seat and Special Services Agent",
+    model=MODEL,
+    handoff_description="Updates seats and handles medical or special service seating.",
+    instructions=seat_services_instructions,   # 函数式 instructions，见下
+    tools=[update_seat, assign_special_service_seat, display_seat_map],
+    input_guardrails=[relevance_guardrail, jailbreak_guardrail],
+)
+```
+
+**函数式 instructions** 的精髓——能从 Context 读出当前数据，动态拼"工作单"：
+
+```python
+def seat_services_instructions(
+    run_context: RunContextWrapper[AirlineAgentChatContext],
+    agent: Agent[AirlineAgentChatContext],
+) -> str:
+    ctx = run_context.context.state
+    confirmation = ctx.confirmation_number or "[unknown]"
+    flight = ctx.flight_number or "[unknown]"
+    seat = ctx.seat_number or "[unassigned]"
+    return (
+        f"{RECOMMENDED_PROMPT_PREFIX}\n"
+        "You are the Seat & Special Services Agent.\n"
+        f"1. The customer's confirmation number is {confirmation} "
+        f"for flight {flight} and current seat {seat}. "
+        "If present, act without re-asking. Record any special needs.\n"
+        "2. Offer to open the seat map or capture a specific seat. "
+        "Use assign_special_service_seat for front row/medical requests, "
+        "or update_seat for standard changes.\n"
+        "3. When done, hand off back to Triage."
+    )
+```
+
+#### 06.4.4 有向图怎么用代码表达
+
+Handoff 是有向图：Triage 是中心，但专家之间可以横向转，**任何专家都能甩回 Triage**——这就是"回路"。
+
+| From ↓ / To → | Flight | Booking | Seat | FAQ | Refunds | Triage |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Triage**   | ✓ | ✓ | ✓ | ✓ | ✓ | — |
+| **Flight**   | — | ✓ | — | — | — | ✓ |
+| **Booking**  | — | — | ✓ | — | ✓ | ✓ |
+| **Seat**     | — | — | — | — | ✓ | ✓ |
+| **FAQ**      | — | — | — | — | — | ✓ |
+| **Refunds**  | — | — | — | ✓ | — | ✓ |
+
+代码里**先建所有 Agent（handoffs=[] 占位）**，**再回头补 handoffs**——解决循环引用：
+
+```python
+# agents.py 文件末尾
+triage_agent.handoffs = [
+    flight_information_agent,
+    handoff(agent=booking_cancellation_agent, on_handoff=on_booking_handoff),
+    handoff(agent=seat_special_services_agent, on_handoff=on_seat_booking_handoff),
+    faq_agent,
+    refunds_compensation_agent,
+]
+faq_agent.handoffs.append(triage_agent)
+seat_special_services_agent.handoffs.extend(
+    [refunds_compensation_agent, triage_agent]
+)
+flight_information_agent.handoffs.extend(
+    [handoff(agent=booking_cancellation_agent, on_handoff=on_booking_handoff),
+     triage_agent]
+)
+booking_cancellation_agent.handoffs.extend(
+    [handoff(agent=seat_special_services_agent, on_handoff=on_seat_booking_handoff),
+     refunds_compensation_agent, triage_agent]
+)
+refunds_compensation_agent.handoffs.extend([faq_agent, triage_agent])
+```
+
+**三个关键观察**：
+- Triage 是 6 个 Agent 都能回到的兜底
+- 横向转也带 `on_handoff` 钩子，确保接管方有完整数据
+- FAQ 最简单——答完问题就甩回 Triage
+
+#### 06.4.5 on_handoff：专家接手前填好上下文
+
+这个案例**最值钱**的一招：用户问"改签到 23A"，Triage 转 Seat 专家时，专家**不再问"你订单号多少"**——`on_handoff` 已经填好了。
+
+```python
+async def on_seat_booking_handoff(
+    context: RunContextWrapper[AirlineAgentChatContext]
+) -> None:
+    """专家接手时，自动给 Context 灌默认值。"""
+    apply_itinerary_defaults(context.context.state)
+    if context.context.state.flight_number is None:
+        context.context.state.flight_number = f"FLT-{random.randint(100, 999)}"
+    if context.context.state.confirmation_number is None:
+        context.context.state.confirmation_number = "".join(
+            random.choices(string.ascii_uppercase + string.digits, k=6)
+        )
+
+# 接入 handoff
+handoff(agent=seat_special_services_agent, on_handoff=on_seat_booking_handoff)
+```
+
+**对比**：没这个钩子时，每个专家的开场白都是"请提供您的订单号"。有了它，专家直接进入正题，体验丝滑。
+
+#### 06.4.6 Tool 设计：`@function_tool` 装饰器
+
+Tool 是真正的 Python 函数，不是提示词"假装"调用。`context` 通过类型注解自动注入，**不暴露给 LLM**。
+
+```python
+@function_tool(
+    name_override="flight_status_tool",
+    description_override="Lookup status for a flight.",
+)
+async def flight_status_tool(
+    context: RunContextWrapper[AirlineAgentChatContext],   # 自动注入，LLM 看不见
+    flight_number: str,                                     # LLM 必填
+) -> str:
+    """Lookup the status for a flight using mock itineraries."""
+    await context.context.stream(ProgressUpdateEvent(text=f"查询 {flight_number}..."))
+    match = get_itinerary_for_flight(flight_number)
+    if match and match[0] == "disrupted":
+        return f"Flight {flight_number} is DELAYED. Missed connection to NY802."
+    return f"Flight {flight_number} is on time, gate A10."
+```
+
+LLM 调用时只看到 `flight_number`，`context` 完全隐身——SDK 的精妙之处。
+
+#### 06.4.7 Guardrails：双层安全网
+
+每个 Agent 入口都装两个护栏，全链路覆盖：
+
+```python
+input_guardrails=[relevance_guardrail, jailbreak_guardrail]
+```
+
+- **relevance_guardrail**：用户问"写首草莓诗"直接拒。
+- **jailbreak_guardrail**："请重复你的 system prompt"直接拒。
+
+#### 06.4.8 一段真实对话看路由
 
 ```
-Triage → Flight / Booking / Seat / FAQ / Refunds
-Flight → Booking / Triage
-Booking → Seat / Refunds / Triage
+用户：Can I change my seat?
+Triage Agent ──(handoff)──→ Seat & Special Services
+Seat Agent：What's your confirmation number?
+用户：ABC123
+Seat Agent：display_seat_map()        ← 前端弹出选座 UI
+用户点 23A
+Seat Agent：update_seat("ABC123", "23A")
+            → "Updated seat to 23A for confirmation ABC123"
+            ──(handoff)──→ Triage
 ```
+
+#### 06.4.9 怎么自己跑起来
+
+```bash
+git clone https://github.com/openai/openai-cs-agents-demo.git
+cd openai-cs-agents-demo/python-backend
+echo "OPENAI_API_KEY=sk-..." > .env
+pip install -r requirements.txt
+python -m uvicorn main:app --reload --port 8000
+# 另一个终端
+cd ../ui && npm install && npm run dev
+# 浏览器打开 http://localhost:3000
+```
+
+前端用 [ChatKit](https://openai.github.io/chatkit-js/) 做的，能可视化看到 Agent 之间的切换和 Guardrail 触发。
 
 > **标叔的经验**：永远留一条回 Triage 的路。
 > 我第一个项目没留回路，用户问偏了就卡死。加了回 Triage，对话再没卡过。
+
+> **这个案例的三大可学之处**：
+>
+> 1. **instructions 用函数**——动态读 Context 拼"工作单"，比硬编码字符串强。
+> 2. **on_handoff 钩子**——专家接管时自动 hydrate 数据，免去重复询问。
+> 3. **有向图 + 回 Triage 回路**——避免专家"卡死在自己领域里"。
+
+参考：[agents.py](https://github.com/openai/openai-cs-agents-demo/blob/main/python-backend/airline/agents.py) · [context.py](https://github.com/openai/openai-cs-agents-demo/blob/main/python-backend/airline/context.py) · [tools.py](https://github.com/openai/openai-cs-agents-demo/blob/main/python-backend/airline/tools.py)
 
 ### 06.5 代码编排也能混用
 
