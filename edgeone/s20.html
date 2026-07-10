@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§20 会话存储与鉴权：让 Agent 记得住、管得严 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link active" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 6 · 模型与智能体深潜</div><h1 class="chapter-title">§20 会话存储与鉴权：让 Agent 记得住、管得严</h1>
+    <article class="chapter"><h3>20.1 我把对话存哪儿了</h3>
+<p>2月前我上线第一个 Agent，用户第二轮就"失忆"。§05 讲过平台零配置记忆，但那只是开胃菜。真要做产品，你得会精细管对话——按用户列、分页拉、改某条、甚至压成摘要。</p>
+<p>Makers 的 <code>context.store</code> 就是干这个的。它零配置，Node 和 Python 两套 API 完全镜像。</p>
+<h3>20.2 存储怎么用</h3>
+<p><code>agents/</code> 目录里用 <code>context.store</code>，<code>cloud-functions/</code> 里用 <code>context.agent.store</code>，指向同一份数据。</p>
+<p>最常用的是追加和读取：</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 追加一条用户消息</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">appendMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">conversationId</span><span class="o">:</span><span class="w"> </span><span class="kt">context.conversation_id</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">role</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="kt">context.request.body.message</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">context.request.body.userId</span><span class="p">,</span><span class="w">   </span><span class="c1">// 关联用户，便于按用户列对话</span>
+<span class="p">});</span>
+
+<span class="c1">// 拉历史，直接拼成 OpenAI 格式喂给模型</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">messages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">getMessages</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">conversationId</span><span class="o">:</span><span class="w"> </span><span class="kt">context.conversation_id</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">50</span><span class="p">,</span>
+<span class="p">});</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">reply</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">openai</span><span class="p">.</span><span class="nx">chat</span><span class="p">.</span><span class="nx">completions</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;deepseek/deepseek-v4-flash&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">messages</span><span class="o">:</span><span class="w"> </span><span class="kt">context.store.toOpenAIInput</span><span class="p">(</span><span class="nx">messages</span><span class="p">),</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<p>预期结果：多轮上下文自动承接，还能按 <code>userId</code> 归拢。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>appendMessage</code></td>
+<td>追加一条消息，对话不存在自动建</td>
+</tr>
+<tr>
+<td><code>getMessages</code></td>
+<td>拉消息，支持游标分页</td>
+</tr>
+<tr>
+<td><code>listConversations</code></td>
+<td>按用户列对话，倒序</td>
+</tr>
+<tr>
+<td><code>updateConversation</code></td>
+<td>更新对话元信息（标题、标签）</td>
+</tr>
+<tr>
+<td><code>deleteConversation</code></td>
+<td>删整个对话，不可恢复</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>通用 API 够接管 90% 场景</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-important"><span class="callout-tag">重点看</span><blockquote><code>toOpenAIInput</code> 那行。</p>
+<p>Store 帮你把内部消息转成任意框架格式，Claude / OpenAI / LangGraph 都能直接吃。</p>
+</blockquote></div>
+<h3>20.3 长对话要压缩</h3>
+<p><code>getMessages</code> 单次最多 100 条。对话长了怎么办？保留最近 N 条原文，早期压成一段摘要。</p>
+<p>平台不替你调 LLM 生成摘要，只提供一个 <code>metadata</code> JSON 容器。约定两个 key：<code>summary</code>（摘要文本）、<code>summarizedUntil</code>（已摘要到哪条）。你用便宜模型生成摘要，写回即可。</p>
+<div class="highlight"><pre><span></span><code><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">summarize</span><span class="p">(</span><span class="nx">previousSummary</span><span class="p">,</span><span class="w"> </span><span class="nx">newMessages</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">prompt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">previousSummary</span>
+<span class="w">    </span><span class="o">?</span><span class="w"> </span><span class="sb">`合并已有摘要和新增对话成一段新摘要，控制在 500 字内：\n</span><span class="si">${</span><span class="nx">previousSummary</span><span class="si">}</span><span class="sb">\n</span><span class="si">${</span><span class="nx">newMessages</span><span class="si">}</span><span class="sb">`</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="sb">`总结这段对话成摘要，控制在 500 字内：\n</span><span class="si">${</span><span class="nx">newMessages</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">generateText</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="kt">openai</span><span class="p">(</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">),</span><span class="w">   </span><span class="c1">// 便宜模型压摘要，省钱</span>
+<span class="w">    </span><span class="nx">prompt</span><span class="p">,</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">text</span><span class="p">.</span><span class="nx">trim</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>预期结果：上万条消息的对话，模型每次只看最近 N 条 + 一段摘要，又快又省。</p>
+<h3>20.4 没鉴权，任何人都能调你 Agent</h3>
+<p>上个月我一个没加登录的 Agent，半夜被刷了几万次调用。查账单我心都凉了。</p>
+<p>Agent 接口若没登录，任何人都能直接请求 <code>/agents/*</code>，白嫖你的 LLM 和工具额度。Makers 的解法是<strong>中间件 + Cloud Functions 签发 JWT</strong>：</p>
+<ul>
+<li><code>cloud-functions/auth/*</code> 负责登录注册、签发 JWT；</li>
+<li><code>middleware.js</code> 在边缘节点拦未登录请求，失败直接 401；</li>
+<li>Agent 入口再 <code>requireAuth(context)</code> 验一次。</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1">// middleware.js：命中受保护路径先验 JWT</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">matcher</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;/chat/:path*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;/agents/:path*&quot;</span><span class="p">],</span>
+<span class="p">};</span>
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">middleware</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">readCookie</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">request</span><span class="p">.</span><span class="nx">headers</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;jwt_token&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">token</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">unauthorized</span><span class="p">(</span><span class="s2">&quot;no auth cookie&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">verifyJwt</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">JWT_SECRET</span><span class="p">);</span><span class="w">  </span><span class="c1">// 失败直接 401</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">next</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>预期结果：未登录请求在边缘就被挡掉，省下 Agent Runtime、Sandbox、LLM 的成本。</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>作用</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>中间件</td>
+<td>边缘早拒</td>
+<td>省钱第一道</td>
+</tr>
+<tr>
+<td>Agent 侧</td>
+<td>再验一次</td>
+<td>安全兜底</td>
+</tr>
+<tr>
+<td>HttpOnly Cookie</td>
+<td>token 不落前端 JS</td>
+<td>防 XSS 偷</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-advice"><span class="callout-tag">核心建议</span><blockquote>公开 Agent 前，先加这一层。</p>
+<p>我那次被刷，就是漏了中间件。早拒比事后查账单便宜一万倍。</p>
+</blockquote></div>
+<p>记忆精细了，入口锁住了。下一章，让 Agent 真正"动手"——给它沙箱和工具。</p>
+<hr /></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s19.html"><span>← 上一页</span><b>§19 模型厂商密钥：用你自己的 Key 接任意大模型</b></a><a class="pager-btn pager-next" href="s21.html"><span>下一页 →</span><b>§21 沙箱与工具框架：给 Agent 装上手脚</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

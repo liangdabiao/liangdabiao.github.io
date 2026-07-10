@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§18 用边缘 AI 模型快速搭建对话型 AI 站点 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link active" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 5 · 最佳实践篇</div><h1 class="chapter-title">§18 用边缘 AI 模型快速搭建对话型 AI 站点</h1>
+    <article class="chapter"><p>5天前我点开 <code>deepseek-r1-edge.edgeone.app</code> 试了下，问一句话，答案几乎是秒回。它背后不是"前端调云端大模型"，而是<strong>边缘节点直达大模型</strong>——模型算力下沉到离用户最近的边缘，延迟自然低。这一章讲怎么用 Makers 的「AI 聊天模板」一分钟搭出这种站点。</p>
+<blockquote>
+<p>经验：我测过好几次，普通 AI 应用是"浏览器 → 你的服务器 → 云端大模型"，多跳一次就多一份延迟。边缘 AI 是"浏览器 → 边缘节点上的模型"，链路短了一大截。对对话这种要流式、要快的交互，体感差别很明显。</p>
+</blockquote>
+<h3>18.1 为什么用边缘模型</h3>
+<p>Makers 免费开放边缘部署 DeepSeek 系列模型，配合「AI 聊天模板」，1 分钟上线，零成本体验毫秒级响应。</p>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>云端大模型</th>
+<th>边缘 AI 模型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>调用方式</td>
+<td>需要 API Key</td>
+<td>边缘函数内<strong>免 Key</strong> 免费调用</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>多跳，偏高</td>
+<td>边缘节点直达，低</td>
+</tr>
+<tr>
+<td>架构</td>
+<td>传统服务端</td>
+<td>完全 Serverless</td>
+</tr>
+<tr>
+<td>协议</td>
+<td>各厂商不一</td>
+<td>兼容 OpenAI API 标准</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>标叔的结论：边缘模型适合"快、轻、免运维"的对话场景。要复杂推理或私有数据，还是走网关接云端大模型（见 §17）。两条路不冲突，按场景选。</p>
+</blockquote>
+<h3>18.2 四步上线</h3>
+<ol>
+<li>进模板页 <code>templates/deepseek-r1-edge</code>，点"部署" → Makers 控制台配置项目 → "立即创建"</li>
+<li>创建后自动进入部署流程，可在详情页看构建日志</li>
+<li>部署成功，点项目概览的预览按钮生成预览链接</li>
+<li>打开链接，对话框发任意问题，看流式输出</li>
+</ol>
+<h3>18.3 边缘函数里怎么调</h3>
+<p>模板核心是边缘函数。示例路径 <code>/functions/v1/chat/completions/index.js</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">onRequestPost</span><span class="p">({</span><span class="w"> </span><span class="nx">request</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">content</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">AI</span><span class="p">.</span><span class="nx">chatCompletions</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;@tx/deepseek-ai/deepseek-v3-0324&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">messages</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">role</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;user&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="w"> </span><span class="p">}],</span>
+<span class="w">      </span><span class="nx">stream</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="c1">// 启用流式输出</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="w">    </span><span class="c1">// 返回流式响应</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 错误处理</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<blockquote>
+<p>建议：我一般把域名绑成自定义域名（如 <code>www.example.com</code>）。这个函数跑在边缘节点上，直接 <code>AI.chatCompletions</code> 调模型，<strong>不需要你自己的 API Key</strong>，它就成了可持久调用的 API 地址——预览链接有时效限制，正式用一定要绑域名。</p>
+</blockquote>
+<h3>18.4 多提供商容错</h3>
+<p>接口的调用符合 OpenAI API 标准，意味着你能轻松在不同厂商间切换、复用代码。下面这个类实现多重保障的自动容错：</p>
+<div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">AIService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="p">(</span>
+<span class="w">    </span><span class="nx">deepseekApiKey</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">siliconFlowApiKey</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">groqApiKey</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">tencentApiKey</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span>
+<span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">serviceConfigs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;edgeonemakers&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://www.example.com/v1&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">enabled</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span><span class="w"> </span><span class="nx">priority</span><span class="o">:</span><span class="w"> </span><span class="kt">1</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;tencent&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://api.lkeap.cloud.tencent.com/v1&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;deepseek-v3&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">enabled</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span><span class="w"> </span><span class="nx">priority</span><span class="o">:</span><span class="w"> </span><span class="kt">2</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;deepseek&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://api.deepseek.com/v1&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;deepseek-chat&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">enabled</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span><span class="w"> </span><span class="nx">priority</span><span class="o">:</span><span class="w"> </span><span class="kt">3</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">];</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>提供商</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>你的边缘域名</td>
+<td>最快，免 Key</td>
+</tr>
+<tr>
+<td>2</td>
+<td>腾讯云大模型</td>
+<td>兜底备用</td>
+</tr>
+<tr>
+<td>3</td>
+<td>DeepSeek 官方</td>
+<td>再兜底</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>标叔的结论：我习惯把边缘模型当主链路、云端模型当兜底，你的对话服务就有了弹性。这也是 Makers 的思路——能力下沉到边缘，控制留在你手里。</p>
+</blockquote>
+<p>下一章，我们深潜模型与智能体的进阶能力——从接自己的厂商 Key，到让 Agent 真正“动手”、把链路看穿。</p>
+<hr /></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s17.html"><span>← 上一页</span><b>§17 用通用大模型快速搭建 AI 应用</b></a><a class="pager-btn pager-next" href="s19.html"><span>下一页 →</span><b>§19 模型厂商密钥：用你自己的 Key 接任意大模型</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

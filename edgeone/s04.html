@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§04 模型网关：换模型不用改一行代码 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link active" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 2 · 核心能力</div><h1 class="chapter-title">§04 模型网关：换模型不用改一行代码</h1>
+    <article class="chapter"><p class="part-lead"><p>深入产品的关键能力。每章一个核心概念，读完你能讲清楚"它为什么好用"。</p></p><p>3月前我接手一个老 Agent 项目，模型 ID 写死在代码里。换一次模型，我得改代码、测试、重部署，半天没了。我越想越不对。</p>
+<h3>04.1 我见过最蠢的耦合</h3>
+<p>之前有个项目，模型 ID 写死在业务代码里。换模型要改代码、测试、重新部署。一次切换，半天没了。</p>
+<p>标叔的结论：模型选择是产品策略，不该是工程事件。</p>
+<h3>04.2 它是怎么解耦的</h3>
+<p>Makers 底层接了 AI 网关。代码里只留统一的接入方式。用哪个模型、哪家厂商、哪个版本，都在网关侧配。</p>
+<p>看两个<strong>自动注入</strong>的环境变量：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 网关地址，所有模型调用都走这里</span>
+<span class="nv">AI_GATEWAY_BASE_URL</span><span class="o">=</span>https://ai-gateway.edgeone.link/v1
+<span class="c1"># 平台自动生成的密钥，创建项目时已注入</span>
+<span class="nv">AI_GATEWAY_API_KEY</span><span class="o">=</span>sk-xxx
+</code></pre></div>
+
+<p>这两个是平台在创建项目时<strong>自动注入</strong>的，你不用管。模型名你自己在代码或环境变量里指定（很多模板读 <code>AI_GATEWAY_MODEL</code>）。</p>
+<p>内置模型用 <code>@makers/</code> 前缀，比如 <code>@makers/hy3-preview</code>、<code>@makers/deepseek-v4-flash</code>。换模型就改这一个值，业务代码一行都不用动。</p>
+<h3>04.3 实战：从默认模型切到 DeepSeek</h3>
+<p>鱼皮做"AI 投资人 Agent"时，默认模型效果一般。他切到 DeepSeek，只做了两件事：</p>
+<p><strong>第一步</strong>：去控制台「模型与密钥」页，绑定你自己的 DeepSeek API Key。</p>
+<p>预期结果：DeepSeek 出现在可选厂商里。</p>
+<div class="callout callout-warning"><span class="callout-tag">注意</span><blockquote>平台不提供厂商密钥。</p>
+<p>内置模型免 Key，但要用 DeepSeek、OpenAI 这类厂商模型，得自己备 Key 并绑定。详情见 §19。</p>
+</blockquote></div>
+<p><strong>第二步</strong>：把 model 改成厂商写法，重新部署。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 内置免 Key，开箱即用</span>
+<span class="nv">AI_GATEWAY_MODEL</span><span class="o">=</span>@makers/deepseek-v4-flash
+<span class="c1"># 绑定 DeepSeek Key 后，用厂商写法</span>
+<span class="nv">AI_GATEWAY_MODEL</span><span class="o">=</span>deepseek/deepseek-v4-pro
+</code></pre></div>
+
+<p>预期结果：对话质量明显变好，代码零改动。</p>
+<div class="callout callout-important"><span class="callout-tag">重点看</span><blockquote>整个过程零代码改动。</p>
+<p>业务代码始终稳定，模型能力跟着平台走。这就是网关的价值。</p>
+</blockquote></div>
+<h3>04.4 适合谁来切</h3>
+<p>产品早期追效果，用强模型。量上来追成本，切轻量模型。新模型上线想灰度，加一个环境变量的事。</p>
+<p>换模型这件事，不该惊动你的代码。下一章讲对话记忆。</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s03.html"><span>← 上一页</span><b>§03 装好你的开发环境</b></a><a class="pager-btn pager-next" href="s05.html"><span>下一页 →</span><b>§05 对话记忆：多轮上下文零配置</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

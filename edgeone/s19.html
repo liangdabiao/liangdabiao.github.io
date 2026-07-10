@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§19 模型厂商密钥：用你自己的 Key 接任意大模型 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link active" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 6 · 模型与智能体深潜</div><h1 class="chapter-title">§19 模型厂商密钥：用你自己的 Key 接任意大模型</h1>
+    <article class="chapter"><p class="part-lead"><p>读完前面，你能跑通、能部署、能上线。这一 Part，我们往深处走。模型怎么接自己的 Key、记忆怎么精细管、Agent 怎么真正"动手"、链路怎么看穿、Skills 怎么拼装——这些都是把 demo 做成产品必须跨的坎。</p></p><h3>19.1 我踩过的"额度焦虑"</h3>
+<p>上个月我做一个要 24 小时在线的客服 Agent。内置模型免 Key，但文档写得很直白：内置模型只供技术验证，<strong>生产环境别用</strong>。我顿时慌了——难道要自己接厂商？</p>
+<p>后来我才搞明白：Makers 的模型网关，分"内置"和"厂商"两路。内置免 Key 验证用，厂商模型你自备 Key，平台帮你托管转发。两条路都在同一个网关上，切换只改一个 model 字段。</p>
+<h3>19.2 两条路怎么选</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>内置模型</th>
+<th>厂商模型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>要不要 Key</td>
+<td>免 Key</td>
+<td>自备并绑定</td>
+</tr>
+<tr>
+<td>模型质量</td>
+<td>够验证</td>
+<td>厂商最新最强</td>
+</tr>
+<tr>
+<td>适用阶段</td>
+<td>原型 / Demo</td>
+<td>生产</td>
+</tr>
+<tr>
+<td>计费</td>
+<td>50 万 token/月 免费</td>
+<td>厂商按量计费</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>早期快验证</td>
+<td>上线必须切</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-important"><span class="callout-tag">重点看</span><blockquote>"上线必须切"那一格。</p>
+<p>内置模型文档明确说不保证生产质量。真要服务用户，绑一个厂商 Key 是刚需。</p>
+</blockquote></div>
+<h3>19.3 实战：绑定 DeepSeek Key</h3>
+<p>以 DeepSeek 为例。平台不替你买 Key，你得去 DeepSeek 官网开一个。</p>
+<p><strong>第一步</strong>：去 DeepSeek 开放平台拿到 API Key。</p>
+<p>预期结果：拿到一串 <code>sk-...</code>。</p>
+<p><strong>第二步</strong>：进 Makers 控制台「模型与密钥」页，绑定这个 Key。</p>
+<p>预期结果：DeepSeek 出现在可选厂商里。</p>
+<p><strong>第三步</strong>：代码里用厂商写法调模型。</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">OpenAI</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;openai&quot;</span><span class="p">;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">OpenAI</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">apiKey</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.AI_GATEWAY_API_KEY</span><span class="p">,</span><span class="w">        </span><span class="c1">// 平台自动注入，不是你的厂商 Key</span>
+<span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;https://ai-gateway.edgeone.link/v1&quot;</span><span class="p">,</span>
+<span class="p">});</span>
+
+<span class="c1">// 厂商模型用 &quot;厂商/模型名&quot; 写法</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">completion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">chat</span><span class="p">.</span><span class="nx">completions</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;deepseek/deepseek-v4-pro&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">messages</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">role</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;你好&quot;</span><span class="w"> </span><span class="p">}],</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<p>预期结果：请求经 Makers 网关转发到 DeepSeek，你的厂商 Key 由平台加密托管，代码里不出现。</p>
+<div class="callout callout-advice"><span class="callout-tag">核心建议</span><blockquote>代码里永远只放 <code>AI_GATEWAY_API_KEY</code>。</p>
+<p>你的厂商 Key 在控制台绑定，平台托管转发。这样换厂商、换 Key 都不用动代码。</p>
+</blockquote></div>
+<h3>19.4 支持哪些厂商</h3>
+<p>文档列了 8 家：OpenAI、Anthropic、Google、DeepSeek、MiniMax、混元、智谱、月之暗面。模型名统一用 <code>厂商/模型</code> 写法，比如 <code>deepseek/deepseek-v4-flash</code>、<code>openai/gpt-4o</code>、<code>anthropic/claude-sonnet-4</code>。</p>
+<p>具体可用模型以各家文档为准。切模型还是只改 <code>model</code> 字段。</p>
+<p>模型接好了，Key 也管住了。下一章，我们让 Agent 的"记忆"更精细，并把它锁起来。</p>
+<hr /></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s18.html"><span>← 上一页</span><b>§18 用边缘 AI 模型快速搭建对话型 AI 站点</b></a><a class="pager-btn pager-next" href="s20.html"><span>下一页 →</span><b>§20 会话存储与鉴权：让 Agent 记得住、管得严</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

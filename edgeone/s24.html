@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§24 Makers Models 统一模型网关：从任意 SDK 直接调用 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link active" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 7 · 高级功能篇</div><h1 class="chapter-title">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</h1>
+    <article class="chapter"><h3>24.1 我为什么想要一个"只带一把钥匙"的网关</h3>
+<p>2周前我帮一个做客服系统的朋友排查问题，他前端、后端、定时任务三处各自硬编码了不同厂商的 Key，换一次模型要改三个仓库。我告诉他：Makers 有个独立的模型网关服务，一把 Key 调遍所有厂商，根本不用在代码里塞厂商密钥。</p>
+<p>这就是 <strong>Makers Models</strong>——部署在 EdgeOne 边缘节点的统一模型接入服务。它和你写 Agent 时平台自动注入的那套网关，是同一张网，但用法完全不同。</p>
+<h3>24.2 它和 Agent 里的 AI_GATEWAY 不是一回事</h3>
+<p>我在前面 §04 讲过，Agent 运行时平台会自动注入 <code>AI_GATEWAY_API_KEY</code> 和 <code>AI_GATEWAY_BASE_URL</code>，你写 Agent 时不用管密钥。而 <strong>Makers Models 是独立对外暴露的网关</strong>，你拿自己的 <code>MAKERS_MODELS_KEY</code>，从任何地方都能调：前端后端代理、独立脚本、甚至别的平台。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>AI_GATEWAY（Agent 内）</th>
+<th>Makers Models（独立网关）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>密钥来源</td>
+<td>平台自动注入，拿不到明文</td>
+<td>控制台创建 <code>MAKERS_MODELS_KEY</code></td>
+</tr>
+<tr>
+<td>调用位置</td>
+<td>仅 Agent 运行时内</td>
+<td>任意能发 HTTP 的地方</td>
+</tr>
+<tr>
+<td>典型用法</td>
+<td>写 Agent 业务逻辑</td>
+<td>前端流式 UI、独立服务、Demo</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>写 Agent 用它最省心</td>
+<td>要"带出门"调用就靠它</td>
+</tr>
+</tbody>
+</table>
+<h3>24.3 实战：三种 SDK 直接调用</h3>
+<p>我试过最顺手的是直接套 OpenAI 的 SDK，因为网关兼容 OpenAI 协议。换成 Anthropic 或 Vercel AI SDK 也行。</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 方式一：Vercel AI SDK + 官方 provider</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createAiGateway</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@edgeone/makers-models-provider&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">generateText</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;ai&quot;</span><span class="p">;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">aiGateway</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createAiGateway</span><span class="p">({</span><span class="w"> </span><span class="nx">apiKey</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.MAKERS_MODELS_KEY</span><span class="w"> </span><span class="p">});</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">generateText</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="kt">aiGateway</span><span class="p">(</span><span class="s2">&quot;@makers/deepseek-v4-flash&quot;</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">prompt</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;What can you do?&quot;</span><span class="p">,</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="c1">// 方式二：OpenAI SDK（baseURL 指到网关）</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">OpenAI</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;openai&quot;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">OpenAI</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">apiKey</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.MAKERS_MODELS_KEY</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;https://ai-gateway.edgeone.link/v1&quot;</span><span class="p">,</span>
+<span class="p">});</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">completion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">chat</span><span class="p">.</span><span class="nx">completions</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;@makers/deepseek-v4-flash&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">messages</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">role</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;What can you do?&quot;</span><span class="w"> </span><span class="p">}],</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># 方式三：Python OpenAI SDK</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MAKERS_MODELS_KEY&quot;</span><span class="p">),</span> <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;https://ai-gateway.edgeone.link/v1&quot;</span><span class="p">)</span>
+<span class="n">completion</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;@makers/deepseek-v4-flash&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What can you do?&quot;</span><span class="p">}],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3>24.4 SSE 流式输出原生支持</h3>
+<p>我做对话 UI 时最在意的就是流式。网关对所有协议原生支持 SSE，前端拿 <code>stream: true</code> 就能边生成边渲染，密钥还不落前端——前端只碰 <code>MAKERS_MODELS_KEY</code> 经你后端代理转发。</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;https://ai-gateway.edgeone.link/v1/chat/completions&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--header<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$MAKERS_MODELS_KEY</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--header<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;model&quot;:&quot;@makers/deepseek-v4-flash&quot;,&quot;stream&quot;:true,&quot;messages&quot;:[{&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;What can you do?&quot;}]}&#39;</span>
+</code></pre></div>
+
+<div class="callout callout-warning"><span class="callout-tag">注意</span><blockquote><code>MAKERS_MODELS_KEY</code> 和厂商密钥一样，别提交进版本控制。</p>
+</blockquote></div>
+<h3>24.5 标叔的结论</h3>
+<p>我现在的习惯是：写 Agent 用平台注入的 <code>AI_GATEWAY</code> 省心；凡是要在 Agent 之外（前端代理、独立服务、Demo）调模型，就用 Makers Models 这把独立钥匙。两把钥匙分工，代码反而更干净。</p>
+<p>接下来，翻到 §25，我看 Agent 是怎么在沙箱里"自己动手"封装工具的。</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s23.html"><span>← 上一页</span><b>§23 AI 原生开发：用 Skills 拼装 Agent 能力</b></a><a class="pager-btn pager-next" href="s25.html"><span>下一页 →</span><b>§25 沙箱原子 API：自己动手封装工具</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

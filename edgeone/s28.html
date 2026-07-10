@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§28 Copilot：用自然语言改项目、自动预览与故障分析 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link active" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 7 · 高级功能篇</div><h1 class="chapter-title">§28 Copilot：用自然语言改项目、自动预览与故障分析</h1>
+    <article class="chapter"><h3>28.1 我第一次让 AI 改自己项目</h3>
+<p>上周我一个线上页面样式错位，懒得切环境，就在 Makers 控制台跟 Copilot 说"把首页卡片间距调大、标题改红"，它自己读懂代码、改完、还给我生成了个独立预览。我确认没问题才发布。那一刻我意识到：改项目这事儿，也能交给对话。</p>
+<p>EdgeOne Makers Copilot 是集成在 Makers 里的 AI 编程助手，你说人话，它结合项目上下文理解代码、生成修改、协助预览与发布。</p>
+<h3>28.2 核心能力</h3>
+<p>我用下来最值钱的有四条：</p>
+<ul>
+<li><strong>自然语言驱动</strong>：不用深开发背景，对话提示词就能开工。</li>
+<li><strong>理解项目上下文</strong>：它结合代码和构建配置改，结果更贴项目现状。</li>
+<li><strong>独立预览环境</strong>：每次修改都生成独立预览，确认无误再发生产，保生产安全。</li>
+<li><strong>移动端便捷</strong>：手机上也能发修改指令，随时更新内容。</li>
+</ul>
+<h3>28.3 典型场景</h3>
+<p>我给团队安利时总举这几个例子：</p>
+<ul>
+<li><strong>快速修复</strong>：样式错位、文案错误、链接失效，范围明确的活儿它最拿手。</li>
+<li><strong>内容更新</strong>：运营、设计直接对话改文案、换图、调主题色，不用开发介入。</li>
+<li><strong>快速建页</strong>：给老项目一句话生成落地页、活动专题页。</li>
+<li><strong>智能故障排除</strong>：构建或部署失败时，基于失败记录让它分析定位。</li>
+</ul>
+<h3>28.4 限额与边界</h3>
+<p>我用的时候踩过边界，得说清楚：</p>
+<table>
+<thead>
+<tr>
+<th>模型能力</th>
+<th>任务次数 / 天</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>使用 GLM 5.1 模型</td>
+<td>20-30</td>
+</tr>
+</tbody>
+</table>
+<p>目前 Copilot 处于免费公开测试，每日额度受编程模式、任务复杂度、代码库规模、上下文长度影响，用完次日刷新。还有个硬限制：<strong>当前仅支持 GitHub 项目</strong>。构建失败时可在失败部署详情页点 <code>Why did it fail</code>，让它结合错误日志辅助分析。</p>
+<h3>28.5 标叔的结论</h3>
+<p>我的建议：Copilot 适合"改已有项目"和"救火"，不适合从零造复杂系统。把它当成你随叫随到的初级工程师，给它明确、范围清晰的任务，效率最高。</p>
+<p>接下来，翻到附录的环境变量速查表，部署前扫一眼，能省你半小时查文档。到此，从起步、核心、实战、进阶，到模型与智能体的深潜，再到高级功能，这本书走完了。你手里现在有一套完整打法：模型网关解耦、记忆零配置、工具即沙箱、链路可观测、Skills 拼装，外加统一模型网关、原子沙箱、联网搜索、MCP 与 Copilot。去把你的 Agent 想法，做成别人能打开就用的服务吧。</p>
+<hr /></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s27.html"><span>← 上一页</span><b>§27 用 MCP 把能力接到外部世界</b></a><a class="pager-btn pager-next" href="appendix.html"><span>下一页 →</span><b>附录 · 速查表与排错</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

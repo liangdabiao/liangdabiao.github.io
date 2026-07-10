@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§13 CLI 与 CI/CD：把部署写进流水线 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link active" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 4 · 进阶篇</div><h1 class="chapter-title">§13 CLI 与 CI/CD：把部署写进流水线</h1>
+    <article class="chapter"><h3>13.1 双命令体系：makers 与 pages</h3>
+<p>3月前我把 CI 脚本从 <code>edgeone pages deploy</code> 改成 <code>edgeone makers deploy</code>。不是闲得慌，是新产品名（Pages 升级成 Makers）有了新命名空间。</p>
+<p>先给结论：现在有两套命令，<code>edgeone makers &lt;command&gt;</code>（推荐）和 <code>edgeone pages &lt;command&gt;</code>（过渡期可用）。<strong>两者等价</strong>，老命令暂时不会下线，但新功能只在 <code>makers</code> 下提供（比如 <code>edgeone makers create</code>）。</p>
+<blockquote>
+<p><strong>标叔的建议</strong>：新项目直接用 <code>makers</code>；存量脚本过渡期内不急着改，但别拖到老命令真下线那天。</p>
+</blockquote>
+<h3>13.2 本地开发：init / link / dev</h3>
+<div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>edgeone<span class="w">     </span><span class="c1"># 装 CLI</span>
+edgeone<span class="w"> </span>-v<span class="w">                 </span><span class="c1"># 看版本</span>
+edgeone<span class="w"> </span>login<span class="w">              </span><span class="c1"># 登录，选 Global 或 China</span>
+edgeone<span class="w"> </span>whoami<span class="w">             </span><span class="c1"># 看当前账号</span>
+
+edgeone<span class="w"> </span>makers<span class="w"> </span>init<span class="w">        </span><span class="c1"># 在现有项目初始化，生成 edge-functions/ 等</span>
+edgeone<span class="w"> </span>makers<span class="w"> </span>link<span class="w">        </span><span class="c1"># 关联控制台已建的项目，拉环境变量到本地</span>
+edgeone<span class="w"> </span>makers<span class="w"> </span>dev<span class="w">         </span><span class="c1"># 本地 8088 端口起服务，热更新调试</span>
+</code></pre></div>
+
+<blockquote>
+<p><strong>警告</strong>：<code>edgeone makers dev</code> 默认读 <code>edgeone.json</code> 的 <code>devCommand</code>；<strong>千万别在 edgeone.json 或 package.json 里把 dev 命令配成 <code>edgeone makers dev</code></strong>，会套娃。dev 服务有启动次数限制，别频繁重启。</p>
+</blockquote>
+<h3>13.3 部署：deploy 与多环境</h3>
+<div class="highlight"><pre><span></span><code>edgeone<span class="w"> </span>makers<span class="w"> </span>deploy<span class="w">            </span><span class="c1"># 生产环境</span>
+edgeone<span class="w"> </span>makers<span class="w"> </span>deploy<span class="w"> </span>-e<span class="w"> </span>preview<span class="w"> </span><span class="c1"># 预览环境</span>
+edgeone<span class="w"> </span>makers<span class="w"> </span>deploy<span class="w"> </span>./dist<span class="w">     </span><span class="c1"># 部署本地已构建产物</span>
+</code></pre></div>
+
+<p><code>-e preview</code> 出来的就是 §09 讲过的那个临时预览链接（3 小时有效）。生产部署才进正式域名。</p>
+<h3>13.4 CI/CD：API Token + deploy</h3>
+<p>把部署写进流水线，核心就一句：用 API Token 代替登录。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 生产</span>
+edgeone<span class="w"> </span>makers<span class="w"> </span>deploy<span class="w"> </span>-n<span class="w"> </span>project-name<span class="w"> </span>-t<span class="w"> </span><span class="nv">$EDGEONE_API_TOKEN</span>
+<span class="c1"># 预览</span>
+edgeone<span class="w"> </span>makers<span class="w"> </span>deploy<span class="w"> </span>-n<span class="w"> </span>project-name<span class="w"> </span>-e<span class="w"> </span>preview<span class="w"> </span>-t<span class="w"> </span><span class="nv">$EDGEONE_API_TOKEN</span>
+</code></pre></div>
+
+<p>Token 在 Makers 控制台生成。这样你的 GitHub Actions / 任意 CI 推完代码就自动部署，零人工。</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>适合</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Git 推送自动构建</td>
+<td>大多数项目</td>
+<td>默认就用它</td>
+</tr>
+<tr>
+<td>CLI deploy + Token</td>
+<td>CI/CD 流水线</td>
+<td>要自动化必选</td>
+</tr>
+<tr>
+<td>控制台手动点</td>
+<td>临时验证</td>
+<td>能脚本化就别手点</td>
+</tr>
+</tbody>
+</table>
+<h3>13.5 环境变量管理：env ls/pull/set/rm</h3>
+<div class="highlight"><pre><span></span><code>edgeone<span class="w"> </span>makers<span class="w"> </span>env<span class="w"> </span>ls<span class="w">              </span><span class="c1"># 列出控制台所有环境变量</span>
+edgeone<span class="w"> </span>makers<span class="w"> </span>env<span class="w"> </span>pull<span class="w">            </span><span class="c1"># 拉到本地 .env</span>
+edgeone<span class="w"> </span>makers<span class="w"> </span>env<span class="w"> </span>pull<span class="w"> </span>-f<span class="w"> </span>.env.prod
+edgeone<span class="w"> </span>makers<span class="w"> </span>env<span class="w"> </span><span class="nb">set</span><span class="w"> </span>KEY<span class="w"> </span>value<span class="w">   </span><span class="c1"># 新增/修改</span>
+edgeone<span class="w"> </span>makers<span class="w"> </span>env<span class="w"> </span>rm<span class="w"> </span>KEY<span class="w">          </span><span class="c1"># 删除</span>
+</code></pre></div>
+
+<div class="callout callout-experience"><span class="callout-tag">标叔的经验</span><blockquote>环境变量别写死在代码里（§04 讲过模型网关解耦）。用 <code>env pull</code> 把生产变量拉到本地调试，和线上保持一致，少踩"我本地好的"那种坑。</p>
+</blockquote></div>
+<h3>13.6 能脚本化的都别手点</h3>
+<p>部署、环境变量、预览——凡是能敲命令的，都写进脚本和流水线。控制台点一遍很爽，点第十遍就烦了，而且人点容易错。</p>
+<p>下一章，我们用定时任务和函数微调，把"自动跑"这件事补上。</p>
+<hr /></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s12.html"><span>← 上一页</span><b>§12 缓存与 edgeone.json：把性能和规则配出来</b></a><a class="pager-btn pager-next" href="s14.html"><span>下一页 →</span><b>§14 定时任务与组合实战：让 Agent 真正自动跑起来</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

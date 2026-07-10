@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§01 EdgeOne Makers 把 Agent 基础设施一次性托住了 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link active" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 1 · 起步</div><h1 class="chapter-title">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</h1>
+    <article class="chapter"><p class="part-lead"><p>从零到一。读完这 Part，你能不写一行业务代码，把一个 Agent 部署上线。</p></p><h3>01.1 我帮朋友搭客服 Agent 那三周</h3>
+<p>去年我帮一个朋友做客服 Agent。第一周全花在搭骨架。要写 SSE 流式输出。要处理会话存储。要接模型 Key。要管工具调用状态。</p>
+<p>真正写业务逻辑，是第三周的事。最气的是：这套骨架，每个做 Agent 的人都得过一遍。</p>
+<h3>01.2 它到底托住了什么</h3>
+<p>先给结论：EdgeOne Makers 把"运行沙箱、对话记忆、流式响应、工具链路、模型网关、观测"这些通用能力提前打通了。你只填业务逻辑。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>自己从零搭</th>
+<th>EdgeOne Makers</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>流式对话</td>
+<td>自己写 SSE</td>
+<td>模板自带</td>
+<td>新手省 1 周</td>
+</tr>
+<tr>
+<td>对话记忆</td>
+<td>自己接数据库</td>
+<td>平台零配置</td>
+<td>不用开 DB</td>
+</tr>
+<tr>
+<td>模型切换</td>
+<td>改代码重部署</td>
+<td>改环境变量</td>
+<td>省一次发布</td>
+</tr>
+<tr>
+<td>链路观测</td>
+<td>自己搭日志</td>
+<td>面板自带</td>
+<td>按链路看</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-important"><span class="callout-tag">重点看</span><blockquote>最后两行"模型切换"和"链路观测"。</p>
+<p>这两件事自己搞最烦。Makers 直接平台化了。</p>
+</blockquote></div>
+<h3>01.3 它不是什么</h3>
+<p>它不锁定你的框架。OpenAI SDK、Claude SDK、LangGraph、CrewAI 都支持。JS、Python 都能用。</p>
+<div class="callout callout-experience"><span class="callout-tag">标叔的经验</span><blockquote>平台不锁框架，比"功能多"更值钱。</p>
+<p>我见过太多团队被某个 PaaS 绑死，换模型要重写。Makers 的模型网关把这件事解耦了，这点我给好评。</p>
+</blockquote></div>
+<h3>01.4 适合谁，不适合谁</h3>
+<p>适合：想快速验证 Agent 想法的独立开发者。想做 MVP 的产品经理。</p>
+<p>不适合：要深度改运行时内核的团队。要私有化部署到大内网的场景。</p>
+<p>装好认知，下一章我们 5 分钟跑通第一个 Agent。</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="start.html"><span>← 上一页</span><b>前言 · 阅读指南</b></a><a class="pager-btn pager-next" href="s02.html"><span>下一页 →</span><b>§02 5 分钟跑通你的第一个 Agent</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

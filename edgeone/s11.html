@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§11 边缘函数 Pages Functions：在离用户最近的地方算 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link active" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 4 · 进阶篇</div><h1 class="chapter-title">§11 边缘函数 Pages Functions：在离用户最近的地方算</h1>
+    <article class="chapter"><p class="part-lead"><p>从"能跑"到"能打"。读完这 Part，你能用边缘函数、缓存策略、CLI 流水线和定时任务，把 Agent 与 Web 服务做成生产级工程，而不只是又一个 demo。</p></p><h3>11.1 我为什么不再自己买服务器</h3>
+<p>2月前我接了个需求：给一个活动页加"实时倒计时 + 区域限流"。第一反应是自己开台 CVM，写个 Go 服务。算下来：机器钱、运维、扩容、被攻击的担心。我后来想，这种"请求来了算一下就返回"的逻辑，凭什么要我养一台服务器？</p>
+<p>Makers 的边缘函数正好吃这个场景。</p>
+<h3>11.2 它怎么把代码铺到 3200+ 节点</h3>
+<p>先给结论：Pages Functions 运行在 EdgeOne 3200+ 边缘节点上，你的代码不用落在一台固定服务器，而是被调度到离用户最近的节点执行。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>自建服务器</th>
+<th>Pages Functions</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>部署位置</td>
+<td>单区域一台</td>
+<td>3200+ 边缘节点</td>
+<td>就近响应</td>
+</tr>
+<tr>
+<td>扩容</td>
+<td>自己加机器</td>
+<td>平台弹性</td>
+<td>不用操心峰值</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>跨地域高</td>
+<td>就近低</td>
+<td>体验直接好</td>
+</tr>
+<tr>
+<td>运维</td>
+<td>自己盯</td>
+<td>平台管</td>
+<td>省一个人</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-important"><span class="callout-tag">重点看</span><blockquote>最后一列"运维"。边缘函数把"机器"这件事从你的待办里删了。</p>
+</blockquote></div>
+<h3>11.3 路由就是目录：/functions 约定优于配置</h3>
+<p>Makers 不让你写路由表。你在项目根目录建一个 <code>functions/</code> 文件夹，里面每个 <code>.js</code> 文件自动变成一条路由。</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// functions/index.js          -&gt;  example.com/</span>
+<span class="c1">// functions/hello-pages.js    -&gt;  example.com/hello-pages</span>
+<span class="c1">// functions/api/users/list.js -&gt;  example.com/api/users/list</span>
+</code></pre></div>
+
+<p>文件结构即路由表。没匹配到的请求，自动回退到静态资源。</p>
+<div class="callout callout-experience"><span class="callout-tag">标叔的经验</span><blockquote>约定优于配置，省的是你维护路由文件的心智。新手最容易犯的错，是去翻"路由配置在哪"，其实根本没那个东西。</p>
+</blockquote></div>
+<h3>11.4 动态路由：[id] 与 [[default]]</h3>
+<p>真实 API 不可能每个 ID 写一个文件。Makers 支持两种动态段：</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// functions/api/users/[id].js      -&gt;  匹配 /api/users/1024（单级）</span>
+<span class="c1">// functions/api/[[default]].js     -&gt;  匹配 /api/books/list（多级 catch-all）</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="c1">// functions/api/users/[id].js</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">onRequestGet</span><span class="p">({</span><span class="w"> </span><span class="nx">params</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Response</span><span class="p">(</span><span class="sb">`用户 ID 是 </span><span class="si">${</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>注意：<code>[id]</code> 只吃一级路径，<code>/api/users/vip/1024</code> 它接不住；<code>[[default]]</code> 能吞多级。选错会 404，我踩过。</p>
+<h3>11.5 Handlers：按 HTTP 方法分派</h3>
+<p>一个文件能同时处理多种方法，也能只认一种：</p>
+<div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">onRequest</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* 所有方法 */</span><span class="w"> </span><span class="p">}</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">onRequestGet</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* 只认 GET */</span><span class="w"> </span><span class="p">}</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">onRequestPost</span><span class="p">(</span><span class="nx">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* 只认 POST */</span><span class="w"> </span><span class="p">}</span>
+<span class="c1">// 还有 Put / Delete / Patch / Head / Options</span>
+</code></pre></div>
+
+<p><code>context</code> 里你能拿到：<code>request</code>（请求对象）、<code>params</code>（动态路由参数）、<code>env</code>（环境变量）。</p>
+<blockquote>
+<p><strong>警告</strong>：边缘函数<strong>不支持</strong> <code>addEventListener</code>，别拿传统 Service Worker 那套来写。它只认 Function Handlers。我第一次写就栽在这。</p>
+</blockquote>
+<h3>11.6 三个真实示例：geo / KV / supabase</h3>
+<p><strong>（1）拿客户端地理位置</strong>——<code>context.request.eo.geo</code> 直接给你：</p>
+<div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">onRequest</span><span class="p">({</span><span class="w"> </span><span class="nx">request</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">geo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">eo</span><span class="p">.</span><span class="nx">geo</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Response</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="w"> </span><span class="nx">geo</span><span class="w"> </span><span class="p">}),</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s1">&#39;content-type&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;application/json; charset=UTF-8&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>（2）用 KV 存访问数</strong>——<code>my_kv</code> 是你在项目里绑定的命名空间变量名：</p>
+<div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">onRequest</span><span class="p">({</span><span class="w"> </span><span class="nx">env</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">my_kv</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;visitCount&#39;</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">my_kv</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s1">&#39;visitCount&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">String</span><span class="p">(</span><span class="nx">n</span><span class="p">));</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Response</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="w"> </span><span class="nx">visitCount</span><span class="o">:</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="p">}));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>（3）连三方数据库 supabase</strong>：</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@supabase/supabase-js&#39;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">onRequest</span><span class="p">({</span><span class="w"> </span><span class="nx">env</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">supabase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createClient</span><span class="p">(</span><span class="nx">env</span><span class="p">.</span><span class="nx">supabaseUrl</span><span class="p">,</span><span class="w"> </span><span class="nx">env</span><span class="p">.</span><span class="nx">supabaseKey</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;users&#39;</span><span class="p">).</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Response</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="w"> </span><span class="nx">users</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">}));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<blockquote>
+<p><strong>标叔的建议</strong>：示例三连三方库，记得把依赖装进项目，别以为边缘节点自带。详见 §13 的环境变量与 §14 的 includeFiles。</p>
+</blockquote>
+<h3>11.7 边缘函数不是银弹</h3>
+<p>它跑的是 V8、ES6、标准 Web API（Fetch / Cache / Crypto / Stream 都有）。但单函数有运行时长上限，重计算别往里塞。</p>
+<p>能在边缘算的"轻逻辑"——鉴权、改写、限流、拼装——用它；要算半天的重活，留给云函数或你的后端。</p>
+<p>下一章，我们让这些静态资源和函数响应"快到极致"。</p>
+<hr /></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s10.html"><span>← 上一页</span><b>§10 你只写业务逻辑，这事本身就是生产力</b></a><a class="pager-btn pager-next" href="s12.html"><span>下一页 →</span><b>§12 缓存与 edgeone.json：把性能和规则配出来</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

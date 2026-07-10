@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§06 工具调用：把能力拆成工具 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link active" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 2 · 核心能力</div><h1 class="chapter-title">§06 工具调用：把能力拆成工具</h1>
+    <article class="chapter"><p>6月前我做摄影师智能体那阵，一开始把经验全塞进 Prompt。结果上下文爆了，模型还用错。我白忙活一阵。我后来才学会拆工具。</p>
+<h3>06.1 别把知识塞进 Prompt</h3>
+<p>摄影师智能体的作者讲得很对：摄影知识别写进系统提示。系统提示适合定义角色和规则，不适合承载大量经验资料。</p>
+<p>塞多了，上下文越来越长，模型还不一定用对。</p>
+<h3>06.2 拆成三类工具</h3>
+<p>摄影师智能体拆了三类工具：</p>
+<ul>
+<li>摄影经验工具：返回构图、参数、后期建议。</li>
+<li>实时天气工具：查天气、云量、日出日落。</li>
+<li>说明书检索工具：从相机说明书找菜单路径和原文。</li>
+</ul>
+<p>工具调用时，前端能用流式事件展示状态："正在查实时天气"。用户等待时不空白。</p>
+<h3>06.3 一个隐蔽的好设计</h3>
+<p>Makers 模板有个约定：文件名带下划线的，不暴露为公开路由。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># _knowledge.py 是内部知识模块，用户访问不到</span>
+<span class="c1"># 放核心经验、场景规则、参数建议</span>
+<span class="n">agents</span><span class="o">/</span><span class="n">_knowledge</span><span class="o">.</span><span class="n">py</span>
+</code></pre></div>
+
+<p>这个设计很实用。你的核心经验放在 <code>_knowledge.py</code>，不会被用户直接访问，也不影响对外接口结构。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>写进 Prompt</th>
+<th>拆成工具 + 文件</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>上下文</td>
+<td>越来越长</td>
+<td>按需读取</td>
+<td>工具胜</td>
+</tr>
+<tr>
+<td>维护</td>
+<td>改提示很乱</td>
+<td>改一个文件</td>
+<td>文件胜</td>
+</tr>
+<tr>
+<td>安全</td>
+<td>经验外泄风险</td>
+<td>下划线隔离</td>
+<td>文件胜</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-advice"><span class="callout-tag">核心建议</span><blockquote>经验先沉淀成文件，再让工具读。</p>
+<p>MVP 阶段不用先搭向量库。加个 <code>_knowledge.py</code> 就够轻量。</p>
+</blockquote></div>
+<h3>06.4 回顾</h3>
+<p>工具是 Agent 的"手脚"。拆得好，Agent 才不空谈。下一章，讲怎么看清它到底干了什么。</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s05.html"><span>← 上一页</span><b>§05 对话记忆：多轮上下文零配置</b></a><a class="pager-btn pager-next" href="s07.html"><span>下一页 →</span><b>§07 观测面板：Metrics 加 Traces 看清链路</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

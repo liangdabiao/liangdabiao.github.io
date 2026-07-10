@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>附录 · 速查表与排错 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link active" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <h1 class="chapter-title">附录</h1>
+    <article class="chapter"><h3>A 环境变量速查表</h3>
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>作用</th>
+<th>示例值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI_GATEWAY_BASE_URL</td>
+<td>模型网关地址</td>
+<td><a href="https://ai-gateway.edgeone.link/v1">https://ai-gateway.edgeone.link/v1</a></td>
+</tr>
+<tr>
+<td>AI_GATEWAY_API_KEY</td>
+<td>平台生成的密钥</td>
+<td>sk-xxx</td>
+</tr>
+<tr>
+<td>AI_GATEWAY_MODEL</td>
+<td>当前模型（改它换模型）</td>
+<td>@makers/hy3-preview</td>
+</tr>
+<tr>
+<td>联网搜索 Key</td>
+<td>调用腾讯云 Web Search API</td>
+<td>sk-xxx</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-warning"><span class="callout-tag">注意</span><blockquote>API Key 界面不二次显示，丢了要重建。</p>
+<p>复制后妥善保管。别写进代码仓库。</p>
+</blockquote></div>
+<h3>B 常见错误与解决方案</h3>
+<table>
+<thead>
+<tr>
+<th>现象</th>
+<th>原因</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>多轮对话记不住</td>
+<td>没走平台会话接口</td>
+<td>用平台提供的记忆，别自接存储</td>
+</tr>
+<tr>
+<td>切模型没生效</td>
+<td>只改了代码没改环境变量</td>
+<td>改 AI_GATEWAY_MODEL 后重部署</td>
+</tr>
+<tr>
+<td>中国大陆打不开</td>
+<td>没实名/没备案</td>
+<td>实名+ICP 备案，或选不含中国大陆区</td>
+</tr>
+<tr>
+<td>Key 丢了</td>
+<td>界面不二次显示</td>
+<td>控制台重建 API Key</td>
+</tr>
+<tr>
+<td>临时链接失效</td>
+<td>超过 3 小时</td>
+<td>加自定义域名长期可用</td>
+</tr>
+</tbody>
+</table>
+<h3>阅读指南</h3>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>章节</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 1</td>
+<td>§01-§03</td>
+<td>从零到第一次跑通</td>
+</tr>
+<tr>
+<td>Day 2-3</td>
+<td>§04-§07</td>
+<td>掌握四大核心能力</td>
+</tr>
+<tr>
+<td>Day 4-5</td>
+<td>§08-§14</td>
+<td>进阶实战与边缘能力</td>
+</tr>
+<tr>
+<td>Day 6</td>
+<td>§15-§18</td>
+<td>最佳实践篇</td>
+</tr>
+<tr>
+<td>Day 7</td>
+<td>§19-§23</td>
+<td>模型与智能体深潜</td>
+</tr>
+<tr>
+<td>Day 8</td>
+<td>§24-§28</td>
+<td>高级功能篇：统一网关、原子沙箱、联网搜索、MCP、Copilot</td>
+</tr>
+<tr>
+<td>随时</td>
+<td>附录</td>
+<td>查表排错</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-action"><span class="callout-tag">行动清单</span><blockquote></p>
+<ul>
+<li>[ ] 用控制台模板跑通第一个 Agent</li>
+<li>[ ] 装好 edgeone-makers-tools 全局 Skill</li>
+<li>[ ] 改一次 AI_GATEWAY_MODEL，体验零代码换模型</li>
+<li>[ ] 部署一个属于你自己的业务逻辑</li>
+</ul>
+</blockquote></div>
+<h3>阅读参考</h3>
+<p>https://ai.codefather.cn/post/2071512495712894978#heading-5</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s28.html"><span>← 上一页</span><b>§28 Copilot：用自然语言改项目、自动预览与故障分析</b></a><span></span></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

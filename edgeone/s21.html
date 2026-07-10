@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§21 沙箱与工具框架：给 Agent 装上手脚 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link active" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 6 · 模型与智能体深潜</div><h1 class="chapter-title">§21 沙箱与工具框架：给 Agent 装上手脚</h1>
+    <article class="chapter"><h3>21.1 只会说话的 Agent 不值钱</h3>
+<p>6月前我做一个能"改代码并预览"的 Agent。光输出文本没用，它得真能跑命令、读文件、开浏览器。我一度想自己搭执行环境，看到 Makers 内置沙箱才松口气——这活它接了。</p>
+<p>沙箱底层是腾讯云隔离实例，专门承载 Agent 的"副作用"。LLM 不再只能聊天，能真动手。</p>
+<h3>21.2 两层 API，同一个实例</h3>
+<p>平台把沙箱包成两层，都挂在 <code>context</code> 上：</p>
+<table>
+<thead>
+<tr>
+<th>视角</th>
+<th>字段</th>
+<th>给谁</th>
+<th>粒度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LLM 视角</td>
+<td><code>context.tools.*</code></td>
+<td>传给 LLM 当工具</td>
+<td>原子化，便于放开范围</td>
+</tr>
+<tr>
+<td>开发者视角</td>
+<td><code>context.sandbox.*</code></td>
+<td>你直接调</td>
+<td>按模块：commands/files/browser/runCode</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>两层共用一实例</td>
+<td>不用自己维护</td>
+<td>一致才省心</td>
+</tr>
+</tbody>
+</table>
+<p><code>context.tools</code> 里的内置工具，底层就是调 <code>context.sandbox.*</code>，没有两套逻辑。</p>
+<h3>21.3 内置工具清单（节选）</h3>
+<p>工具按能力原子化，LLM 按名字语义匹配：</p>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>commands</code></td>
+<td>执行一次性 shell 命令</td>
+</tr>
+<tr>
+<td><code>files_read</code> / <code>files_write</code></td>
+<td>读 / 写文件</td>
+</tr>
+<tr>
+<td><code>browser_fetch</code></td>
+<td>真实 Chromium 取渲染后页面</td>
+</tr>
+<tr>
+<td><code>browser_screenshot</code></td>
+<td>截图，返回 base64</td>
+</tr>
+<tr>
+<td><code>code_interpreter</code></td>
+<td>跑代码</td>
+</tr>
+<tr>
+<td><code>web_search</code></td>
+<td>轻量网页搜索</td>
+</tr>
+</tbody>
+</table>
+<p>给 LLM 全部工具很简单：</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Agent</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@openai/agents&quot;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">agent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Agent</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Assistant&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">instructions</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Use sandbox tools.&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">tools</span><span class="o">:</span><span class="w"> </span><span class="kt">context.tools.all</span><span class="p">(),</span><span class="w">   </span><span class="c1">// 全部内置工具</span>
+<span class="w">  </span><span class="nx">model</span><span class="p">,</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<p>预期结果：Agent 能自己决定调哪个工具，跑命令、读文件、开浏览器。</p>
+<div class="callout callout-warning"><span class="callout-tag">注意</span><blockquote>别一股脑全放开。</p>
+<p>只给文件 + 浏览器，不开放 shell 和代码解释器，更安全：</p>
+<p><code>typescript
+const safeTools = [...context.tools.files(), ...context.tools.browser()];</code></p>
+</blockquote></div>
+<h3>21.4 不同框架，同一套工具</h3>
+<p><code>context.tools</code> 的输出格式由 <code>edgeone.json</code> 里的 <code>framework</code> 决定。Claude / OpenAI / LangGraph / CrewAI / DeepAgents 各自适配。</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">&quot;agents&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;framework&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;claude-agent-sdk&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<p>预期结果：你不用自己写工具转换，平台按框架把沙箱工具包成原生形态。我第一次对接 LangGraph 时，光工具适配就耗了两天，换成 Makers 的 <code>toLangChainTools</code>，一行就完事。</p>
+<table>
+<thead>
+<tr>
+<th>framework</th>
+<th>输出形态</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>claude-agent-sdk</td>
+<td>MCP server bundle</td>
+<td>直接 <code>createSdkMcpServer</code></td>
+</tr>
+<tr>
+<td>openai-agents-sdk</td>
+<td>function-tool</td>
+<td>无需 helper</td>
+</tr>
+<tr>
+<td>langgraph</td>
+<td>LangChain 工具</td>
+<td><code>toLangChainTools</code></td>
+</tr>
+<tr>
+<td>crewai</td>
+<td>CrewAI 工具</td>
+<td><code>toCrewAITools</code></td>
+</tr>
+</tbody>
+</table>
+<h3>21.5 开发者也能直接用沙箱</h3>
+<p>不只 LLM，你的代码也能直接操作沙箱。比如沙箱里起个 vite，把预览地址返前端：</p>
+<div class="highlight"><pre><span></span><code><span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">commands</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="s2">&quot;nohup npx vite --port 5173 &amp;&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">timeout</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="w"> </span><span class="p">});</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">previewUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">getHost</span><span class="p">(</span><span class="mf">5173</span><span class="p">);</span><span class="w">   </span><span class="c1">// 暴露到外网</span>
+<span class="k">return</span><span class="w"> </span><span class="nx">Response</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">previewUrl</span><span class="w"> </span><span class="p">});</span>
+</code></pre></div>
+
+<p>预期结果：Agent 改完代码，立刻把预览地址给用户，闭环体验。</p>
+<div class="callout callout-experience"><span class="callout-tag">标叔的经验</span><blockquote>沙箱实例按 <code>conversation_id</code> 一对话一实例。</p>
+<p>我第一次跑长任务没续命，沙箱到点被回收，进度全丢。后来才学会在快到期前 <code>extendTimeout</code>。长任务用它续命，结束用 <code>kill()</code> 释放。别让它空跑烧额度。</p>
+</blockquote></div>
+<p>Agent 会想、会记、会动手了。但它万一乱来怎么办？下一章，把它的每一步看穿。</p>
+<hr /></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s20.html"><span>← 上一页</span><b>§20 会话存储与鉴权：让 Agent 记得住、管得严</b></a><a class="pager-btn pager-next" href="s22.html"><span>下一页 →</span><b>§22 手动插桩与可观测：把链路看穿</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

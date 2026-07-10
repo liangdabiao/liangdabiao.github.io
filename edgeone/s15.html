@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§15 给网站加一个会"看"页面的 AI 对话助手 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link active" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 5 · 最佳实践篇</div><h1 class="chapter-title">§15 给网站加一个会"看"页面的 AI 对话助手</h1>
+    <article class="chapter"><p>3天前我帮一个做技术博客的朋友接 AI 助手。他最怕两件事：一是要改一大堆后端代码，二是 AI 答非所问。我用 EdgeOne Makers 的 <strong>AI Assistant 模板</strong>给他半小时搞定，零后端改动。这一章我就把这事拆给你看。</p>
+<blockquote>
+<p>经验：很多人以为"给网站加 AI 客服"得自己搭 RAG、向量库、检索服务。在 Makers 上不用——模板把脏活全接了，你只写业务 API 的 Schema。</p>
+</blockquote>
+<h3>15.1 它到底解决什么</h3>
+<p>你给网站加一段 <code>&lt;script&gt;</code>，右下角就多一个聊天气泡。用户问"这篇文章讲了什么"，AI 能根据<strong>当前页面内容</strong>回答；问"搜一下 React 相关的文章"，AI 会调用你的搜索接口返回真实数据。支持嵌到任何站点：React、Vue、WordPress、纯静态 HTML 都行。</p>
+<h3>15.2 部署：一行代码的事</h3>
+<p>先在 Makers 控制台用 AI Assistant 模板部署一个 Agent。配置环境变量：</p>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AI_GATEWAY_MODEL</code></td>
+<td>否</td>
+<td>模型 ID，默认 <code>@makers/deepseek-v3</code></td>
+</tr>
+<tr>
+<td><code>DATA_API_BASE_URL</code></td>
+<td>否</td>
+<td>你的后端 API 根地址，如 <code>https://api.example.com</code></td>
+</tr>
+<tr>
+<td><code>DATA_API_KEY</code></td>
+<td>否</td>
+<td>后端认证 Token，会加到 <code>Authorization: Bearer</code> 头</td>
+</tr>
+<tr>
+<td><code>AI_GATEWAY_API_KEY</code></td>
+<td>是*</td>
+<td>模型网关 Key，一键部署时自动注入</td>
+</tr>
+<tr>
+<td><code>AI_GATEWAY_BASE_URL</code></td>
+<td>是*</td>
+<td>模型网关地址，一键部署时自动注入</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>标叔的结论：<code>AI_GATEWAY_API_KEY</code> / <code>AI_GATEWAY_BASE_URL</code> 标星是因为<strong>一键部署会自动注入</strong>，你根本不用管；只有本地调试才手动填。别被"必填"吓到。</p>
+</blockquote>
+<p>部署完绑定自定义域名（如 <code>chat.example.com</code>），然后在网站 <code>&lt;/body&gt;</code> 前加一行：</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://chat.example.com/embed.js&quot;</span> <span class="na">async</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<p>刷新页面，气泡就出现了。完事。</p>
+<h3>15.3 外观与提示词都能改</h3>
+<p>气泡颜色、位置、名字靠 <code>data-*</code> 属性：</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span>
+  <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://chat.example.com/embed.js&quot;</span>
+  <span class="na">data-color</span><span class="o">=</span><span class="s">&quot;#10b981&quot;</span>
+  <span class="na">data-position</span><span class="o">=</span><span class="s">&quot;bottom-left&quot;</span>
+  <span class="na">data-name</span><span class="o">=</span><span class="s">&quot;小助手&quot;</span>
+  <span class="na">async</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<p>AI 的人设、欢迎语、推荐问题写在项目根目录的 <code>ai-chat-assistant.config.json</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;我的助手&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;welcome&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;你好！有什么可以帮你的？&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;systemPrompt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;你是一个专业的电商客服助手。回答要简洁友好，优先推荐店铺商品。&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;suggestedQuestions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;有哪些热门商品？&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;如何查询订单状态？&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<blockquote>
+<p>建议：<code>systemPrompt</code> 别写"你是万能助手"。越具体（行业 + 语气 + 优先动作），AI 越不跑偏。</p>
+</blockquote>
+<h3>15.4 让 AI 查你的业务数据：API Schema</h3>
+<p>光靠页面内容不够，得让 AI 调你的接口。写 <code>api-schema.json</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;endpoints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GET /api/posts/{id}&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Get the full content of a single blog post by its ID. Use search_posts first if you don&#39;t know the ID.&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>写法</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /api/posts/{id}</code> + <code>{"id":"5"}</code></td>
+<td>变成 <code>GET /api/posts/5</code></td>
+</tr>
+<tr>
+<td><code>GET</code> 多余参数</td>
+<td>拼成 query string <code>?q=react</code></td>
+</tr>
+<tr>
+<td><code>POST</code> 多余参数</td>
+<td>放进 JSON body</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>警告：<code>description</code> 写"获取数据"这种模糊话，AI 根本不知道什么时候该调。写成"功能 + 使用时机"才灵。AI 只能调你 Schema 里定义的接口，不会自己乱造请求——这是安全边界，不是缺陷。</p>
+</blockquote>
+<p>后端要开 CORS：</p>
+<div class="highlight"><pre><span></span><code><span class="err">Access-Control-Allow-Origin: *</span>
+<span class="err">Access-Control-Allow-Methods: GET, POST, OPTIONS</span>
+<span class="err">Access-Control-Allow-Headers: Content-Type, Authorization</span>
+</code></pre></div>
+
+<h3>15.5 它怎么工作的</h3>
+<p><code>embed.js</code> 注入气泡 + 一个同源 iframe（加载 <code>/widget</code>）。iframe 提取页面内容，通过 <code>postMessage</code> 发给 Agent；Agent 调 <code>/chat</code>，把页面内容塞进上下文，判断要不要查你的 API，最后用 <strong>SSE 流式</strong>把答案推回来。</p>
+<blockquote>
+<p>经验：用 iframe 是因为它和 Agent 同域，内部请求同源，没有跨域麻烦。你后端在哪都行（AWS、阿里云、自建），只要 <code>DATA_API_BASE_URL</code> 指过去。</p>
+</blockquote>
+<h3>15.6 本地调试与常见坑</h3>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/你的用户名/ai-assistant.git
+<span class="nb">cd</span><span class="w"> </span>ai-assistant
+npm<span class="w"> </span>install
+cp<span class="w"> </span>.env.example<span class="w"> </span>.env<span class="w">   </span><span class="c1"># 填入 AI_GATEWAY_API_KEY 等</span>
+edgeone<span class="w"> </span>makers<span class="w"> </span>dev<span class="w">     </span><span class="c1"># 本地开发服务器</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>答案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>后端不在 Makers 上能用吗</td>
+<td>能，只要公网可达</td>
+</tr>
+<tr>
+<td>不配 Schema 能用吗</td>
+<td>能，AI 只看页面内容</td>
+</tr>
+<tr>
+<td>支持哪些模型</td>
+<td>所有 OpenAI 兼容的：DeepSeek、GPT-4o、Claude、通义千问</td>
+</tr>
+<tr>
+<td>SPA 支持吗</td>
+<td>支持，路由切换自动重新提取页面</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>标叔的结论：每轮对话 AI 最多调 4 次工具，频率限制在<strong>你后端</strong>做。Agent 本身不替你限流。</p>
+</blockquote>
+<p>下一章，我们换个角度——不碰 UI，直接用一句话让 AI 把整个项目部署上线。</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s14.html"><span>← 上一页</span><b>§14 定时任务与组合实战：让 Agent 真正自动跑起来</b></a><a class="pager-btn pager-next" href="s16.html"><span>下一页 →</span><b>§16 AI 对话式部署：用 Skill 一句话部署项目</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

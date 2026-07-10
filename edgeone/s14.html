@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§14 定时任务与组合实战：让 Agent 真正自动跑起来 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link active" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 4 · 进阶篇</div><h1 class="chapter-title">§14 定时任务与组合实战：让 Agent 真正自动跑起来</h1>
+    <article class="chapter"><h3>14.1 schedules：cron 触发函数</h3>
+<p>3月前我想做个"每天凌晨清理一次临时数据"的活。以前得养个 cron 服务器。现在 Makers 的 <code>schedules</code> 直接在 edgeone.json 里配：</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;schedules&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;daily-cleanup&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;cron&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0 2 * * *&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/cron/cleanup&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;timezone&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Asia/Shanghai&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><code>cron</code> 是标准 5 段（分 时 日 月 周），不支持秒级。<code>timezone</code> 用 IANA 时区，不填就取构建机时区——<strong>跨时区团队务必显式写</strong>，不然构建机在美国，任务半夜跑你国内白天。每次部署平台自动比对新配置，移除的任务会自动停。</p>
+<h3>14.2 cloudFunctions 微调</h3>
+<p>函数不止能写，还能调：</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;cloudFunctions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;nodejs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;maxDuration&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;includeFiles&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;assets/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;!assets/**/*.tmp&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;externalNodeModules&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;svg-captcha&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;mainlandRegions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ap-beijing&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;overseasRegions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ap-tokyo&quot;</span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>作用</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>maxDuration</td>
+<td>单次最长 10-120s，默认 30s</td>
+<td>重活调大</td>
+</tr>
+<tr>
+<td>includeFiles</td>
+<td>把文件打进产物让函数读</td>
+<td>读文件必配</td>
+</tr>
+<tr>
+<td>externalNodeModules</td>
+<td>含原生模块的依赖</td>
+<td>编译型依赖必配</td>
+</tr>
+<tr>
+<td>mainland/overseasRegions</td>
+<td>指定部署地域</td>
+<td>国内/海外分别定</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>警告</strong>：<code>includeFiles</code> 用相对路径（别以 <code>./</code> 或 <code>/</code> 开头），支持 glob。函数里用相对路径 <code>readFileSync('assets/your-file.png')</code> 读取。我第一次忘了配，部署后读不到文件，排查半天。</p>
+</blockquote>
+<h3>14.3 组合实战：geo + KV + 缓存的"访问画像" API</h3>
+<p>把前面学的串起来。一个边缘函数，记录每个访客的地区和累计访问数，并加缓存减轻 KV 压力：</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// functions/api/profile.js</span>
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">onRequest</span><span class="p">({</span><span class="w"> </span><span class="nx">request</span><span class="p">,</span><span class="w"> </span><span class="nx">env</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">geo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">eo</span><span class="p">.</span><span class="nx">geo</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">geo</span><span class="p">.</span><span class="nx">country</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="p">;</span>
+
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">my_kv</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="sb">`visits:</span><span class="si">${</span><span class="nx">region</span><span class="si">}</span><span class="sb">`</span><span class="p">))</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">n</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">my_kv</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="sb">`visits:</span><span class="si">${</span><span class="nx">region</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span><span class="w"> </span><span class="nb">String</span><span class="p">(</span><span class="nx">n</span><span class="p">));</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Response</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="w"> </span><span class="nx">region</span><span class="p">,</span><span class="w"> </span><span class="nx">visits</span><span class="o">:</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="p">}),</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="s1">&#39;content-type&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;application/json; charset=UTF-8&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">&#39;Cache-Control&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;max-age=60&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>边缘函数就近算、KV 存状态、Cache-Control 兜底——三件事一次讲完。</p>
+<blockquote>
+<p><strong>标叔的结论</strong>：进阶篇学的不是"更多功能"，是"把功能拼成工程"。边缘函数管计算、缓存管速度、CLI 管交付、定时任务管自动——你手里这套，已经够做一个正经产品。</p>
+</blockquote>
+<h3>14.4 你手里已经是生产级工具箱</h3>
+<p>到这，从第一个 Agent 到边缘函数、缓存、流水线、定时任务，链路通了。平台把脏活接了，你只写业务。</p>
+<p>附录里我整理了环境变量速查表、edgeone.json 字段清单和常见报错，需要时翻一下。去把你的想法做成能自动跑的服务吧。接下来，Part 5 我们换到实战模板视角——用 8 个真实案例，看别人怎么把 Makers 的 Agent 能力直接做成产品。</p>
+<hr /></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s13.html"><span>← 上一页</span><b>§13 CLI 与 CI/CD：把部署写进流水线</b></a><a class="pager-btn pager-next" href="s15.html"><span>下一页 →</span><b>§15 给网站加一个会"看"页面的 AI 对话助手</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

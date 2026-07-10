@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§16 AI 对话式部署：用 Skill 一句话部署项目 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link active" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 5 · 最佳实践篇</div><h1 class="chapter-title">§16 AI 对话式部署：用 Skill 一句话部署项目</h1>
+    <article class="chapter"><p>2周前我在地铁上突然想做个小游戏发给朋友。没带电脑，我就对着手机里的 AI 说了一句"帮我做个贪吃蛇小游戏，部署到 EdgeOne Makers"，几分钟后拿到一个能玩的链接。这就是 <strong>Makers Deploy Skill</strong> 的威力——对话即部署。</p>
+<blockquote>
+<p>经验：Skill 不是插件、不是脚本，而是一份交给 AI 的"操作手册"（Anthropic 提出的开放规范）。它告诉 AI 该做什么、怎么做、出错怎么办。AI 加载后，就变成了一位会自动判断环境、选策略、执行部署的运维工程师。</p>
+</blockquote>
+<h3>16.1 先装 Skill</h3>
+<p>三种方式，挑顺手的：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>自然语言（推荐）</td>
+<td>在 AI 工具里说："帮我安装这个 skill：<a href="https://github.com/TencentEdgeOne/edgeone-pages-skills">https://github.com/TencentEdgeOne/edgeone-pages-skills</a>"</td>
+</tr>
+<tr>
+<td>命令行</td>
+<td><code>npx skills add TencentEdgeOne/edgeone-pages-skills</code></td>
+</tr>
+<tr>
+<td>手动</td>
+<td>下载仓库，把 <code>skills/edgeone-pages-deploy/</code> 放进 AI 工具的 skills 目录</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>标叔的结论：我一般用自然语言装，因为 AI 会自己拉仓库、解析、落盘，全程不用我动手。CodeBuddy / Claude Code / Cursor 都原生支持这套规范。</p>
+</blockquote>
+<h3>16.2 一句话触发部署</h3>
+<p>装完之后，部署就是一句话的事。</p>
+<p><strong>场景一：在 CodeBuddy 里加功能并预览</strong></p>
+<p>我对 AI 说："帮我新增个暗黑模式，然后部署一个预览环境到 EdgeOne Makers"。CodeBuddy 加载 Skill 后自动走四步：</p>
+<ol>
+<li><strong>环境检查</strong>：检测 EdgeOne CLI 是否装好、版本对不对，没装就自动 <code>npm install -g edgeone</code></li>
+<li><strong>登录认证</strong>：没登录就引导浏览器完成认证</li>
+<li><strong>项目构建</strong>：自动识别框架（如 Vue.js）执行构建</li>
+<li><strong>部署上传</strong>：把产物推到 Makers</li>
+</ol>
+<p>全程我只在它提问时确认少量信息（比如选中国站/国际站），其余全自动。从发指令到拿到线上 URL，通常 1–2 分钟。</p>
+<p><strong>场景二：在 OpenClaw 里从零造</strong></p>
+<p>OpenClaw 是开源 AI Agent 框架，能接企业微信、飞书、Telegram。我在 IM 里说"帮我做一个贪吃蛇小游戏，部署到 EdgeOne Makers"，AI 从零生成代码 → 检查环境 → 登录 → 构建 → 上线，返回一个可访问链接。有 bug 就再让它修、再部署。</p>
+<blockquote>
+<p>建议：部署到 Makers 的项目是<strong>持久化</strong>的——每次部署更新同一个站点 URL，你能不断迭代，就像传统 CI/CD。项目也能在 Makers 控制台管理：绑域名、看部署历史。</p>
+</blockquote>
+<h3>16.3 远程 / CI 环境怎么登录</h3>
+<p>浏览器登录在远程服务器、SSH、CI/CD 里走不通，Skill 会自动切到 <strong>API Token</strong> 方式。Token 在中国站 / 国际站控制台创建。Agent 首次用 Token 后会问你要不要存到本地 <code>.edgeone/.token</code>，之后自动复用。</p>
+<table>
+<thead>
+<tr>
+<th>要点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Token 权限</td>
+<td>Makers 账户级别，请妥善保管</td>
+</tr>
+<tr>
+<td>切勿提交</td>
+<td>别把 <code>.edgeone/.token</code> 推进代码仓库</td>
+</tr>
+<tr>
+<td>错误处理</td>
+<td>Skill 内置修复逻辑：CLI 版本不对自动重装、登录过期引导重登、构建失败分析日志给建议</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>警告：API Token 等于你账号的钥匙。我用它时只放在本地或 CI 的 secret 里，绝不写进 <code>.env</code> 还 <code>git add</code>。</p>
+</blockquote>
+<h3>16.4 支持哪些框架</h3>
+<p>EdgeOne CLI 会自动识别框架并选对构建策略，你不用手动配：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>框架</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全栈 / SSR</td>
+<td>Next.js、Nuxt、SvelteKit</td>
+</tr>
+<tr>
+<td>静态生成</td>
+<td>Astro、Vite</td>
+</tr>
+<tr>
+<td>前端库</td>
+<td>React、Vue</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>标叔的结论：你只管写业务代码，部署的脏活交给 Skill。它和 Makers 的 Agent 原生能力是一套思路——把"怎么部署"这件事，从人的记忆里挪进机器的操作手册。</p>
+</blockquote>
+<p>下一章，我们正面看 AI 应用本身：怎么用通用大模型，几分钟搭出一个能对话、能生图的站点。</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s15.html"><span>← 上一页</span><b>§15 给网站加一个会"看"页面的 AI 对话助手</b></a><a class="pager-btn pager-next" href="s17.html"><span>下一页 →</span><b>§17 用通用大模型快速搭建 AI 应用</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§07 观测面板：Metrics 加 Traces 看清链路 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link active" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 2 · 核心能力</div><h1 class="chapter-title">§07 观测面板：Metrics 加 Traces 看清链路</h1>
+    <article class="chapter"><p>上个月我那个 Agent 答非所问，我猜了一晚上 Prompt。后来开了 Traces，十分钟定位是工具挂了。我太需要一个看清链路的办法。</p>
+<h3>07.1 普通日志救不了 Agent</h3>
+<p>普通 Web 应用出事，看接口日志、错误栈就行。Agent 不行。</p>
+<p>一次对话，模型先理解，再调工具，工具返回后模型再组织回答。中间哪一步异常，光看最终回复，你根本不知道坏在哪。</p>
+<h3>07.2 两个面板怎么用</h3>
+<p>Makers 的观测分两块：</p>
+<p><strong>Metrics</strong>：看整体。被调用多少次、模型调用多少次、平均耗时、Token 消耗、有没有报错。适合判断服务整体正不正常。</p>
+<p><strong>Traces</strong>：看单次。每次请求一条完整链路。展开能看到：模型调了几次、调了哪些工具、入参是什么、返回了什么、每步耗时多久。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Metrics</th>
+<th>Traces</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>看什么</td>
+<td>整体状态</td>
+<td>单次细节</td>
+<td>两个都要</td>
+</tr>
+<tr>
+<td>适合</td>
+<td>判断健不健康</td>
+<td>定位哪步坏</td>
+<td>配合用</td>
+</tr>
+<tr>
+<td>频率</td>
+<td>每天看</td>
+<td>出事看</td>
+<td>出事必看</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-important"><span class="callout-tag">重点看</span><blockquote>"出事必看"那格。</p>
+<p>早期用户反馈很碎。只有把链路看清，才知道是 Prompt 要改、工具要改、还是外部依赖要换。</p>
+</blockquote></div>
+<h3>07.3 实战：一次链路排查</h3>
+<p>假设用户说 Agent 答非所问。</p>
+<p><strong>第一步</strong>：开 Traces，找那次请求。</p>
+<p>预期结果：看到模型调了两次工具，第二次入参是空的。</p>
+<p><strong>第二步</strong>：顺藤摸瓜，发现是天气工具超时。</p>
+<p>预期结果：问题不在 Prompt，在外部接口。换数据源或加超时重试。</p>
+<div class="callout callout-experience"><span class="callout-tag">标叔的经验</span><blockquote>别靠猜修 Agent。</p>
+<p>我之前猜了半天 Prompt，其实是工具挂了。有 Traces 后，十分钟定位。</p>
+</blockquote></div>
+<h3>07.4 回顾</h3>
+<p>能观测，才敢迭代。下一章，我们拿真实项目练手。</p>
+<hr /></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s06.html"><span>← 上一页</span><b>§06 工具调用：把能力拆成工具</b></a><a class="pager-btn pager-next" href="s08.html"><span>下一页 →</span><b>§08 从模板到真实项目：摄影师智能体拆解</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

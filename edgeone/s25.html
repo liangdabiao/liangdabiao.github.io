@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§25 沙箱原子 API：自己动手封装工具 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link active" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 7 · 高级功能篇</div><h1 class="chapter-title">§25 沙箱原子 API：自己动手封装工具</h1>
+    <article class="chapter"><h3>25.1 平台给的工具不够用时</h3>
+<p>3周前我接了个活：要让 Agent 批量把 200 个 CSV 跑成图表，还要登录某后台截图存证。平台内置工具够日常用，但这活儿要<strong>自己控制进程、读写文件、操作浏览器、跨调用保留变量</strong>——光靠高级封装不够。这时候就得直接用 <code>context.sandbox.*</code> 这套原子 API。</p>
+<p><code>sandbox</code> 是开发者直接调用的视角，你基于它自己封装工具，想怎么玩怎么玩。</p>
+<h3>25.2 commands：每次都是干净的新进程</h3>
+<p>我第一次用 <code>commands.run</code> 时踩了个坑：我以为连续两次调用能共享环境变量，结果第二次拿不到。后来才看懂文档——<strong>每次调用都是独立新进程</strong>，不保留 cwd、不保留环境变量改动。要跨调用保留状态，得用后面的 <code>runCode</code>。</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">stdout</span><span class="p">,</span><span class="w"> </span><span class="nx">exitCode</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">commands</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span>
+<span class="w">  </span><span class="s1">&#39;pip install requests &amp;&amp; python -c &quot;import requests; print(requests.__version__)&quot;&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">timeout</span><span class="o">:</span><span class="w"> </span><span class="kt">60</span><span class="w"> </span><span class="p">},</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<p><code>opts</code> 支持 <code>cwd</code> / <code>env</code> / <code>user</code> / <code>timeout</code>（秒），返回 <code>{ stdout, stderr, exitCode }</code>。一句话跑完即焚，干净。</p>
+<h3>25.3 files：读写沙箱文件系统</h3>
+<p>我在做数据预处理时，全靠 <code>files</code> 在沙箱里落盘。文本直接读写，二进制资产（比如 <code>.png</code>）建议先用 <code>commands</code> 在沙箱内下载或解码，再走别的通道读出。</p>
+<div class="highlight"><pre><span></span><code><span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">files</span><span class="p">.</span><span class="nx">makeDir</span><span class="p">(</span><span class="s1">&#39;/work/output&#39;</span><span class="p">);</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">files</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s1">&#39;/work/output/result.json&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">data</span><span class="p">));</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">entries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">files</span><span class="p">.</span><span class="nx">list</span><span class="p">(</span><span class="s1">&#39;/work/output&#39;</span><span class="p">);</span>
+</code></pre></div>
+
+<p>可用方法：<code>read</code> / <code>write</code> / <code>list</code> / <code>makeDir</code>(或 <code>make_dir</code>) / <code>exists</code> / <code>remove</code>，覆盖日常文件系统操作。</p>
+<h3>25.4 browser：CDP 连内置 Chromium</h3>
+<p>我做过一个需要"登录后截图"的需求，内置的 <code>browser_screenshot</code> 工具做不到——它没法保持登录态。原子 API 里的 <code>browser</code> 走 CDP 连沙箱内置 Chromium（底层 Playwright），能跑多步有状态流程。</p>
+<div class="highlight"><pre><span></span><code><span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">browser</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;https://example.com/login&#39;</span><span class="p">);</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">browser</span><span class="p">.</span><span class="kr">type</span><span class="p">(</span><span class="s1">&#39;input[name=user]&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;alice&#39;</span><span class="p">);</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">browser</span><span class="p">.</span><span class="kr">type</span><span class="p">(</span><span class="s1">&#39;input[name=pass]&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;secret&#39;</span><span class="p">);</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">browser</span><span class="p">.</span><span class="nx">click</span><span class="p">(</span><span class="s1">&#39;button[type=submit]&#39;</span><span class="p">);</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">browser</span><span class="p">.</span><span class="kr">goto</span><span class="p">(</span><span class="s1">&#39;https://example.com/dashboard&#39;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">base64Image</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">browser</span><span class="p">.</span><span class="nx">screenshot</span><span class="p">({</span><span class="w"> </span><span class="nx">fullPage</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">});</span>
+</code></pre></div>
+
+<p><code>browser</code> 还暴露 <code>cdpUrl</code>（外部 Playwright 直连）和 <code>liveUrl</code>（NoVNC 人工实时看页面），方法含 <code>goto</code> / <code>click</code> / <code>type</code> / <code>evaluate</code> / <code>getContent</code> / <code>close</code>。这是比"截个图"高级得多的浏览器控制力。</p>
+<h3>25.5 runCode：变量跨调用保留的 Jupyter kernel</h3>
+<p>我做数据批处理时最依赖 <code>runCode</code>——它在沙箱内置 Jupyter kernel 里执行代码，<strong>变量跨调用保留</strong>。这是它和 <code>commands</code> 最大的区别。</p>
+<div class="highlight"><pre><span></span><code><span class="n">exec</span> <span class="o">=</span> <span class="k">await</span> <span class="n">context</span><span class="o">.</span><span class="n">sandbox</span><span class="o">.</span><span class="n">run_code</span><span class="p">(</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">import pandas as pd</span>
+<span class="sd">df = pd.read_csv(&#39;/work/data.csv&#39;)</span>
+<span class="sd">df.plot().get_figure().savefig(&#39;/work/out.png&#39;)</span>
+<span class="sd">print(&#39;done&#39;)</span>
+<span class="sd">&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="n">language</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p><code>opts</code> 支持 <code>language</code>（默认 <code>python</code>，也支持 <code>javascript</code> / <code>r</code> / <code>bash</code>）和 <code>timeout</code>（秒），返回 <code>Execution { results, logs, error }</code>。</p>
+<h3>25.6 标叔的结论</h3>
+<p>我的经验：<code>commands</code> 干一次性的脏活，<code>files</code> 管落盘，<code>browser</code> 做有状态的网页操作，<code>runCode</code> 跑要保状态的数据任务。四件套一上手，你基本能给 Agent 封出任何工具，不再受平台内置清单的限制。</p>
+<p>接下来，翻到 §26，我看怎么给 Agent 接上"联网搜索"这种即插即用的工具。</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s24.html"><span>← 上一页</span><b>§24 Makers Models 统一模型网关：从任意 SDK 直接调用</b></a><a class="pager-btn pager-next" href="s26.html"><span>下一页 →</span><b>§26 联网搜索与自定义工具</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

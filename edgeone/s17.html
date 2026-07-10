@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§17 用通用大模型快速搭建 AI 应用 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link active" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 5 · 最佳实践篇</div><h1 class="chapter-title">§17 用通用大模型快速搭建 AI 应用</h1>
+    <article class="chapter"><p>4周前有个读者问我："我想做个 AI 聊天 + AI 生图的小站，但怕被某个模型绑死。"我给他指了 Makers 的 AI 应用模板——原生接口和 SDK 封装两条路都给好了，模型想换就换。这一章讲清楚这两条路怎么选。</p>
+<blockquote>
+<p>经验：搭 AI 应用最怕两件事——一是被某家模型 API 绑架，二是为接模型写一堆胶水代码。Makers 的模板把 API Key 收口到环境变量，把调用收口到两套标准模板，你换模型只改一个变量。</p>
+</blockquote>
+<h3>17.1 两条技术路径</h3>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>适合谁</th>
+<th>灵活度</th>
+<th>开发量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>原生接口调用</td>
+<td>要深度定制、自己控请求</td>
+<td>高</td>
+<td>中</td>
+</tr>
+<tr>
+<td>AI SDK 封装调用</td>
+<td>想快速集成、少写代码</td>
+<td>中</td>
+<td>低</td>
+</tr>
+</tbody>
+</table>
+<p>模板清单：</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>原生接口模板</th>
+<th>AI SDK 模板</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI 对话</td>
+<td><code>ai-chatbot-starter</code></td>
+<td><code>ai-sdk-chatbot-starter</code></td>
+</tr>
+<tr>
+<td>AI 生图</td>
+<td><code>ai-image-generator-starter</code></td>
+<td><code>ai-sdk-image-generator-starter</code></td>
+</tr>
+</tbody>
+</table>
+<h3>17.2 先拿 API Key</h3>
+<p>API Key 是访问模型的身份凭证，类似账号密码。不是所有都要申请，用到哪个申哪个。</p>
+<p><strong>对话模型</strong>：DeepSeek、OpenAI、Google、Anthropic/Claude、xAI</p>
+<p><strong>图片模型</strong>：HuggingFace、Replicate、FAL、Nebius、Fireworks、DeepInfra、Luma、Together AI</p>
+<blockquote>
+<p>标叔的结论：新手先拿 DeepSeek 或 OpenAI 的 Key 跑通对话，生图等真要用了再申。别一上来把八家 Key 全申请一遍。</p>
+</blockquote>
+<h3>17.3 一键部署</h3>
+<p>进模板详情页，点左侧蓝色 <strong>Deploy</strong> 按钮 → 进 Makers 控制台。配置面板本质就是在填 API Key：不同模板按它支持的模型列出不同变量，你至少填一个能用的 Key。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 以 ai-sdk-chatbot-starter 为例</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/<span class="si">${</span><span class="nv">your</span><span class="p">-github-account</span><span class="si">}</span>/vercel-ai-sdk-chatbot.git
+<span class="nb">cd</span><span class="w"> </span>vercel-ai-sdk-chatbot
+</code></pre></div>
+
+<p>填好环境变量，点 "start deployment"，完事就能开预览地址。</p>
+<h3>17.4 本地调试</h3>
+<p>部署后关联的 GitHub 账号下会多一个项目。把它拉到本地改：</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/<span class="si">${</span><span class="nv">your</span><span class="p">-github-account</span><span class="si">}</span>/vercel-ai-sdk-chatbot.git
+<span class="nb">cd</span><span class="w"> </span>vercel-ai-sdk-chatbot
+edgeone<span class="w"> </span>makers<span class="w"> </span>link<span class="w">   </span><span class="c1"># 关联 Makers 项目，把云端环境变量同步到本地 .env</span>
+edgeone<span class="w"> </span>makers<span class="w"> </span>dev<span class="w">    </span><span class="c1"># 本地 DEV 模式，访问 localhost:8088</span>
+</code></pre></div>
+
+<blockquote>
+<p>建议：<code>edgeone makers link</code> 会在本地生成 <code>.env</code> 并同步云端变量，省得你手动抄。改完代码推 GitHub，Makers 自动监听、自动重新部署——你看到 "Deploying" 状态就是在跑了。</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;调整对话界面&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>main
+</code></pre></div>
+
+<h3>17.5 模型怎么换</h3>
+<p>因为 Key 全在环境变量里，换模型就是改 <code>AI_GATEWAY_BASE_URL</code> / <code>AI_GATEWAY_API_KEY</code> / <code>AI_GATEWAY_MODEL</code> 这几个值，代码一行不动。Makers 的模型网关走 OpenAI 兼容协议，DeepSeek、GPT-4o、Claude、通义千问都能接。</p>
+<blockquote>
+<p>警告：生图模型的返回格式差异大（有的返 URL，有的返 base64）。用 AI SDK 模板能少踩这类坑，因为它把不同厂商的差异都封装了。</p>
+</blockquote>
+<p>下一章，我们把模型再往前推一步——不调云端大模型，直接用<strong>边缘节点</strong>上的 DeepSeek，体验毫秒级响应。</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s16.html"><span>← 上一页</span><b>§16 AI 对话式部署：用 Skill 一句话部署项目</b></a><a class="pager-btn pager-next" href="s18.html"><span>下一页 →</span><b>§18 用边缘 AI 模型快速搭建对话型 AI 站点</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

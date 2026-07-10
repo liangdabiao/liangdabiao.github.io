@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§26 联网搜索与自定义工具 · EdgeOne Makers 从入门到精通</title>
+<meta name="description" content="EdgeOne Makers 从入门到精通 —— 用 EdgeOne 平台托管的 Agent 能力，从 0 部署一个生产级 AI Agent，只写业务逻辑。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">EdgeOne Makers <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 EdgeOne Makers 把 Agent 基础设施一次性托住了</a><a class="toc-link" href="s02.html">§02 5 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型网关：换模型不用改一行代码</a><a class="toc-link" href="s05.html">§05 对话记忆：多轮上下文零配置</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 观测面板：Metrics 加 Traces 看清链路</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：摄影师智能体拆解</a><a class="toc-link" href="s09.html">§09 自定义域名与版本回滚</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 边缘函数 Pages Functions：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 缓存与 edgeone.json：把性能和规则配出来</a><a class="toc-link" href="s13.html">§13 CLI 与 CI/CD：把部署写进流水线</a><a class="toc-link" href="s14.html">§14 定时任务与组合实战：让 Agent 真正自动跑起来</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 给网站加一个会"看"页面的 AI 对话助手</a><a class="toc-link" href="s16.html">§16 AI 对话式部署：用 Skill 一句话部署项目</a><a class="toc-link" href="s17.html">§17 用通用大模型快速搭建 AI 应用</a><a class="toc-link" href="s18.html">§18 用边缘 AI 模型快速搭建对话型 AI 站点</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：让 Agent 记得住、管得严</a><a class="toc-link" href="s21.html">§21 沙箱与工具框架：给 Agent 装上手脚</a><a class="toc-link" href="s22.html">§22 手动插桩与可观测：把链路看穿</a><a class="toc-link" href="s23.html">§23 AI 原生开发：用 Skills 拼装 Agent 能力</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 Makers Models 统一模型网关：从任意 SDK 直接调用</a><a class="toc-link" href="s25.html">§25 沙箱原子 API：自己动手封装工具</a><a class="toc-link active" href="s26.html">§26 联网搜索与自定义工具</a><a class="toc-link" href="s27.html">§27 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s28.html">§28 Copilot：用自然语言改项目、自动预览与故障分析</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 7 · 高级功能篇</div><h1 class="chapter-title">§26 联网搜索与自定义工具</h1>
+    <article class="chapter"><h3>26.1 内置 web_search 开箱即用</h3>
+<p>2天前我给一个资讯 Agent 加搜索能力，本来以为要自己接搜索 API、处理鉴权，结果发现平台已经给了 <code>web_search</code> 这个<strong>公网搜索工具示例</strong>，底层调腾讯云联网搜索（WSA），开箱即用。</p>
+<p>启用前提就一条：配置环境变量 <code>WSA_API_KEY</code>（dev 写 <code>.env</code>，线上写控制台环境变量，缺失会提示 <code>web_search requires the WSA_API_KEY...</code>）。主账号还要在腾讯云控制台开通联网搜索（WSA）服务。</p>
+<h3>26.2 参数与返回值</h3>
+<p>我调的时候最常改的是 <code>maxResults</code> 和 <code>site</code>，一个控数量、一个控范围。</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>必填</th>
+<th>默认</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>query</code></td>
+<td>string</td>
+<td>是</td>
+<td>—</td>
+<td>搜索关键词，不可为空</td>
+</tr>
+<tr>
+<td><code>maxResults</code></td>
+<td>integer ≥ 1</td>
+<td>否</td>
+<td><code>5</code></td>
+<td>去重后最大条数</td>
+</tr>
+<tr>
+<td><code>site</code></td>
+<td>string</td>
+<td>否</td>
+<td>—</td>
+<td>站内搜索，限单个域；省略则全网</td>
+</tr>
+</tbody>
+</table>
+<p>返回值 <code>SearchResult[]</code>，每项含 <code>title</code> / <code>href</code> / <code>snippet</code> / <code>site</code> / <code>date</code>。注意 <code>href</code> 是 WSA 直接返回的真实可访问地址，不用再跟重定向。</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">webSearch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">tools</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;web_search&#39;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">webSearch</span><span class="p">.</span><span class="nx">execute</span><span class="p">({</span><span class="w"> </span><span class="nx">query</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;最近 AI 有什么新的技术&#39;</span><span class="w"> </span><span class="p">});</span>
+</code></pre></div>
+
+<h3>26.3 接第三方（Exa / Tavily）并屏蔽内置</h3>
+<p>我有次觉得 WSA 结果不够准，想换 Exa。做法是把第三方调用包成和 framework 工具形态一致的对象，挂载时把内置 <code>web_search</code> 过滤掉，避免 LLM 同时看到两个用途相同的工具。</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">Exa</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;exa-js&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">tool</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@openai/agents&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">z</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;zod&#39;</span><span class="p">;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">exa</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Exa</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">EXA_API_KEY</span><span class="o">!</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">exaSearch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">tool</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;web_search&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Search the public web. Returns title / url / snippet for top results.&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">parameters</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">query</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">().</span><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;Search keywords&#39;</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">maxResults</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">().</span><span class="kr">int</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">1</span><span class="p">).</span><span class="k">default</span><span class="p">(</span><span class="mf">5</span><span class="p">),</span>
+<span class="w">  </span><span class="p">}),</span>
+<span class="w">  </span><span class="nx">execute</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="nx">maxResults</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">results</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">exa</span><span class="p">.</span><span class="nx">search</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">numResults</span><span class="o">:</span><span class="w"> </span><span class="kt">maxResults</span><span class="p">,</span><span class="w"> </span><span class="nx">contents</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">highlights</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">results</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">r</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+<span class="w">      </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="kt">r.title</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">href</span><span class="o">:</span><span class="w"> </span><span class="kt">r.url</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">snippet</span><span class="o">:</span><span class="w"> </span><span class="kt">r.highlights?.</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">text</span><span class="o">?</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">200</span><span class="p">)</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">site</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nx">URL</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">url</span><span class="p">).</span><span class="nx">hostname</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">date</span><span class="o">:</span><span class="w"> </span><span class="kt">r.publishedDate</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}));</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">});</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">tools</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[...</span><span class="nx">context</span><span class="p">.</span><span class="nx">tools</span><span class="p">.</span><span class="nx">all</span><span class="p">().</span><span class="nx">filter</span><span class="p">((</span><span class="nx">t</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">t</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">&#39;web_search&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">exaSearch</span><span class="p">];</span>
+</code></pre></div>
+
+<div class="callout callout-warning"><span class="callout-tag">注意</span><blockquote>不想用 WSA，也能接任何第三方搜索服务，关键是工具形态和 framework 对齐、再屏蔽内置同名工具。</p>
+</blockquote></div>
+<h3>26.4 标叔的结论</h3>
+<p>我的判断：先用内置 <code>web_search</code> 跑通，验证完业务再决定是否换第三方。换的时候记得"屏蔽内置 + 形态对齐"两步走，否则 LLM 会犹豫用哪个。</p>
+<p>接下来，翻到 §27，我看怎么用 MCP 把 Makers 的能力接到你常用的 AI 编程客户端里。</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s25.html"><span>← 上一页</span><b>§25 沙箱原子 API：自己动手封装工具</b></a><a class="pager-btn pager-next" href="s27.html"><span>下一页 →</span><b>§27 用 MCP 把能力接到外部世界</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>
