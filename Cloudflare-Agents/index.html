@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloudflare Agents 从入门到精通 · 阅读导航</title>
+<meta name="description" content="Cloudflare Agents 从入门到精通 —— 用 agents SDK 在边缘把想法变成会记忆、会调度、能接真实世界的生产级 AI Agent。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">Cloudflare Agents <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<main class="landing">
+  <section class="hero">
+    <div class="hero-badge">AI Native · 边缘智能体实战</div>
+    <h1 class="hero-title">Cloudflare Agents<br><span>从入门到精通</span></h1>
+    <p class="hero-sub">Ship a Stateful AI Agent on the Global Edge in One Afternoon</p>
+    <p class="hero-desc">用 <code>agents</code> SDK，把你脑子里的 Agent 想法，变成一个个"活着的"、有身份、有记忆、能自己跑任务的对象。只写业务逻辑，运行时 / 存储 / 调度 / 观测 Cloudflare 兜底。</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="start.html">开始阅读 →</a>
+      <a class="btn-ghost" href="#toc">查看目录</a>
+    </div>
+    <div class="hero-meta">作者：标叔 · 最后更新：2026-07-08 · 7 大篇 · 28 节 · 附录</div>
+  </section>
+
+  <section class="quick-nav">
+    <a href="start.html" class="qn-card"><b>前言</b><span>阅读指南 · 7 天路线</span></a>
+    <a href="appendix.html" class="qn-card"><b>附录</b><span>速查表 · 排错 · 学习路径</span></a>
+  </section>
+
+  <section class="toc-section" id="toc">
+    <h2 class="toc-heading">全书目录</h2>
+    <div class="toc-grid"><section class="toc-card">
+      <h3>Part 1 · 起步</h3>
+      <ul class="toc-list"><li><a href="s01.html"><span class="sec-no">§01</span>Cloudflare Agents 把"有状态 Agent"这件事托住了</a></li><li><a href="s02.html"><span class="sec-no">§02</span>10 分钟跑通你的第一个 Agent</a></li><li><a href="s03.html"><span class="sec-no">§03</span>装好你的开发环境</a></li></ul>
+    </section><section class="toc-card">
+      <h3>Part 2 · 核心能力</h3>
+      <ul class="toc-list"><li><a href="s04.html"><span class="sec-no">§04</span>模型接入：Workers AI 免 Key，AI Gateway 路由任意供应商</a></li><li><a href="s05.html"><span class="sec-no">§05</span>对话状态：每个 Agent 自带 SQLite，断线续跑</a></li><li><a href="s06.html"><span class="sec-no">§06</span>工具调用：把能力拆成工具</a></li><li><a href="s07.html"><span class="sec-no">§07</span>可观测性：内置追踪、指标、日志</a></li></ul>
+    </section><section class="toc-card">
+      <h3>Part 3 · 进阶实战</h3>
+      <ul class="toc-list"><li><a href="s08.html"><span class="sec-no">§08</span>从模板到真实项目：聊天 Agent 拆解</a></li><li><a href="s09.html"><span class="sec-no">§09</span>配置与部署：wrangler.jsonc 与全球网络</a></li><li><a href="s10.html"><span class="sec-no">§10</span>你只写业务逻辑，这事本身就是生产力</a></li></ul>
+    </section><section class="toc-card">
+      <h3>Part 4 · 进阶篇</h3>
+      <ul class="toc-list"><li><a href="s11.html"><span class="sec-no">§11</span>Durable Objects 与边缘运行时：在离用户最近的地方算</a></li><li><a href="s12.html"><span class="sec-no">§12</span>调度与队列：让 Agent 真正自动跑起来</a></li><li><a href="s13.html"><span class="sec-no">§13</span>子 Agent 与 Agent 工具：分而治之</a></li><li><a href="s14.html"><span class="sec-no">§14</span>长任务与持久执行：Fiber 断点续跑</a></li></ul>
+    </section><section class="toc-card">
+      <h3>Part 5 · 最佳实践篇</h3>
+      <ul class="toc-list"><li><a href="s15.html"><span class="sec-no">§15</span>浏览器工具：让 Agent 真的会"看"网页</a></li><li><a href="s16.html"><span class="sec-no">§16</span>沙箱与代码执行：跑任意代码</a></li><li><a href="s17.html"><span class="sec-no">§17</span>用 MCP 把能力接到外部世界</a></li><li><a href="s18.html"><span class="sec-no">§18</span>AI 搜索与知识库：RAG 交给托管</a></li></ul>
+    </section><section class="toc-card">
+      <h3>Part 6 · 模型与智能体深潜</h3>
+      <ul class="toc-list"><li><a href="s19.html"><span class="sec-no">§19</span>模型厂商密钥：用你自己的 Key 接任意大模型</a></li><li><a href="s20.html"><span class="sec-no">§20</span>会话存储与鉴权：记得住、管得严</a></li><li><a href="s21.html"><span class="sec-no">§21</span>工作流与人工审批：可恢复的多步管线</a></li><li><a href="s22.html"><span class="sec-no">§22</span>人类在环：审批流与四种模式</a></li><li><a href="s23.html"><span class="sec-no">§23</span>支付：让 Agent 自己付钱</a></li></ul>
+    </section><section class="toc-card">
+      <h3>Part 7 · 高级功能篇</h3>
+      <ul class="toc-list"><li><a href="s24.html"><span class="sec-no">§24</span>邮件 Agent：收发回复邮件</a></li><li><a href="s25.html"><span class="sec-no">§25</span>Webhook 与推送通知：接入真实世界事件</a></li><li><a href="s26.html"><span class="sec-no">§26</span>语音 Agent：实时语音对话</a></li><li><a href="s27.html"><span class="sec-no">§27</span>Cloudflare Agents vs EdgeOne Makers：怎么选</a></li><li><a href="s28.html"><span class="sec-no">§28</span>思维转变：Agent 不是函数，是对象</a></li></ul>
+    </section></div>
+  </section>
+
+  <footer class="landing-footer">
+    标叔出品 · AI Native Coder · 公众号「标叔」· B站「AI进化论-花生」<br>
+    代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通 · EdgeOne Makers从入门到精通
+  </footer>
+</main>
+</body>
+</html>

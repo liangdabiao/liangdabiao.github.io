@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 人机协同：在关键节点按暂停 · LangGraph 从入门到精通</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<button class="menu-toggle" aria-label="目录">☰ 目录</button>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-head">
+      <a class="side-title" href="index.html">LangGraph<span>从入门到精通</span></a>
+    </div>
+    <nav class="side-nav">
+      <div class="nav-group">Part 1 · 起步</div>
+<a href="01.html">01 LangGraph 不是"链"，是"图"</a>
+<a href="02.html">02 5 分钟跑通你的第一个 Agent</a>
+<a href="03.html">03 手搭一个会调用工具的客服助手</a>
+<div class="nav-group">Part 2 · 核心能力</div>
+<a href="04.html">04 图的三要素：节点、边、状态</a>
+<a href="05.html">05 工具调用代理：让 AI 自己选工具</a>
+<a href="06.html">06 记忆系统：短期 + 长期</a>
+<a href="07.html" class="active">07 人机协同：在关键节点按暂停</a>
+<div class="nav-group">Part 3 · 进阶实战</div>
+<a href="08.html">08 多智能体：用 supervisor 组建团队</a>
+<a href="09.html">09 Functional API：少写图的另一种写法</a>
+<a href="10.html">10 从本地到生产：部署与可观测</a>
+<a href="11.html">11 写这本书时，我对 Agent 框架的认知变了</a>
+<div class="nav-group">附录</div>
+<a href="a.html">附录A 附录 版本与生态速查（2026-07）</a>
+<a href="b.html">附录B 附录 常见坑与排查</a>
+
+    </nav>
+    <div class="side-foot">标叔出品 · 2026</div>
+  </aside>
+  <main class="content">
+    <article class="chapter">
+      <div class="crumbs">Part 2 · 核心能力</div>
+      <h1>07 人机协同：在关键节点按暂停</h1>
+      <div class="body">
+<h3>07.1 什么是 HITL</h3>
+<p>HITL 是 Human-in-the-Loop，人机协同。</p>
+<p>一句话：让 Agent 在关键决策点停下来，等人拍板，再继续。</p>
+<p>金融风控、医疗诊断、合同审批——这些地方，AI 说了不算，得人签字。</p>
+<h3>07.2 核心就一个：interrupt</h3>
+<pre><code class="language-python">from langgraph.types import interrupt
+
+def approve_node(state):
+    # 关键：在这里暂停，把待审信息交出去
+    decision = interrupt({&quot;plan&quot;: state[&quot;plan&quot;], &quot;msg&quot;: &quot;请审批&quot;})
+    # 恢复后，decision 就是人传回来的结果
+    if decision[&quot;type&quot;] == &quot;accept&quot;:
+        return {&quot;ok&quot;: True}   # 普通返回，更新状态即可
+    return {&quot;ok&quot;: False}
+</code></pre>
+<p><code>interrupt()</code> 一调用，图立刻冻结。状态存进 Checkpointer。人审批完，用同一个 <code>thread_id</code> 带着结果回来，代码从这一行往下接着跑。</p>
+<h3>07.3 恢复也简单</h3>
+<pre><code class="language-python">from langgraph.types import Command
+
+graph.invoke(
+    Command(resume={&quot;type&quot;: &quot;accept&quot;}),
+    {&quot;configurable&quot;: {&quot;thread_id&quot;: &quot;user-001&quot;}},
+)
+</code></pre>
+<blockquote class="bq bq-warn">
+<p><strong>注意</strong>：interrupt 必须配 Checkpointer
+没挂 checkpointer，<code>interrupt()</code> 用不了。图编译时会直接报错提醒你。</p>
+</blockquote>
+<h3>07.4 一句话讲清"为什么能冻结"</h3>
+<p>Checkpointer 在每次到节点或触发 <code>interrupt</code> 时，把整个 State 序列化存库。</p>
+<p>恢复时，它不重跑函数，而是重放历史状态，把 <code>resume</code> 的值直接注入 <code>interrupt()</code> 的返回值。</p>
+<p>所以一个 Python 函数能像按了暂停键，几小时甚至几天后再醒。</p>
+<blockquote class="bq bq-tip">
+<p><strong>标叔的经验</strong>：审批要留痕
+生产环境，每一次 interrupt→resume 都要记审计日志：谁、什么时间、基于什么数据、做了啥决定。出事能溯源。</p>
+</blockquote>
+<p><span class="bridge">▸ 向前桥接</span> 单智能体够强了。但任务太大，下一章讲"多智能体怎么分工"。</p>
+      </div>
+      <nav class="pager">
+        <a class="pager-btn prev" href="06.html">← 06 记忆系统：短期 + 长期</a><a class="pager-btn next" href="08.html">08 多智能体：用 supervisor 组建团队 →</a>
+      </nav>
+    </article>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>if(window.hljs){hljs.highlightAll();}</script>
+<script src="assets/script.js"></script>
+</body>
+</html>

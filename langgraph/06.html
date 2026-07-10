@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 记忆系统：短期 + 长期 · LangGraph 从入门到精通</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<button class="menu-toggle" aria-label="目录">☰ 目录</button>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-head">
+      <a class="side-title" href="index.html">LangGraph<span>从入门到精通</span></a>
+    </div>
+    <nav class="side-nav">
+      <div class="nav-group">Part 1 · 起步</div>
+<a href="01.html">01 LangGraph 不是"链"，是"图"</a>
+<a href="02.html">02 5 分钟跑通你的第一个 Agent</a>
+<a href="03.html">03 手搭一个会调用工具的客服助手</a>
+<div class="nav-group">Part 2 · 核心能力</div>
+<a href="04.html">04 图的三要素：节点、边、状态</a>
+<a href="05.html">05 工具调用代理：让 AI 自己选工具</a>
+<a href="06.html" class="active">06 记忆系统：短期 + 长期</a>
+<a href="07.html">07 人机协同：在关键节点按暂停</a>
+<div class="nav-group">Part 3 · 进阶实战</div>
+<a href="08.html">08 多智能体：用 supervisor 组建团队</a>
+<a href="09.html">09 Functional API：少写图的另一种写法</a>
+<a href="10.html">10 从本地到生产：部署与可观测</a>
+<a href="11.html">11 写这本书时，我对 Agent 框架的认知变了</a>
+<div class="nav-group">附录</div>
+<a href="a.html">附录A 附录 版本与生态速查（2026-07）</a>
+<a href="b.html">附录B 附录 常见坑与排查</a>
+
+    </nav>
+    <div class="side-foot">标叔出品 · 2026</div>
+  </aside>
+  <main class="content">
+    <article class="chapter">
+      <div class="crumbs">Part 2 · 核心能力</div>
+      <h1>06 记忆系统：短期 + 长期</h1>
+      <div class="body">
+<h3>06.1 先给结论：记忆分两层</h3>
+<p>2026 年的 LangGraph，记忆是两套互补的机制：</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>存什么</th>
+<th>范围</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Checkpointer</td>
+<td>图的状态快照</td>
+<td>单个会话（thread）</td>
+<td>续聊、人机协同、时光回溯</td>
+</tr>
+<tr>
+<td>Store</td>
+<td>应用自定义数据</td>
+<td>跨会话</td>
+<td>用户偏好、长期事实</td>
+</tr>
+</tbody>
+</table>
+<p>很多人只知其一。两者一起用，Agent 才又"记得刚才聊啥"，又"记得你是谁"。</p>
+<h3>06.2 短期记忆：Checkpointer</h3>
+<pre><code class="language-python">from langgraph.checkpoint.memory import InMemorySaver
+checkpointer = InMemorySaver()
+
+graph = g.compile(checkpointer=checkpointer)
+
+cfg = {&quot;configurable&quot;: {&quot;thread_id&quot;: &quot;user-001&quot;}}
+graph.invoke({&quot;messages&quot;: &quot;我叫小明&quot;}, cfg)
+graph.invoke({&quot;messages&quot;: &quot;我叫什么？&quot;}, cfg)
+</code></pre>
+<p>生产换持久化的：</p>
+<pre><code class="language-python">from langgraph.checkpoint.sqlite import SqliteSaver
+cp = SqliteSaver.from_conn_string(&quot;sqlite:///state.db&quot;)
+
+from langgraph.checkpoint.postgres import PostgresSaver
+cp = PostgresSaver.from_conn_string(&quot;postgresql://user:pwd@host/db&quot;)
+cp.setup()
+</code></pre>
+<blockquote class="bq bq-focus">
+<p><strong>重点看</strong>：<code>thread_id</code> 必须稳定。
+同一用户的每次对话用同一个 <code>thread_id</code>，记忆才连得上。用 UUID 最稳。</p>
+</blockquote>
+<h3>06.3 长期记忆：Store</h3>
+<p>短期记忆跟着会话走。长期记忆要跨会话保留：</p>
+<pre><code class="language-python">from langgraph.store.memory import InMemoryStore
+store = InMemoryStore()
+
+graph = g.compile(checkpointer=cp, store=store)
+</code></pre>
+<p>节点里读写长期记忆：</p>
+<pre><code class="language-python">def remember(state, *, store):
+    # 按 user_id 存一条偏好
+    store.put((&quot;prefs&quot;,), state[&quot;user_id&quot;], {&quot;like&quot;: &quot;足球&quot;})
+    return {}
+</code></pre>
+<p>跨会话、跨线程都能读到。这就是"它记得你是球迷"的来源。</p>
+<h3>06.4 更高级的记忆：langmem</h3>
+<p>如果你不想自己设计抽取逻辑，官方有 <code>langmem</code> 库：</p>
+<ul>
+<li>自动从对话里抽取重要信息</li>
+<li>维护长期记忆，和 Store 打通</li>
+<li>还能反哺优化 Agent 的提示词</li>
+</ul>
+<blockquote class="bq bq-rec">
+<p><strong>核心建议</strong>：Store 管"存"，langmem 管"学"
+简单偏好用 Store 直接存。要"越用越懂用户"，上 langmem。</p>
+</blockquote>
+<p><span class="bridge">▸ 向前桥接</span> 记忆有了。可有些事不能全信 AI，下一章讲"人何时插手"。</p>
+      </div>
+      <nav class="pager">
+        <a class="pager-btn prev" href="05.html">← 05 工具调用代理：让 AI 自己选工具</a><a class="pager-btn next" href="07.html">07 人机协同：在关键节点按暂停 →</a>
+      </nav>
+    </article>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>if(window.hljs){hljs.highlightAll();}</script>
+<script src="assets/script.js"></script>
+</body>
+</html>

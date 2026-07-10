@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>附录B 附录 常见坑与排查 · LangGraph 从入门到精通</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<button class="menu-toggle" aria-label="目录">☰ 目录</button>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-head">
+      <a class="side-title" href="index.html">LangGraph<span>从入门到精通</span></a>
+    </div>
+    <nav class="side-nav">
+      <div class="nav-group">Part 1 · 起步</div>
+<a href="01.html">01 LangGraph 不是"链"，是"图"</a>
+<a href="02.html">02 5 分钟跑通你的第一个 Agent</a>
+<a href="03.html">03 手搭一个会调用工具的客服助手</a>
+<div class="nav-group">Part 2 · 核心能力</div>
+<a href="04.html">04 图的三要素：节点、边、状态</a>
+<a href="05.html">05 工具调用代理：让 AI 自己选工具</a>
+<a href="06.html">06 记忆系统：短期 + 长期</a>
+<a href="07.html">07 人机协同：在关键节点按暂停</a>
+<div class="nav-group">Part 3 · 进阶实战</div>
+<a href="08.html">08 多智能体：用 supervisor 组建团队</a>
+<a href="09.html">09 Functional API：少写图的另一种写法</a>
+<a href="10.html">10 从本地到生产：部署与可观测</a>
+<a href="11.html">11 写这本书时，我对 Agent 框架的认知变了</a>
+<div class="nav-group">附录</div>
+<a href="a.html">附录A 附录 版本与生态速查（2026-07）</a>
+<a href="b.html" class="active">附录B 附录 常见坑与排查</a>
+
+    </nav>
+    <div class="side-foot">标叔出品 · 2026</div>
+  </aside>
+  <main class="content">
+    <article class="chapter">
+      <div class="crumbs">附录</div>
+      <h1>附录B 附录 常见坑与排查</h1>
+      <div class="body">
+<p><strong>坑1：AI 不调工具</strong>
+原因：工具 docstring 太模糊。
+解决：写清"何时调用 + 参数格式"，并在系统提示里强调"必须调工具"。</p>
+<p><strong>坑2：无限循环调工具</strong>
+原因：工具返回信息 AI 看不懂，又去调。
+解决：设 <code>recursion_limit</code>，工具返回写清"请用以上结果回答"。</p>
+<p><strong>坑3：interrupt 用不了</strong>
+原因：没挂 Checkpointer。
+解决：<code>compile(checkpointer=...)</code> 后再用 <code>interrupt()</code>。</p>
+<p><strong>坑4：重启后记忆没了</strong>
+原因：用了 <code>InMemorySaver</code>。
+解决：生产换 <code>SqliteSaver</code> 或 <code>PostgresSaver</code>。</p>
+<p><strong>坑5：Postgres 报 thread_id 过长</strong>
+原因：thread_id 超 255 字符。
+解决：用 <code>str(uuid.uuid4())</code>。</p>
+      </div>
+      <nav class="pager">
+        <a class="pager-btn prev" href="a.html">← 附录A 附录 版本与生态速查（2026-07）</a><a class="pager-btn next" href="index.html">封面 / 目录 →</a>
+      </nav>
+    </article>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>if(window.hljs){hljs.highlightAll();}</script>
+<script src="assets/script.js"></script>
+</body>
+</html>

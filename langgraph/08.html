@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 多智能体：用 supervisor 组建团队 · LangGraph 从入门到精通</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<button class="menu-toggle" aria-label="目录">☰ 目录</button>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-head">
+      <a class="side-title" href="index.html">LangGraph<span>从入门到精通</span></a>
+    </div>
+    <nav class="side-nav">
+      <div class="nav-group">Part 1 · 起步</div>
+<a href="01.html">01 LangGraph 不是"链"，是"图"</a>
+<a href="02.html">02 5 分钟跑通你的第一个 Agent</a>
+<a href="03.html">03 手搭一个会调用工具的客服助手</a>
+<div class="nav-group">Part 2 · 核心能力</div>
+<a href="04.html">04 图的三要素：节点、边、状态</a>
+<a href="05.html">05 工具调用代理：让 AI 自己选工具</a>
+<a href="06.html">06 记忆系统：短期 + 长期</a>
+<a href="07.html">07 人机协同：在关键节点按暂停</a>
+<div class="nav-group">Part 3 · 进阶实战</div>
+<a href="08.html" class="active">08 多智能体：用 supervisor 组建团队</a>
+<a href="09.html">09 Functional API：少写图的另一种写法</a>
+<a href="10.html">10 从本地到生产：部署与可观测</a>
+<a href="11.html">11 写这本书时，我对 Agent 框架的认知变了</a>
+<div class="nav-group">附录</div>
+<a href="a.html">附录A 附录 版本与生态速查（2026-07）</a>
+<a href="b.html">附录B 附录 常见坑与排查</a>
+
+    </nav>
+    <div class="side-foot">标叔出品 · 2026</div>
+  </aside>
+  <main class="content">
+    <article class="chapter">
+      <div class="crumbs">Part 3 · 进阶实战</div>
+      <h1>08 多智能体：用 supervisor 组建团队</h1>
+      <div class="body">
+<h3>08.1 先泼盆冷水</h3>
+<p>我见过太多人，需求明明一个 Agent 能搞定，非要上多智能体。</p>
+<p>结果：调试翻倍，成本翻倍，效果没好多少。</p>
+<p>先给结论：90% 的场景，单智能体够用。只有下面三种情况才考虑多智能体：</p>
+<ul>
+<li>任务要不同专业知识（研究 + 写作）</li>
+<li>要并行处理多个子任务</li>
+<li>需要不同角色扮演</li>
+</ul>
+<h3>08.2 层级式：一个主管带几个专家</h3>
+<p>2025 年底，官方出了 <code>langgraph-supervisor</code>。它把"主管（supervisor）+ 多个专家"的层级结构封装好了。</p>
+<pre><code class="language-python">from langgraph_supervisor import create_supervisor
+from langgraph.prebuilt import create_react_agent
+
+research = create_react_agent(llm, tools=[search_web], name=&quot;researcher&quot;)
+writer = create_react_agent(llm, tools=[draft_doc], name=&quot;writer&quot;)
+
+workflow = create_supervisor(
+    [research, writer],
+    model=llm,
+    prompt=&quot;你是主管，按需把任务派给研究员或写手。&quot;,
+)
+graph = workflow.compile()
+</code></pre>
+<p><code>create_supervisor</code> 返回的是 <code>StateGraph</code>，<code>.compile()</code> 后就能跑。它内置流式、记忆、人机协同。</p>
+<h3>08.3 主管怎么"派活"</h3>
+<p>主管靠"交接工具"（handoff）把任务转给专家：</p>
+<pre><code class="language-python">graph.invoke({
+    &quot;messages&quot;: &quot;先查一下 LangGraph 最新版本，再写一段介绍。&quot;
+})
+</code></pre>
+<p>你可以控制历史怎么保留：</p>
+<pre><code class="language-python">create_supervisor(
+    [research, writer],
+    model=llm,
+    output_mode=&quot;last_message&quot;,  # 只留专家最终回复，省 token
+)
+</code></pre>
+<h3>08.4 对比：单 vs 多</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>单智能体</th>
+<th>多智能体（supervisor）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>上手难度</td>
+<td>低</td>
+<td>中</td>
+</tr>
+<tr>
+<td>调试成本</td>
+<td>低</td>
+<td>高</td>
+</tr>
+<tr>
+<td>并行能力</td>
+<td>弱</td>
+<td>强</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>默认选它</td>
+<td>真复杂才上</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="bq bq-rec">
+<p><strong>核心建议</strong>：从单智能体长出来
+别一上来就多智能体。先把单 Agent 玩透，需要时才加主管。</p>
+</blockquote>
+<p><span class="bridge">▸ 向前桥接</span> 图写腻了？下一章给你一种"少写图"的写法。</p>
+      </div>
+      <nav class="pager">
+        <a class="pager-btn prev" href="07.html">← 07 人机协同：在关键节点按暂停</a><a class="pager-btn next" href="09.html">09 Functional API：少写图的另一种写法 →</a>
+      </nav>
+    </article>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>if(window.hljs){hljs.highlightAll();}</script>
+<script src="assets/script.js"></script>
+</body>
+</html>

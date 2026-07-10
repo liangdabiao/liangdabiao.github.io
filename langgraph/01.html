@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 LangGraph 不是"链"，是"图" · LangGraph 从入门到精通</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<button class="menu-toggle" aria-label="目录">☰ 目录</button>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-head">
+      <a class="side-title" href="index.html">LangGraph<span>从入门到精通</span></a>
+    </div>
+    <nav class="side-nav">
+      <div class="nav-group">Part 1 · 起步</div>
+<a href="01.html" class="active">01 LangGraph 不是"链"，是"图"</a>
+<a href="02.html">02 5 分钟跑通你的第一个 Agent</a>
+<a href="03.html">03 手搭一个会调用工具的客服助手</a>
+<div class="nav-group">Part 2 · 核心能力</div>
+<a href="04.html">04 图的三要素：节点、边、状态</a>
+<a href="05.html">05 工具调用代理：让 AI 自己选工具</a>
+<a href="06.html">06 记忆系统：短期 + 长期</a>
+<a href="07.html">07 人机协同：在关键节点按暂停</a>
+<div class="nav-group">Part 3 · 进阶实战</div>
+<a href="08.html">08 多智能体：用 supervisor 组建团队</a>
+<a href="09.html">09 Functional API：少写图的另一种写法</a>
+<a href="10.html">10 从本地到生产：部署与可观测</a>
+<a href="11.html">11 写这本书时，我对 Agent 框架的认知变了</a>
+<div class="nav-group">附录</div>
+<a href="a.html">附录A 附录 版本与生态速查（2026-07）</a>
+<a href="b.html">附录B 附录 常见坑与排查</a>
+
+    </nav>
+    <div class="side-foot">标叔出品 · 2026</div>
+  </aside>
+  <main class="content">
+    <article class="chapter">
+      <div class="crumbs">Part 1 · 起步</div>
+      <h1>01 LangGraph 不是"链"，是"图"</h1>
+      <div class="body">
+<h3>01.1 我是怎么被"链"劝退的</h3>
+<p>2024 年我第一次用 LangChain 写客服。流程是线性的：调模型、抽实体、查库、再调模型。</p>
+<p>链路一长，问题就来了。用户改了主意，我得回头重跑前面几步。代码里全是 if-else 绕来绕去。</p>
+<p>我当时就想：这哪是智能体，这是一根不能回头的面条。</p>
+<p>2025 年 10 月，LangGraph 发布 1.0。我重写了那个客服。循环、分支、回溯，全成了"图"上的自然动作。</p>
+<blockquote class="bq bq-tip">
+<p><strong>标叔的经验</strong>：一次真实故障</p>
+<p>有回客服 Agent 查库失败，旧链路直接崩给用户。换成图之后，我加了一个"失败→重试→人工"的分支。同样的故障，用户只看到一句"正在为您转人工"。这一下，我就回不去了。</p>
+</blockquote>
+<h3>01.2 LangGraph 在 2026 生态里到底算什么</h3>
+<p>很多人以为 LangGraph 是 LangChain 的一个"升级版"。这话不对，得重新说清楚。</p>
+<p>2026 年的官方定位是四层：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>角色</th>
+<th>一句话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LangGraph</td>
+<td>编排运行时</td>
+<td>负责持久化、流式、人机协同、状态</td>
+</tr>
+<tr>
+<td>LangChain</td>
+<td>框架</td>
+<td>管模型、工具、Agent 循环的抽象与集成</td>
+</tr>
+<tr>
+<td>Deep Agents</td>
+<td>上层封装（harness）</td>
+<td>在 LangGraph 上做规划、子代理、文件系统</td>
+</tr>
+<tr>
+<td>LangSmith</td>
+<td>平台</td>
+<td>追踪、评估、部署，跨框架通用</td>
+</tr>
+</tbody>
+</table>
+<p>你看，LangGraph 不替你写提示词，也不规定 Agent 架构。它只管一件事：把"长流程、有状态"跑稳。</p>
+<p>这就是它和"链"的本质区别。链是固定的线。图是可以循环、可以分叉、可以暂停的网络。</p>
+<blockquote class="bq bq-focus">
+<p><strong>重点看</strong>：上表第一列。
+LangGraph 只做"编排运行时"。这句话理解了，后面全通。</p>
+</blockquote>
+<h3>01.3 为什么是"图"</h3>
+<p>我把 Agent 的工作方式分成三类，类比一下你就懂：</p>
+<ul>
+<li>脚本是你的菜谱，一步一步照做。</li>
+<li>链是你的传送带，串好就走。</li>
+<li>图是你的城市地铁网，可以换乘、可以绕路、可以原路返回。</li>
+</ul>
+<p>Agent 的真实任务从来不是直线的。它会："查一下→不对→再查→问人→总结"。</p>
+<p>只有图能自然表达这种"带循环和判断"的流。</p>
+<h3>01.4 你适不适合用 LangGraph</h3>
+<p>我先给结论：</p>
+<ul>
+<li>你要做"对话机器人"、单次问答 → 用 LangChain 的 <code>create_agent</code> 就够了，别上 LangGraph。</li>
+<li>你要做"跑很久、要记住上下文、中途要人审批、会循环自己纠错"的系统 → LangGraph 是正解。</li>
+</ul>
+<blockquote class="bq bq-rec">
+<p><strong>核心建议</strong>：先问自己"流程会不会回头"
+不会回头，别用图。会回头，LangGraph 省你一半代码。</p>
+</blockquote>
+<p><span class="bridge">▸ 向前桥接</span> 概念清楚了。下一章，我们 5 分钟真跑一个 Agent。</p>
+      </div>
+      <nav class="pager">
+        <a class="pager-btn prev" href="index.html">← 封面 / 目录</a><a class="pager-btn next" href="02.html">02 5 分钟跑通你的第一个 Agent →</a>
+      </nav>
+    </article>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>if(window.hljs){hljs.highlightAll();}</script>
+<script src="assets/script.js"></script>
+</body>
+</html>

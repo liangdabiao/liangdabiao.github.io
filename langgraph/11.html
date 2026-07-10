@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 写这本书时，我对 Agent 框架的认知变了 · LangGraph 从入门到精通</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<button class="menu-toggle" aria-label="目录">☰ 目录</button>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-head">
+      <a class="side-title" href="index.html">LangGraph<span>从入门到精通</span></a>
+    </div>
+    <nav class="side-nav">
+      <div class="nav-group">Part 1 · 起步</div>
+<a href="01.html">01 LangGraph 不是"链"，是"图"</a>
+<a href="02.html">02 5 分钟跑通你的第一个 Agent</a>
+<a href="03.html">03 手搭一个会调用工具的客服助手</a>
+<div class="nav-group">Part 2 · 核心能力</div>
+<a href="04.html">04 图的三要素：节点、边、状态</a>
+<a href="05.html">05 工具调用代理：让 AI 自己选工具</a>
+<a href="06.html">06 记忆系统：短期 + 长期</a>
+<a href="07.html">07 人机协同：在关键节点按暂停</a>
+<div class="nav-group">Part 3 · 进阶实战</div>
+<a href="08.html">08 多智能体：用 supervisor 组建团队</a>
+<a href="09.html">09 Functional API：少写图的另一种写法</a>
+<a href="10.html">10 从本地到生产：部署与可观测</a>
+<a href="11.html" class="active">11 写这本书时，我对 Agent 框架的认知变了</a>
+<div class="nav-group">附录</div>
+<a href="a.html">附录A 附录 版本与生态速查（2026-07）</a>
+<a href="b.html">附录B 附录 常见坑与排查</a>
+
+    </nav>
+    <div class="side-foot">标叔出品 · 2026</div>
+  </aside>
+  <main class="content">
+    <article class="chapter">
+      <div class="crumbs">Part 3 · 进阶实战</div>
+      <h1>11 写这本书时，我对 Agent 框架的认知变了</h1>
+      <div class="body">
+<h3>11.1 我以为框架越多越好</h3>
+<p>早些年我追新框架。这个火学这个，那个火学那个。</p>
+<p>写这本书时我停下来想：框架解决的真的是"写不写得出来"吗？</p>
+<p>不是。是"跑不跑得稳"。</p>
+<h3>11.2 我现在怎么看 LangGraph</h3>
+<p>它不替你想架构。它只保证：长流程不丢状态、能暂停、能恢复、能追。</p>
+<p>这四点，恰恰是生产环境最贵的那部分。</p>
+<p>我现在的判断很直接：</p>
+<ul>
+<li>玩具 Demo，别用。</li>
+<li>要上线的长流程 Agent，它是我首选。</li>
+</ul>
+<h3>11.3 给读者的三句话</h3>
+<p>第一，先把单智能体玩透，别急着多智能体。</p>
+<p>第二，记忆和人机协同，是 Agent 和"脚本"的分界线。</p>
+<p>第三，框架是工具，不是目的。能稳定解决问题的，就是好方案。</p>
+<blockquote class="bq">
+<p><strong>一句话总结</strong>：最好的 Agent 不是用了最炫的框架，是用最合适的零件，真把事办成了。</p>
+</blockquote>
+      </div>
+      <nav class="pager">
+        <a class="pager-btn prev" href="10.html">← 10 从本地到生产：部署与可观测</a><a class="pager-btn next" href="a.html">附录A 附录 版本与生态速查（2026-07） →</a>
+      </nav>
+    </article>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>if(window.hljs){hljs.highlightAll();}</script>
+<script src="assets/script.js"></script>
+</body>
+</html>

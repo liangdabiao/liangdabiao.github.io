@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§04 模型接入：Workers AI 免 Key，AI Gateway 路由任意供应商 · Cloudflare Agents 从入门到精通</title>
+<meta name="description" content="Cloudflare Agents 从入门到精通 —— 用 agents SDK 在边缘把想法变成会记忆、会调度、能接真实世界的生产级 AI Agent。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">Cloudflare Agents <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 Cloudflare Agents 把"有状态 Agent"这件事托住了</a><a class="toc-link" href="s02.html">§02 10 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link active" href="s04.html">§04 模型接入：Workers AI 免 Key，AI Gateway 路由任意供应商</a><a class="toc-link" href="s05.html">§05 对话状态：每个 Agent 自带 SQLite，断线续跑</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 可观测性：内置追踪、指标、日志</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：聊天 Agent 拆解</a><a class="toc-link" href="s09.html">§09 配置与部署：wrangler.jsonc 与全球网络</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 Durable Objects 与边缘运行时：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 调度与队列：让 Agent 真正自动跑起来</a><a class="toc-link" href="s13.html">§13 子 Agent 与 Agent 工具：分而治之</a><a class="toc-link" href="s14.html">§14 长任务与持久执行：Fiber 断点续跑</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 浏览器工具：让 Agent 真的会"看"网页</a><a class="toc-link" href="s16.html">§16 沙箱与代码执行：跑任意代码</a><a class="toc-link" href="s17.html">§17 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s18.html">§18 AI 搜索与知识库：RAG 交给托管</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：记得住、管得严</a><a class="toc-link" href="s21.html">§21 工作流与人工审批：可恢复的多步管线</a><a class="toc-link" href="s22.html">§22 人类在环：审批流与四种模式</a><a class="toc-link" href="s23.html">§23 支付：让 Agent 自己付钱</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 邮件 Agent：收发回复邮件</a><a class="toc-link" href="s25.html">§25 Webhook 与推送通知：接入真实世界事件</a><a class="toc-link" href="s26.html">§26 语音 Agent：实时语音对话</a><a class="toc-link" href="s27.html">§27 Cloudflare Agents vs EdgeOne Makers：怎么选</a><a class="toc-link" href="s28.html">§28 思维转变：Agent 不是函数，是对象</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 2 · 核心能力</div><h1 class="chapter-title">§04 模型接入：Workers AI 免 Key，AI Gateway 路由任意供应商</h1>
+    <article class="chapter"><p class="part-lead"><p>深入 Cloudflare Agents 的关键能力，每章一个核心概念。</p></p><h3>04.1 免 Key 是第一步惊喜</h3>
+<p>Cloudflare 自带 Workers AI。Starter 默认就用它。你不用申请任何 Key，直接调。</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Agent</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;agents&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">streamText</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;ai&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createWorkersAI</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;workers-ai-provider&quot;</span><span class="p">;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">MyAgent</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Agent</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">onRequest</span><span class="p">(</span><span class="nx">request</span><span class="o">:</span><span class="w"> </span><span class="kt">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">workersai</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createWorkersAI</span><span class="p">({</span><span class="w"> </span><span class="nx">binding</span><span class="o">:</span><span class="w"> </span><span class="kt">this.env.AI</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">generateText</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="kt">workersai</span><span class="p">(</span><span class="s2">&quot;@cf/moonshotai/kimi-k2.7-code&quot;</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">prompt</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Build me an AI agent on Cloudflare Workers&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">Response</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">modelResponse</span><span class="o">:</span><span class="w"> </span><span class="kt">text</span><span class="w"> </span><span class="p">});</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>wrangler 里加一个 <code>ai</code> binding 就行：</p>
+<div class="highlight"><pre><span></span><code>{ &quot;ai&quot;: { &quot;binding&quot;: &quot;AI&quot; } }
+</code></pre></div>
+
+<h3>04.2 想换供应商？AI SDK 一行搞定</h3>
+<p>Workers AI 不够用？换 OpenAI、Anthropic、Gemini 都行。底层用 AI SDK 统一接口。</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">openai</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@ai-sdk/openai&quot;</span><span class="p">;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">text</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">generateText</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="kt">openai</span><span class="p">(</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">prompt</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Build me an AI agent on Cloudflare Workers&quot;</span><span class="p">,</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<h3>04.3 真正的杀手锏：AI Gateway 路由</h3>
+<p>这一层和 EdgeOne 的"统一模型网关"思路一致。你可以在 AI Gateway 里做供应商路由、评估、限流、缓存。</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">AI</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span>
+<span class="w">  </span><span class="s2">&quot;@cf/deepseek-ai/deepseek-r1-distill-qwen-32b&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">prompt</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Build me a Cloudflare Worker that returns JSON.&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">gateway</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;{gateway_id}&quot;</span><span class="p">,</span><span class="w">   </span><span class="c1">// 你的网关 ID</span>
+<span class="w">      </span><span class="nx">skipCache</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">cacheTtl</span><span class="o">:</span><span class="w"> </span><span class="kt">3360</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Workers AI 直连</th>
+<th>走 AI Gateway</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>配置</td>
+<td>加 <code>ai</code> binding</td>
+<td>加 gateway id</td>
+<td>都要配</td>
+</tr>
+<tr>
+<td>路由</td>
+<td>写死模型</td>
+<td>按规则换供应商</td>
+<td>Gateway 更灵活</td>
+</tr>
+<tr>
+<td>缓存/限流</td>
+<td>无</td>
+<td>内建</td>
+<td>生产用 Gateway</td>
+</tr>
+<tr>
+<td>适用</td>
+<td>快速验证</td>
+<td>正式上线</td>
+<td>先直连后 Gateway</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-important"><span class="callout-tag">重点看</span><blockquote>最后一行。我建议先用 Workers AI 跑通，再接 AI Gateway 上生产。别一上来就配网关，容易卡在配置上。</p>
+</blockquote></div>
+<h3>04.4 流式输出</h3>
+<p>大模型慢，别缓冲。直接流式吐给客户端。WebSocket 或 SSE 都行。</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">streamText</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="kt">workersai</span><span class="p">(</span><span class="s2">&quot;@cf/zai-org/glm-4.7-flash&quot;</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">prompt</span><span class="o">:</span><span class="w"> </span><span class="kt">userPrompt</span><span class="p">,</span>
+<span class="p">});</span>
+<span class="k">for</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">chunk</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">textStream</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">chunk</span><span class="p">)</span><span class="w"> </span><span class="nx">connection</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;chunk&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="kt">chunk</span><span class="w"> </span><span class="p">}));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>模型这块讲完了。下一章讲状态——Cloudflare Agents 最硬的底子。</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s03.html"><span>← 上一页</span><b>§03 装好你的开发环境</b></a><a class="pager-btn pager-next" href="s05.html"><span>下一页 →</span><b>§05 对话状态：每个 Agent 自带 SQLite，断线续跑</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

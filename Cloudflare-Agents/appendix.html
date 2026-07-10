@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>附录 · 速查表与排错 · Cloudflare Agents 从入门到精通</title>
+<meta name="description" content="Cloudflare Agents 从入门到精通 —— 用 agents SDK 在边缘把想法变成会记忆、会调度、能接真实世界的生产级 AI Agent。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">Cloudflare Agents <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 Cloudflare Agents 把"有状态 Agent"这件事托住了</a><a class="toc-link" href="s02.html">§02 10 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型接入：Workers AI 免 Key，AI Gateway 路由任意供应商</a><a class="toc-link" href="s05.html">§05 对话状态：每个 Agent 自带 SQLite，断线续跑</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 可观测性：内置追踪、指标、日志</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：聊天 Agent 拆解</a><a class="toc-link" href="s09.html">§09 配置与部署：wrangler.jsonc 与全球网络</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 Durable Objects 与边缘运行时：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 调度与队列：让 Agent 真正自动跑起来</a><a class="toc-link" href="s13.html">§13 子 Agent 与 Agent 工具：分而治之</a><a class="toc-link" href="s14.html">§14 长任务与持久执行：Fiber 断点续跑</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 浏览器工具：让 Agent 真的会"看"网页</a><a class="toc-link" href="s16.html">§16 沙箱与代码执行：跑任意代码</a><a class="toc-link" href="s17.html">§17 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s18.html">§18 AI 搜索与知识库：RAG 交给托管</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：记得住、管得严</a><a class="toc-link" href="s21.html">§21 工作流与人工审批：可恢复的多步管线</a><a class="toc-link" href="s22.html">§22 人类在环：审批流与四种模式</a><a class="toc-link" href="s23.html">§23 支付：让 Agent 自己付钱</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 邮件 Agent：收发回复邮件</a><a class="toc-link" href="s25.html">§25 Webhook 与推送通知：接入真实世界事件</a><a class="toc-link" href="s26.html">§26 语音 Agent：实时语音对话</a><a class="toc-link" href="s27.html">§27 Cloudflare Agents vs EdgeOne Makers：怎么选</a><a class="toc-link" href="s28.html">§28 思维转变：Agent 不是函数，是对象</a><a class="toc-link active" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <h1 class="chapter-title">附录</h1>
+    <article class="chapter"><h3>A 速查表</h3>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>入口</th>
+<th>关键 API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>定义 Agent</td>
+<td><code>class X extends Agent</code></td>
+<td><code>initialState</code>, <code>setState</code>, <code>this.sql</code></td>
+</tr>
+<tr>
+<td>实时方法</td>
+<td><code>@callable()</code></td>
+<td><code>agent.stub.xxx()</code></td>
+</tr>
+<tr>
+<td>路由</td>
+<td><code>routeAgentRequest</code></td>
+<td><code>getAgentByName</code></td>
+</tr>
+<tr>
+<td>聊天</td>
+<td><code>AIChatAgent</code></td>
+<td><code>onChatMessage</code>, <code>useAgentChat</code></td>
+</tr>
+<tr>
+<td>调度</td>
+<td><code>this.schedule</code></td>
+<td><code>scheduleEvery</code>, <code>listSchedules</code></td>
+</tr>
+<tr>
+<td>子 Agent</td>
+<td><code>this.subAgent</code></td>
+<td><code>parentAgent</code>, <code>onBeforeSubAgent</code></td>
+</tr>
+<tr>
+<td>持久执行</td>
+<td><code>runFiber</code></td>
+<td><code>ctx.stash</code>, <code>onFiberRecovered</code></td>
+</tr>
+<tr>
+<td>工作流</td>
+<td><code>AgentWorkflow</code></td>
+<td><code>step.do</code>, <code>waitForApproval</code></td>
+</tr>
+<tr>
+<td>MCP 客户端</td>
+<td><code>addMcpServer</code></td>
+<td><code>this.mcp.getAITools()</code></td>
+</tr>
+<tr>
+<td>MCP 服务器</td>
+<td><code>McpAgent</code></td>
+<td><code>MyMcp.serve("/")</code></td>
+</tr>
+<tr>
+<td>浏览器</td>
+<td><code>createBrowserTools</code></td>
+<td><code>cdp.send</code></td>
+</tr>
+<tr>
+<td>沙箱</td>
+<td><code>getSandbox</code></td>
+<td><code>sandbox.exec</code></td>
+</tr>
+<tr>
+<td>AI 搜索</td>
+<td><code>AI_SEARCH</code></td>
+<td><code>search</code>, <code>chatCompletions</code></td>
+</tr>
+<tr>
+<td>支付</td>
+<td>x402/MPP</td>
+<td><code>withX402</code>, <code>paidTool</code></td>
+</tr>
+<tr>
+<td>观测</td>
+<td><code>subscribe</code></td>
+<td>Tail Worker</td>
+</tr>
+</tbody>
+</table>
+<h3>B 常见错误与解决</h3>
+<table>
+<thead>
+<tr>
+<th>错误</th>
+<th>原因</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>No such Durable Object class</code></td>
+<td>类没同时进 binding 和 migration</td>
+<td>两处都加</td>
+</tr>
+<tr>
+<td><code>@callable</code> 方法调不动</td>
+<td>装饰器没转译</td>
+<td>检查 <code>agents()</code> 插件、别开 <code>experimentalDecorators</code></td>
+</tr>
+<tr>
+<td>状态不广播</td>
+<td>直接改 <code>this.state</code></td>
+<td>用 <code>setState</code></td>
+</tr>
+<tr>
+<td>历史不落盘</td>
+<td>漏 <code>new_sqlite_classes</code></td>
+<td>补 migration</td>
+</tr>
+<tr>
+<td>MCP 连接报已连接</td>
+<td>复用 McpServer 实例</td>
+<td>每次请求 <code>new</code> 一个</td>
+</tr>
+<tr>
+<td>Fiber 恢复乱</td>
+<td>恢复逻辑写在 lambda 里</td>
+<td>移到 <code>onFiberRecovered</code></td>
+</tr>
+<tr>
+<td>浏览器重放乱</td>
+<td>CDP <code>Promise.all</code></td>
+<td>改顺序调用</td>
+</tr>
+</tbody>
+</table>
+<h3>C 学习路径建议</h3>
+<p>第一步：跑通 §02 计数器，理解状态与广播。
+第二步：做 §08 聊天 Agent，接工具和审批。
+第三步：加 §12 调度，让 Agent 自动跑。
+第四步：试 §15 浏览器 / §17 MCP，接外部世界。
+第五步：读源码 <code>cloudflare/agents</code> 的 <code>examples/</code>，每个 demo 都是宝藏。</p>
+<hr />
+<p><strong>标叔出品</strong> | AI Native Coder · 独立开发者
+公众号「标叔」| B站「AI进化论-花生」
+代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通 · EdgeOne Makers从入门到精通 · Cloudflare Agents从入门到精通</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s28.html"><span>← 上一页</span><b>§28 思维转变：Agent 不是函数，是对象</b></a><span></span></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

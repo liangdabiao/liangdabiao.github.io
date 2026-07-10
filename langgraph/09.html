@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 Functional API：少写图的另一种写法 · LangGraph 从入门到精通</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<button class="menu-toggle" aria-label="目录">☰ 目录</button>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-head">
+      <a class="side-title" href="index.html">LangGraph<span>从入门到精通</span></a>
+    </div>
+    <nav class="side-nav">
+      <div class="nav-group">Part 1 · 起步</div>
+<a href="01.html">01 LangGraph 不是"链"，是"图"</a>
+<a href="02.html">02 5 分钟跑通你的第一个 Agent</a>
+<a href="03.html">03 手搭一个会调用工具的客服助手</a>
+<div class="nav-group">Part 2 · 核心能力</div>
+<a href="04.html">04 图的三要素：节点、边、状态</a>
+<a href="05.html">05 工具调用代理：让 AI 自己选工具</a>
+<a href="06.html">06 记忆系统：短期 + 长期</a>
+<a href="07.html">07 人机协同：在关键节点按暂停</a>
+<div class="nav-group">Part 3 · 进阶实战</div>
+<a href="08.html">08 多智能体：用 supervisor 组建团队</a>
+<a href="09.html" class="active">09 Functional API：少写图的另一种写法</a>
+<a href="10.html">10 从本地到生产：部署与可观测</a>
+<a href="11.html">11 写这本书时，我对 Agent 框架的认知变了</a>
+<div class="nav-group">附录</div>
+<a href="a.html">附录A 附录 版本与生态速查（2026-07）</a>
+<a href="b.html">附录B 附录 常见坑与排查</a>
+
+    </nav>
+    <div class="side-foot">标叔出品 · 2026</div>
+  </aside>
+  <main class="content">
+    <article class="chapter">
+      <div class="crumbs">Part 3 · 进阶实战</div>
+      <h1>09 Functional API：少写图的另一种写法</h1>
+      <div class="body">
+<h3>09.1 图不是唯一写法</h3>
+<p>2026 年我最大的惊喜，是 Functional API。</p>
+<p>它让你用普通 Python 写流程，照样拿到持久化、记忆、人机协同。</p>
+<p>不用声明节点和边。if、for 直接用。</p>
+<h3>09.2 最小例子</h3>
+<pre><code class="language-python">from langgraph.func import entrypoint, task
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.types import interrupt
+
+@task
+def write(text: str) -&gt; str:
+    return f&quot;文章：{text}&quot;
+
+@entrypoint(checkpointer=InMemorySaver())
+def flow(topic: str):
+    essay = write(topic).result()        # 调 task，等结果
+    ok = interrupt({&quot;essay&quot;: essay})     # 照样能暂停等人
+    return {&quot;essay&quot;: essay, &quot;ok&quot;: ok}
+
+flow.invoke(&quot;LangGraph 是什么&quot;, {&quot;configurable&quot;: {&quot;thread_id&quot;: &quot;t1&quot;}})
+</code></pre>
+<h3>09.3 两种 API 怎么选</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Graph API</th>
+<th>Functional API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>控制流</td>
+<td>声明式图</td>
+<td>原生 Python</td>
+</tr>
+<tr>
+<td>可视化</td>
+<td>强（Studio）</td>
+<td>无</td>
+</tr>
+<tr>
+<td>改动成本</td>
+<td>要重构</td>
+<td>加俩装饰器</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>复杂状态用</td>
+<td>老代码加能力用</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="bq bq-rec">
+<p><strong>核心建议</strong>：两个都能混用
+底层是同一个运行时。复杂模块用图，轻量逻辑用函数，放一起跑没毛病。</p>
+</blockquote>
+<p><span class="bridge">▸ 向前桥接</span> 本地能跑不算完。下一章讲怎么上线。</p>
+      </div>
+      <nav class="pager">
+        <a class="pager-btn prev" href="08.html">← 08 多智能体：用 supervisor 组建团队</a><a class="pager-btn next" href="10.html">10 从本地到生产：部署与可观测 →</a>
+      </nav>
+    </article>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>if(window.hljs){hljs.highlightAll();}</script>
+<script src="assets/script.js"></script>
+</body>
+</html>

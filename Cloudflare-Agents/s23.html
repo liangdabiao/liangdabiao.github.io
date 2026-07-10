@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§23 支付：让 Agent 自己付钱 · Cloudflare Agents 从入门到精通</title>
+<meta name="description" content="Cloudflare Agents 从入门到精通 —— 用 agents SDK 在边缘把想法变成会记忆、会调度、能接真实世界的生产级 AI Agent。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">Cloudflare Agents <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 Cloudflare Agents 把"有状态 Agent"这件事托住了</a><a class="toc-link" href="s02.html">§02 10 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型接入：Workers AI 免 Key，AI Gateway 路由任意供应商</a><a class="toc-link" href="s05.html">§05 对话状态：每个 Agent 自带 SQLite，断线续跑</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 可观测性：内置追踪、指标、日志</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：聊天 Agent 拆解</a><a class="toc-link" href="s09.html">§09 配置与部署：wrangler.jsonc 与全球网络</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 Durable Objects 与边缘运行时：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 调度与队列：让 Agent 真正自动跑起来</a><a class="toc-link" href="s13.html">§13 子 Agent 与 Agent 工具：分而治之</a><a class="toc-link" href="s14.html">§14 长任务与持久执行：Fiber 断点续跑</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 浏览器工具：让 Agent 真的会"看"网页</a><a class="toc-link" href="s16.html">§16 沙箱与代码执行：跑任意代码</a><a class="toc-link" href="s17.html">§17 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s18.html">§18 AI 搜索与知识库：RAG 交给托管</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：记得住、管得严</a><a class="toc-link" href="s21.html">§21 工作流与人工审批：可恢复的多步管线</a><a class="toc-link" href="s22.html">§22 人类在环：审批流与四种模式</a><a class="toc-link active" href="s23.html">§23 支付：让 Agent 自己付钱</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 邮件 Agent：收发回复邮件</a><a class="toc-link" href="s25.html">§25 Webhook 与推送通知：接入真实世界事件</a><a class="toc-link" href="s26.html">§26 语音 Agent：实时语音对话</a><a class="toc-link" href="s27.html">§27 Cloudflare Agents vs EdgeOne Makers：怎么选</a><a class="toc-link" href="s28.html">§28 思维转变：Agent 不是函数，是对象</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 6 · 模型与智能体深潜</div><h1 class="chapter-title">§23 支付：让 Agent 自己付钱</h1>
+    <article class="chapter"><h3>23.1 为什么 Agent 要会付钱</h3>
+<p>传统接入要注册账号、绑卡、拿 API Key。Agent 程序化消费资源，这套流程卡死。Cloudflare 用 HTTP <code>402 Payment Required</code> 解决。</p>
+<h3>23.2 x402 与 MPP</h3>
+<p>两套都基于 <code>402</code>：</p>
+<ul>
+<li><strong>x402</strong>（Coinbase 创立）：链上稳定币（USDC），三个 HTTP 头带挑战/凭证/回执。可甩给 facilitator 服务验单，服务器不用直连链。</li>
+<li><strong>MPP</strong>（Stripe 等参与，IETF 标准轨道）：除链上，还支持卡、Lightning、稳定币，引入 session 做流式按量付。向后兼容 x402。</li>
+</ul>
+<h3>23.3 服务端收费</h3>
+<p>SDK 提供 <code>withX402</code>、<code>paidTool</code>（MCP 服务端）、<code>x402-hono</code>（HTTP Worker）。客户端 <code>withX402Client</code> 自动处理 402 并重试，可选人工确认。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>x402</th>
+<th>MPP</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>结算</td>
+<td>稳定币</td>
+<td>卡/币/稳定币</td>
+<td>MPP 更宽</td>
+</tr>
+<tr>
+<td>标准</td>
+<td>x402 基金会</td>
+<td>IETF 轨道</td>
+<td>MPP 更正式</td>
+</tr>
+<tr>
+<td>流式</td>
+<td>无</td>
+<td>session 按量</td>
+<td>流式选 MPP</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-experience"><span class="callout-tag">标叔的经验</span><blockquote>这是 Cloudflare Agents 区别于几乎所有同类平台的点。Agent 能自己付钱，意味着"Agent 经济"真能跑——你的 Agent 调别人的 Agent，自动结算。这块值得长期关注。</p>
+</blockquote></div>
+<p>支付讲完。下一 Part 进高级功能：邮件、Webhook、语音、对比与思维转变。</p>
+<hr /></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s22.html"><span>← 上一页</span><b>§22 人类在环：审批流与四种模式</b></a><a class="pager-btn pager-next" href="s24.html"><span>下一页 →</span><b>§24 邮件 Agent：收发回复邮件</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

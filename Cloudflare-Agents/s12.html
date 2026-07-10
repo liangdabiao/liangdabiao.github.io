@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§12 调度与队列：让 Agent 真正自动跑起来 · Cloudflare Agents 从入门到精通</title>
+<meta name="description" content="Cloudflare Agents 从入门到精通 —— 用 agents SDK 在边缘把想法变成会记忆、会调度、能接真实世界的生产级 AI Agent。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">Cloudflare Agents <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 Cloudflare Agents 把"有状态 Agent"这件事托住了</a><a class="toc-link" href="s02.html">§02 10 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型接入：Workers AI 免 Key，AI Gateway 路由任意供应商</a><a class="toc-link" href="s05.html">§05 对话状态：每个 Agent 自带 SQLite，断线续跑</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 可观测性：内置追踪、指标、日志</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：聊天 Agent 拆解</a><a class="toc-link" href="s09.html">§09 配置与部署：wrangler.jsonc 与全球网络</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 Durable Objects 与边缘运行时：在离用户最近的地方算</a><a class="toc-link active" href="s12.html">§12 调度与队列：让 Agent 真正自动跑起来</a><a class="toc-link" href="s13.html">§13 子 Agent 与 Agent 工具：分而治之</a><a class="toc-link" href="s14.html">§14 长任务与持久执行：Fiber 断点续跑</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 浏览器工具：让 Agent 真的会"看"网页</a><a class="toc-link" href="s16.html">§16 沙箱与代码执行：跑任意代码</a><a class="toc-link" href="s17.html">§17 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s18.html">§18 AI 搜索与知识库：RAG 交给托管</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：记得住、管得严</a><a class="toc-link" href="s21.html">§21 工作流与人工审批：可恢复的多步管线</a><a class="toc-link" href="s22.html">§22 人类在环：审批流与四种模式</a><a class="toc-link" href="s23.html">§23 支付：让 Agent 自己付钱</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 邮件 Agent：收发回复邮件</a><a class="toc-link" href="s25.html">§25 Webhook 与推送通知：接入真实世界事件</a><a class="toc-link" href="s26.html">§26 语音 Agent：实时语音对话</a><a class="toc-link" href="s27.html">§27 Cloudflare Agents vs EdgeOne Makers：怎么选</a><a class="toc-link" href="s28.html">§28 思维转变：Agent 不是函数，是对象</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 4 · 进阶篇</div><h1 class="chapter-title">§12 调度与队列：让 Agent 真正自动跑起来</h1>
+    <article class="chapter"><h3>12.1 四种调度模式</h3>
+<p>底层用 Durable Object alarm，任务持久化进 SQLite，重启不丢。</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>语法</th>
+<th>用例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>延迟</td>
+<td><code>schedule(60, ...)</code></td>
+<td>60 秒后</td>
+</tr>
+<tr>
+<td>定时</td>
+<td><code>schedule(new Date(...), ...)</code></td>
+<td>指定时刻</td>
+</tr>
+<tr>
+<td>Cron</td>
+<td><code>schedule("0 8 * * *", ...)</code></td>
+<td>每天 8 点</td>
+</tr>
+<tr>
+<td>间隔</td>
+<td><code>scheduleEvery(30, ...)</code></td>
+<td>每 30 秒</td>
+</tr>
+</tbody>
+</table>
+<h3>12.2 一个提醒 Agent</h3>
+<div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">ReminderAgent</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Agent</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">onRequest</span><span class="p">(</span><span class="nx">request</span><span class="o">:</span><span class="w"> </span><span class="kt">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 30 秒后发提醒</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">schedule</span><span class="p">(</span><span class="mf">30</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;sendReminder&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Check email&quot;</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="c1">// 每天 8 点发日报</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">schedule</span><span class="p">(</span><span class="s2">&quot;0 8 * * *&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dailyDigest&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;u1&quot;</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Response</span><span class="p">(</span><span class="s2">&quot;Scheduled!&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">sendReminder</span><span class="p">(</span><span class="nx">payload</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">dailyDigest</span><span class="p">(</span><span class="nx">payload</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* 生成并发送 */</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>12.3 管理调度</h3>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">all</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">listSchedules</span><span class="p">();</span><span class="w">              </span><span class="c1">// 全部</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">cron</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">listSchedules</span><span class="p">({</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;cron&quot;</span><span class="w"> </span><span class="p">});</span><span class="w"> </span><span class="c1">// 只 cron</span>
+<span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">cancelSchedule</span><span class="p">(</span><span class="nx">scheduleId</span><span class="p">);</span><span class="w">               </span><span class="c1">// 取消</span>
+</code></pre></div>
+
+<h3>12.4 队列：瞬时高并发</h3>
+<p>调度是"未来某刻跑一次"。队列是"现在塞进去，按顺序跑"。</p>
+<div class="highlight"><pre><span></span><code><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">queue</span><span class="p">(</span><span class="s2">&quot;processTask&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">taskId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;123&quot;</span><span class="w"> </span><span class="p">});</span>
+<span class="c1">// 回调：async processTask(payload) { ... }</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>schedule</th>
+<th>queue</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>语义</td>
+<td>定时/延迟</td>
+<td>异步入队</td>
+<td>看要不要定时</td>
+</tr>
+<tr>
+<td>重叠保护</td>
+<td>间隔内建</td>
+<td>顺序消费</td>
+<td>队列防挤兑</td>
+</tr>
+<tr>
+<td>典型</td>
+<td>日报、提醒</td>
+<td>批量任务</td>
+<td>各用各的</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-advice"><span class="callout-tag">核心建议</span><blockquote>cron 放 <code>onStart()</code> 里设，利用幂等避免重启重复创建。调度是 Agent 自动化的起点。</p>
+</blockquote></div>
+<p>调度讲完。下一章讲怎么把一个大 Agent 拆成一群小 Agent。</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s11.html"><span>← 上一页</span><b>§11 Durable Objects 与边缘运行时：在离用户最近的地方算</b></a><a class="pager-btn pager-next" href="s13.html"><span>下一页 →</span><b>§13 子 Agent 与 Agent 工具：分而治之</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

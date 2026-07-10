@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 手搭一个会调用工具的客服助手 · LangGraph 从入门到精通</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<button class="menu-toggle" aria-label="目录">☰ 目录</button>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-head">
+      <a class="side-title" href="index.html">LangGraph<span>从入门到精通</span></a>
+    </div>
+    <nav class="side-nav">
+      <div class="nav-group">Part 1 · 起步</div>
+<a href="01.html">01 LangGraph 不是"链"，是"图"</a>
+<a href="02.html">02 5 分钟跑通你的第一个 Agent</a>
+<a href="03.html" class="active">03 手搭一个会调用工具的客服助手</a>
+<div class="nav-group">Part 2 · 核心能力</div>
+<a href="04.html">04 图的三要素：节点、边、状态</a>
+<a href="05.html">05 工具调用代理：让 AI 自己选工具</a>
+<a href="06.html">06 记忆系统：短期 + 长期</a>
+<a href="07.html">07 人机协同：在关键节点按暂停</a>
+<div class="nav-group">Part 3 · 进阶实战</div>
+<a href="08.html">08 多智能体：用 supervisor 组建团队</a>
+<a href="09.html">09 Functional API：少写图的另一种写法</a>
+<a href="10.html">10 从本地到生产：部署与可观测</a>
+<a href="11.html">11 写这本书时，我对 Agent 框架的认知变了</a>
+<div class="nav-group">附录</div>
+<a href="a.html">附录A 附录 版本与生态速查（2026-07）</a>
+<a href="b.html">附录B 附录 常见坑与排查</a>
+
+    </nav>
+    <div class="side-foot">标叔出品 · 2026</div>
+  </aside>
+  <main class="content">
+    <article class="chapter">
+      <div class="crumbs">Part 1 · 起步</div>
+      <h1>03 手搭一个会调用工具的客服助手</h1>
+      <div class="body">
+<h3>03.1 我们最终做成什么</h3>
+<p>做一个客服助手：能聊天、能查天气、能把用户信息存库。</p>
+<p>做完你就能看清一张图的骨架：节点、边、状态。后面所有复杂系统都是这个骨架长出来的。</p>
+<h3>03.2 定义状态：图里的"共享白板"</h3>
+<pre><code class="language-python">from typing import Annotated, TypedDict
+from langchain_core.messages import AnyMessage
+import operator
+
+class AgentState(TypedDict):
+    messages: Annotated[list[AnyMessage], operator.add]
+</code></pre>
+<p><code>operator.add</code> 是"归约器"（reducer）。新消息加到旧列表后面，不是覆盖。这点很关键。</p>
+<h3>03.3 搭节点和边</h3>
+<pre><code class="language-python">from langgraph.graph import StateGraph, START, END
+from langgraph.prebuilt import ToolNode, tools_condition
+from langchain_core.messages import HumanMessage
+
+tools = [get_weather, save_user_info]
+tool_node = ToolNode(tools)
+llm_with_tools = llm.bind_tools(tools)
+
+def call_model(state):
+    resp = llm_with_tools.invoke(state[&quot;messages&quot;])
+    return {&quot;messages&quot;: [resp]}
+
+g = StateGraph(AgentState)
+g.add_node(&quot;agent&quot;, call_model)   # AI 决策节点
+g.add_node(&quot;tools&quot;, tool_node)    # 工具执行节点
+g.add_edge(START, &quot;agent&quot;)        # 入口
+g.add_conditional_edges(&quot;agent&quot;, tools_condition, {&quot;tools&quot;: &quot;tools&quot;, END: END})
+g.add_edge(&quot;tools&quot;, &quot;agent&quot;)      # 工具跑完回到 AI 总结
+graph = g.compile()
+</code></pre>
+<p><code>tools_condition</code> 是 LangGraph 预置的路由函数。它看最后一条消息有没有 <code>tool_calls</code>，有就走 <code>tools</code>，没有就 <code>END</code>。</p>
+<h3>03.4 跑一下</h3>
+<pre><code class="language-python">out = graph.invoke(
+    {&quot;messages&quot;: [HumanMessage(content=&quot;北京今天天气怎么样？&quot;)]},
+    {&quot;recursion_limit&quot;: 10},
+)
+print(out[&quot;messages&quot;][-1].content)
+</code></pre>
+<p>预期结果：Agent 调 <code>get_weather</code>，再总结成一句人话。</p>
+<blockquote class="bq bq-warn">
+<p><strong>注意</strong>：一定要设递归上限
+没设 <code>recursion_limit</code>，AI 一旦陷进"调工具—不满意—再调"的循环，进程就卡死。我默认设 10。</p>
+</blockquote>
+<h3>03.5 回顾</h3>
+<p>我们从零搭了一张带循环的真图。你看到了图的三个核心零件：节点（算什么）、边（走哪条）、状态（存什么）。</p>
+<blockquote class="bq bq-rec">
+<p><strong>核心建议</strong>：先手搭，再偷懒
+手搭一遍，你就懂 <code>create_react_agent</code> 内部在干嘛。之后用预置的，心里才有底。</p>
+</blockquote>
+<p><span class="bridge">▸ 向前桥接</span> 这张图还很简单。下一章，我把"节点、边、状态"拆开讲透。</p>
+      </div>
+      <nav class="pager">
+        <a class="pager-btn prev" href="02.html">← 02 5 分钟跑通你的第一个 Agent</a><a class="pager-btn next" href="04.html">04 图的三要素：节点、边、状态 →</a>
+      </nav>
+    </article>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>if(window.hljs){hljs.highlightAll();}</script>
+<script src="assets/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>附录A 附录 版本与生态速查（2026-07） · LangGraph 从入门到精通</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<button class="menu-toggle" aria-label="目录">☰ 目录</button>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-head">
+      <a class="side-title" href="index.html">LangGraph<span>从入门到精通</span></a>
+    </div>
+    <nav class="side-nav">
+      <div class="nav-group">Part 1 · 起步</div>
+<a href="01.html">01 LangGraph 不是"链"，是"图"</a>
+<a href="02.html">02 5 分钟跑通你的第一个 Agent</a>
+<a href="03.html">03 手搭一个会调用工具的客服助手</a>
+<div class="nav-group">Part 2 · 核心能力</div>
+<a href="04.html">04 图的三要素：节点、边、状态</a>
+<a href="05.html">05 工具调用代理：让 AI 自己选工具</a>
+<a href="06.html">06 记忆系统：短期 + 长期</a>
+<a href="07.html">07 人机协同：在关键节点按暂停</a>
+<div class="nav-group">Part 3 · 进阶实战</div>
+<a href="08.html">08 多智能体：用 supervisor 组建团队</a>
+<a href="09.html">09 Functional API：少写图的另一种写法</a>
+<a href="10.html">10 从本地到生产：部署与可观测</a>
+<a href="11.html">11 写这本书时，我对 Agent 框架的认知变了</a>
+<div class="nav-group">附录</div>
+<a href="a.html" class="active">附录A 附录 版本与生态速查（2026-07）</a>
+<a href="b.html">附录B 附录 常见坑与排查</a>
+
+    </nav>
+    <div class="side-foot">标叔出品 · 2026</div>
+  </aside>
+  <main class="content">
+    <article class="chapter">
+      <div class="crumbs">附录</div>
+      <h1>附录A 附录 版本与生态速查（2026-07）</h1>
+      <div class="body">
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>版本 / 事实</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>langgraph 稳定版</td>
+<td>1.2.8</td>
+<td>2026-07-06 发布</td>
+</tr>
+<tr>
+<td>langgraph 1.0</td>
+<td>2025-10 发布</td>
+<td>首个稳定大版本</td>
+</tr>
+<tr>
+<td>langgraph 1.1</td>
+<td>2026-03</td>
+<td>类型安全流式/调用 v2</td>
+</tr>
+<tr>
+<td>langgraph 1.2</td>
+<td>2026-05</td>
+<td>DeltaChannel、节点超时、错误恢复</td>
+</tr>
+<tr>
+<td>langgraph-supervisor</td>
+<td>0.0.31</td>
+<td>多智能体层级编排</td>
+</tr>
+<tr>
+<td>langmem</td>
+<td>活跃维护</td>
+<td>长期记忆与自我优化</td>
+</tr>
+<tr>
+<td>Deep Agents</td>
+<td>0.7.0（2026-07）</td>
+<td>上层 harness</td>
+</tr>
+<tr>
+<td>Checkpointer</td>
+<td>InMemory / Sqlite / Postgres</td>
+<td>短期记忆</td>
+</tr>
+<tr>
+<td>Store</td>
+<td>InMemory / Postgres</td>
+<td>长期记忆</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="bq bq-focus">
+<p><strong>重点看</strong>：第一行。
+装依赖后先 <code>pip show langgraph</code> 确认 ≥ 1.0。</p>
+</blockquote>
+      </div>
+      <nav class="pager">
+        <a class="pager-btn prev" href="11.html">← 11 写这本书时，我对 Agent 框架的认知变了</a><a class="pager-btn next" href="b.html">附录B 附录 常见坑与排查 →</a>
+      </nav>
+    </article>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>if(window.hljs){hljs.highlightAll();}</script>
+<script src="assets/script.js"></script>
+</body>
+</html>

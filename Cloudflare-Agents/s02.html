@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§02 10 分钟跑通你的第一个 Agent · Cloudflare Agents 从入门到精通</title>
+<meta name="description" content="Cloudflare Agents 从入门到精通 —— 用 agents SDK 在边缘把想法变成会记忆、会调度、能接真实世界的生产级 AI Agent。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">Cloudflare Agents <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link" href="s01.html">§01 Cloudflare Agents 把"有状态 Agent"这件事托住了</a><a class="toc-link active" href="s02.html">§02 10 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型接入：Workers AI 免 Key，AI Gateway 路由任意供应商</a><a class="toc-link" href="s05.html">§05 对话状态：每个 Agent 自带 SQLite，断线续跑</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 可观测性：内置追踪、指标、日志</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：聊天 Agent 拆解</a><a class="toc-link" href="s09.html">§09 配置与部署：wrangler.jsonc 与全球网络</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 Durable Objects 与边缘运行时：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 调度与队列：让 Agent 真正自动跑起来</a><a class="toc-link" href="s13.html">§13 子 Agent 与 Agent 工具：分而治之</a><a class="toc-link" href="s14.html">§14 长任务与持久执行：Fiber 断点续跑</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 浏览器工具：让 Agent 真的会"看"网页</a><a class="toc-link" href="s16.html">§16 沙箱与代码执行：跑任意代码</a><a class="toc-link" href="s17.html">§17 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s18.html">§18 AI 搜索与知识库：RAG 交给托管</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：记得住、管得严</a><a class="toc-link" href="s21.html">§21 工作流与人工审批：可恢复的多步管线</a><a class="toc-link" href="s22.html">§22 人类在环：审批流与四种模式</a><a class="toc-link" href="s23.html">§23 支付：让 Agent 自己付钱</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 邮件 Agent：收发回复邮件</a><a class="toc-link" href="s25.html">§25 Webhook 与推送通知：接入真实世界事件</a><a class="toc-link" href="s26.html">§26 语音 Agent：实时语音对话</a><a class="toc-link" href="s27.html">§27 Cloudflare Agents vs EdgeOne Makers：怎么选</a><a class="toc-link" href="s28.html">§28 思维转变：Agent 不是函数，是对象</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 1 · 起步</div><h1 class="chapter-title">§02 10 分钟跑通你的第一个 Agent</h1>
+    <article class="chapter"><p>上周我第一次点开官方 Starter。三行命令，一个能计数、能实时同步的 Agent 就上线了。我当场决定，这一章就讲这个最快的路。</p>
+<h3>02.1 你需要什么</h3>
+<p>装好 Node 24+。有一个 Cloudflare 账号（免费层够跑通）。不用装任何 IDE 插件。不用写代码。</p>
+<h3>02.2 我们最终要做成什么</h3>
+<p>一个能打开链接就对话、点击按钮就改数字、多人同时看到变化、断电重启数字还在的计数器 Agent。</p>
+<h3>02.3 用 Starter 模板起项目</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 这一行拉取官方 agents-starter 模板</span>
+npm<span class="w"> </span>create<span class="w"> </span>cloudflare@latest<span class="w"> </span>--<span class="w"> </span>--template<span class="w"> </span>cloudflare/agents-starter
+<span class="nb">cd</span><span class="w"> </span>my-agent
+npm<span class="w"> </span>install
+</code></pre></div>
+
+<p>预期结果：目录里出现 <code>src/server.ts</code>（你的 Agent 代码）、<code>src/client.tsx</code>（前端）、<code>wrangler.jsonc</code>（配置）。</p>
+<h3>02.4 把 server.ts 换成计数器</h3>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Agent</span><span class="p">,</span><span class="w"> </span><span class="nx">routeAgentRequest</span><span class="p">,</span><span class="w"> </span><span class="nx">callable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;agents&quot;</span><span class="p">;</span>
+
+<span class="c1">// 定义状态的形状</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">CounterState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">count</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">};</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">Counter</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Agent</span><span class="o">&lt;</span><span class="nx">Env</span><span class="p">,</span><span class="w"> </span><span class="nx">CounterState</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// 新实例的默认状态</span>
+<span class="w">  </span><span class="nx">initialState</span><span class="o">:</span><span class="w"> </span><span class="kt">CounterState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">count</span><span class="o">:</span><span class="w"> </span><span class="kt">0</span><span class="w"> </span><span class="p">};</span>
+
+<span class="w">  </span><span class="c1">// @callable 标记的方法，客户端能直接调</span>
+<span class="w">  </span><span class="kd">@callable</span><span class="p">()</span>
+<span class="w">  </span><span class="nx">increment</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="w"> </span><span class="nx">count</span><span class="o">:</span><span class="w"> </span><span class="kt">this.state.count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">count</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">@callable</span><span class="p">()</span>
+<span class="w">  </span><span class="nx">decrement</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="w"> </span><span class="nx">count</span><span class="o">:</span><span class="w"> </span><span class="kt">this.state.count</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">count</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="nx">request</span><span class="o">:</span><span class="w"> </span><span class="kt">Request</span><span class="p">,</span><span class="w"> </span><span class="nx">env</span><span class="o">:</span><span class="w"> </span><span class="kt">Env</span><span class="p">,</span><span class="w"> </span><span class="nx">ctx</span><span class="o">:</span><span class="w"> </span><span class="kt">ExecutionContext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 路由请求到对应的 Agent 实例</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">      </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">routeAgentRequest</span><span class="p">(</span><span class="nx">request</span><span class="p">,</span><span class="w"> </span><span class="nx">env</span><span class="p">))</span><span class="w"> </span><span class="o">??</span>
+<span class="w">      </span><span class="ow">new</span><span class="w"> </span><span class="nx">Response</span><span class="p">(</span><span class="s2">&quot;Not found&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">404</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<h3>02.5 在 wrangler.jsonc 里登记 Agent</h3>
+<div class="highlight"><pre><span></span><code>{
+  &quot;name&quot;: &quot;my-agent&quot;,
+  &quot;main&quot;: &quot;src/server.ts&quot;,
+  &quot;compatibility_date&quot;: &quot;2025-01-01&quot;,
+  &quot;compatibility_flags&quot;: [&quot;nodejs_compat&quot;],
+  &quot;durable_objects&quot;: {
+    &quot;bindings&quot;: [{ &quot;name&quot;: &quot;Counter&quot;, &quot;class_name&quot;: &quot;Counter&quot; }]
+  },
+  &quot;migrations&quot;: [{ &quot;tag&quot;: &quot;v1&quot;, &quot;new_sqlite_classes&quot;: [&quot;Counter&quot;] }]
+}
+</code></pre></div>
+
+<div class="callout callout-warning"><span class="callout-tag">注意</span><blockquote><code>Counter</code> 必须同时出现在 <code>durable_objects.bindings</code> 和 <code>migrations.new_sqlite_classes</code>。漏一个，运行时报 <code>No such Durable Object class</code>。这是新手第一坑。</p>
+</blockquote></div>
+<h3>02.6 启动，看它活过来</h3>
+<div class="highlight"><pre><span></span><code>npm<span class="w"> </span>run<span class="w"> </span>dev
+</code></pre></div>
+
+<p>打开 <code>http://localhost:5173</code>。点按钮，数字变。开两个浏览器标签，一个加，另一个也跟着变。这就是实时同步。</p>
+<div class="callout callout-experience"><span class="callout-tag">标叔的经验</span><blockquote>第一次看到两个标签页数字同步的那一刻，我明白了 Cloudflare Agents 的精髓——状态是"对象级"的，不是"请求级"的。</p>
+</blockquote></div>
+<h3>02.7 发生了什么</h3>
+<p>你点按钮时：客户端经 WebSocket 调 <code>agent.stub.increment()</code> → Agent 跑 <code>increment()</code>，<code>setState()</code> 把数字写进 SQLite → 状态广播给所有连接 → React 重渲染。</p>
+<div class="highlight"><pre><span></span><code>┌─────────────┐         ┌─────────────┐
+│   Browser   │◄───────►│    Agent    │
+│  (React)    │   WS    │  (Counter)  │
+└─────────────┘         └──────┬──────┘
+                               │
+                        ┌──────▼──────┐
+                        │   SQLite    │
+                        │  (State)    │
+                        └─────────────┘
+</code></pre></div>
+
+<p>关掉页面，再打开。数字还在。这就是休眠与唤醒。</p>
+<p>装好第一个 Agent，下一章我们把开发环境配齐。</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="s01.html"><span>← 上一页</span><b>§01 Cloudflare Agents 把"有状态 Agent"这件事托住了</b></a><a class="pager-btn pager-next" href="s03.html"><span>下一页 →</span><b>§03 装好你的开发环境</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>

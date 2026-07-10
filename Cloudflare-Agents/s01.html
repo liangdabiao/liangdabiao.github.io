@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>§01 Cloudflare Agents 把"有状态 Agent"这件事托住了 · Cloudflare Agents 从入门到精通</title>
+<meta name="description" content="Cloudflare Agents 从入门到精通 —— 用 agents SDK 在边缘把想法变成会记忆、会调度、能接真实世界的生产级 AI Agent。">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/hl-light.css">
+<link rel="stylesheet" href="assets/hl-dark.css">
+<script src="assets/book.js" defer></script>
+
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+  <a class="brand" href="index.html">Cloudflare Agents <span>从入门到精通</span></a>
+  <div class="topbar-right">
+    <a class="top-link" href="appendix.html">附录</a>
+    <button class="theme-btn" id="themeBtn" aria-label="切换主题">🌗</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"><nav class="toc"><a class="toc-home" href="index.html">📚 总目录</a><a class="toc-link" href="start.html">前言 · 阅读指南</a><div class="toc-part">Part 1 · 起步</div><a class="toc-link active" href="s01.html">§01 Cloudflare Agents 把"有状态 Agent"这件事托住了</a><a class="toc-link" href="s02.html">§02 10 分钟跑通你的第一个 Agent</a><a class="toc-link" href="s03.html">§03 装好你的开发环境</a><div class="toc-part">Part 2 · 核心能力</div><a class="toc-link" href="s04.html">§04 模型接入：Workers AI 免 Key，AI Gateway 路由任意供应商</a><a class="toc-link" href="s05.html">§05 对话状态：每个 Agent 自带 SQLite，断线续跑</a><a class="toc-link" href="s06.html">§06 工具调用：把能力拆成工具</a><a class="toc-link" href="s07.html">§07 可观测性：内置追踪、指标、日志</a><div class="toc-part">Part 3 · 进阶实战</div><a class="toc-link" href="s08.html">§08 从模板到真实项目：聊天 Agent 拆解</a><a class="toc-link" href="s09.html">§09 配置与部署：wrangler.jsonc 与全球网络</a><a class="toc-link" href="s10.html">§10 你只写业务逻辑，这事本身就是生产力</a><div class="toc-part">Part 4 · 进阶篇</div><a class="toc-link" href="s11.html">§11 Durable Objects 与边缘运行时：在离用户最近的地方算</a><a class="toc-link" href="s12.html">§12 调度与队列：让 Agent 真正自动跑起来</a><a class="toc-link" href="s13.html">§13 子 Agent 与 Agent 工具：分而治之</a><a class="toc-link" href="s14.html">§14 长任务与持久执行：Fiber 断点续跑</a><div class="toc-part">Part 5 · 最佳实践篇</div><a class="toc-link" href="s15.html">§15 浏览器工具：让 Agent 真的会"看"网页</a><a class="toc-link" href="s16.html">§16 沙箱与代码执行：跑任意代码</a><a class="toc-link" href="s17.html">§17 用 MCP 把能力接到外部世界</a><a class="toc-link" href="s18.html">§18 AI 搜索与知识库：RAG 交给托管</a><div class="toc-part">Part 6 · 模型与智能体深潜</div><a class="toc-link" href="s19.html">§19 模型厂商密钥：用你自己的 Key 接任意大模型</a><a class="toc-link" href="s20.html">§20 会话存储与鉴权：记得住、管得严</a><a class="toc-link" href="s21.html">§21 工作流与人工审批：可恢复的多步管线</a><a class="toc-link" href="s22.html">§22 人类在环：审批流与四种模式</a><a class="toc-link" href="s23.html">§23 支付：让 Agent 自己付钱</a><div class="toc-part">Part 7 · 高级功能篇</div><a class="toc-link" href="s24.html">§24 邮件 Agent：收发回复邮件</a><a class="toc-link" href="s25.html">§25 Webhook 与推送通知：接入真实世界事件</a><a class="toc-link" href="s26.html">§26 语音 Agent：实时语音对话</a><a class="toc-link" href="s27.html">§27 Cloudflare Agents vs EdgeOne Makers：怎么选</a><a class="toc-link" href="s28.html">§28 思维转变：Agent 不是函数，是对象</a><a class="toc-link" href="appendix.html">附录 · 速查表与排错</a></nav></aside>
+  <main class="content">
+    <div class="breadcrumb">Part 1 · 起步</div><h1 class="chapter-title">§01 Cloudflare Agents 把"有状态 Agent"这件事托住了</h1>
+    <article class="chapter"><p class="part-lead"><p>从零到一。读完这 Part，你能不写一行业务代码，把一个有状态 Agent 部署上线。</p></p><h3>01.1 我帮朋友搭客服 Agent 那三周</h3>
+<p>去年我帮一个朋友做客服 Agent。第一周全花在搭骨架。要写 SSE 流式输出。要处理会话存储。要接模型 Key。要管工具调用状态。</p>
+<p>真正写业务逻辑，是第三周的事。最气的是：这套骨架，每个做 Agent 的人都得过一遍。</p>
+<h3>01.2 它到底托住了什么</h3>
+<p>先给结论：Cloudflare Agents 把"运行沙箱、对话状态、实时连接、任务调度、模型调用、MCP、可观测"这些通用能力提前打通了。你只填业务逻辑。</p>
+<p>但它托住的方式，和 EdgeOne Makers 不一样。这一节先把这层说清。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>EdgeOne Makers</th>
+<th>Cloudflare Agents</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>形态</td>
+<td>托管平台（控制台点一点）</td>
+<td>SDK + 全球运行时</td>
+<td>一个偏"用"，一个偏"写"</td>
+</tr>
+<tr>
+<td>状态</td>
+<td>平台托管记忆</td>
+<td>每个 Agent 自带 SQLite</td>
+<td>Cloudflare 把状态焊死在对象里</td>
+</tr>
+<tr>
+<td>模型</td>
+<td>统一模型网关</td>
+<td>Workers AI 免 Key + AI Gateway</td>
+<td>都不锁死供应商</td>
+</tr>
+<tr>
+<td>框架</td>
+<td>不锁框架</td>
+<td><code>agents</code> SDK，TS 一等公民</td>
+<td>Cloudflare 更"代码优先"</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>平台定时任务</td>
+<td><code>schedule()</code> 内建</td>
+<td>Cloudflare 调度在对象内</td>
+</tr>
+<tr>
+<td>支付</td>
+<td>无内建</td>
+<td>x402 / MPP 内建</td>
+<td>Cloudflare 独一份</td>
+</tr>
+<tr>
+<td>国内访问</td>
+<td>腾讯云，备案友好</td>
+<td>全球网络，国内需加速器</td>
+<td>看你的用户在哪</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-important"><span class="callout-tag">重点看</span><blockquote>最后两行"支付"和"国内访问"。</p>
+<p>这两件事决定了你该选哪个平台。用户在国内、要备案，EdgeOne 更顺。要全球分发、要 Agent 自己付钱，Cloudflare 更狠。</p>
+</blockquote></div>
+<h3>01.3 它最核心的一句定义</h3>
+<p>文档原话：Agents are <strong>persistent, stateful execution environments</strong>，powered by Cloudflare Durable Objects。</p>
+<p>翻译成人话：每个 Agent 是一个"长命的、有状态的对象"。它有身份证（name）、有私有数据库（SQLite）、有实时连接、会自己定时干活、空闲了就休眠、不占你一分钱。</p>
+<div class="callout callout-experience"><span class="callout-tag">标叔的经验</span><blockquote>我见过太多人把 Agent 当成"一个函数"。在 Cloudflare 上，Agent 是一个"对象"。这个认知差，决定了你能不能写出真正会记忆的东西。</p>
+</blockquote></div>
+<h3>01.4 它不是什么</h3>
+<p>它不锁你的模型框架。AI SDK、OpenAI SDK、Anthropic SDK、Workers AI 都能用。TS、JS 都能写。</p>
+<p>但它是代码优先的。你要会 <code>npm</code>、会 <code>wrangler</code>。这点和 EdgeOne 的"控制台点一点"不同。</p>
+<div class="callout callout-advice"><span class="callout-tag">核心建议</span><blockquote>如果你连命令行都抗拒，先去 EdgeOne Makers。如果你享受写代码、要全球部署、要深度控制，Cloudflare Agents 更对味。</p>
+</blockquote></div>
+<p>装好认知，下一章我们 10 分钟跑通第一个 Agent。</p></article>
+    <nav class="pager"><a class="pager-btn pager-prev" href="start.html"><span>← 上一页</span><b>前言 · 阅读指南</b></a><a class="pager-btn pager-next" href="s02.html"><span>下一页 →</span><b>§02 10 分钟跑通你的第一个 Agent</b></a></nav>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+</body>
+</html>
