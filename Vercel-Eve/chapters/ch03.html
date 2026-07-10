@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§03 一个目录就是一个 Agent · Vercel Eve 从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="../index.html">Vercel Eve 从入门到精通 <small>§03</small></a>
+  <a class="nav" href="../index.html">← 目录</a>
+</div>
+<div class="wrap">
+  <div class="part-tag">Part 1 · 起步</div>
+  <h1 class="chapter-title">§03 一个目录就是一个 Agent</h1>
+
+  <h3>03.1 filesystem-first 是什么</h3>
+  <p>Eve 的第一个特点是 filesystem-first（文件系统优先）。官方一句话："The filesystem is the authoring interface"。</p>
+  <p>翻成白话：别把 Agent 藏在某控制台的一堆配置项里，把它当成普通软件项目来管理。</p>
+  <p>最小项目长这样：</p>
+  <pre data-lang="tree"><code>my-agent/
+└── agent/
+    ├── agent.ts          # 模型与运行时配置（可选）
+    ├── instructions.md   # 常驻系统提示（必需）
+    ├── tools/            # 类型化工具
+    ├── skills/           # 按需加载的操作手册
+    ├── channels/         # HTTP、Slack、Discord 入口
+    ├── subagents/        # 可委派任务的子 Agent
+    ├── sandbox/          # 隔离执行环境配置
+    ├── connections/      # 外部 MCP/OpenAPI 连接
+    ├── schedules/        # 定时任务
+    ├── hooks/            # 生命周期钩子
+    └── lib/              # 共享代码</code></pre>
+  <p>最小的 Agent，甚至可以从一份 <code>instructions.md</code> 开始。</p>
+
+  <h3>03.2 为什么这设计舒服</h3>
+  <p>因为 Agent 的角色、工具、技能、入口都落在普通文件里，它们就能：</p>
+  <ul>
+    <li>进 Git 做版本管理；</li>
+    <li>走 Pull Request 审查；</li>
+    <li>看 instructions 改前改后的 diff；</li>
+    <li>对不同版本建 Preview 环境；</li>
+    <li>出问题时回滚到上一个提交。</li>
+  </ul>
+  <table>
+    <thead><tr><th>维度</th><th>控制台配置型平台</th><th>Eve 文件型</th><th>标叔的结论</th></tr></thead>
+    <tbody>
+      <tr><td>版本管理</td><td>导出导入 / 无</td><td>Git 原生</td><td>文件赢</td></tr>
+      <tr><td>审查</td><td>截图或录屏</td><td>PR diff</td><td>文件赢</td></tr>
+      <tr><td>回滚</td><td>手动备份</td><td>git revert</td><td>文件赢</td></tr>
+      <tr><td>上手成本</td><td>低</td><td>需会 TS/Markdown</td><td>平台略赢</td></tr>
+      <tr><td>多环境</td><td>平台功能</td><td>Preview 分支</td><td>平手</td></tr>
+    </tbody>
+  </table>
+  <p>重点看"版本管理"那行。Agent 也是一种软件，该用软件的方式管。</p>
+
+  <h3>03.3 默认就给你的能力</h3>
+  <p>你以为只写了两份文件？其实 Eve 默认 harness 已经给了 Agent 四类工具：文件、Shell、Web、委派。所以哪怕不加任何工具，Agent 也能读文件、跑命令、搜网页、调子 Agent。</p>
+
+  <div class="callout advice">
+    <div class="ct">核心建议</div>
+    <p>从最小开始，逐步加目录。先只有 <code>instructions.md</code> + <code>agent.ts</code>。需要工具加 <code>tools/</code>，需要流程加 <code>skills/</code>，需要接 Slack 加 <code>channels/</code>。每加一个目录，对应解决一个明确问题。</p>
+  </div>
+
+  <div class="bridge">→ 架构清楚了。下面进核心能力。先讲最反直觉也最关键的：Durable。</div>
+
+  <div class="pager">
+    <a class="prev" href="ch02.html"><span class="lbl">← 上一章</span><span class="pg-tt">§02 十分钟跑通第一个 Agent</span></a>
+    <a class="next" href="ch04.html"><span class="lbl">下一章 →</span><span class="pg-tt">§04 Durable：Agent 不害怕重启</span></a>
+  </div>
+</div>
+<footer>标叔出品 · 基于 Vercel Eve 0.22.0（2026-07）撰写 · 框架仍在 Beta，API 可能变化，请以官方文档为准。</footer>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>§04 看门道：智能体的六大要素 | Agent Skills 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="progress"></div>
+<div class="topbar">
+  <a class="nav-home" href="index.html">← 目录</a>
+  <span class="nav-cur">§04</span>
+  <span class="nav-pn"><a href="ch03.html" title="上一页">←</a><a href="ch05.html" title="下一页">→</a></span>
+</div>
+<main class="wrap">
+<div class="chapter-kicker">第 04 章</div>
+<h1 class="chapter-title">§04 看门道：智能体的六大要素</h1>
+
+<h3 class='sub'>04.1 先分清：聊天机器人 ≠ 智能体</h3>
+<p>在拆技能之前，得先搞清一个更底层的问题：你天天用的"AI"，到底是个啥？</p>
+<p>最朴素的区别：</p>
+<ul class='bullets'><li><strong>AI 聊天机器人</strong>：像个"美食顾问"。你问番茄炒蛋怎么做，他背得出完美菜谱。但他没有厨房，切菜颠勺的活儿还得你自己干。</li><li><strong>智能体（Agent）</strong>：像个"由厨师坐镇的完整厨房"。你说"做番茄炒蛋"，厨师会动用厨房设施，把菜切好炒好，直接端到你面前。</li></ul>
+<p>用两个极简公式一对比就清楚了：</p>
+<div class='codewrap'><span class='codelang'>文本</span><pre><code>AI 聊天机器人 = 大模型 + 上下文        （有脑子有记忆，但只能纸上谈兵）
+智能体       = 大模型 + 上下文 + 工具 + 技能  （配齐设施，能真正动手）</code></pre></div>
+<p>行业里最权威的定义来自翁荔（Lilian Weng）：<code>agent = LLM + memory + planning + tool use</code>。本书的公式和它在工程落地层面对应——上下文对应短期记忆（范围更广），技能则把"规划能力"固化成了可复用的操作说明。</p>
+<p>公式里只列了四大块。要真正转起来，还差一头一尾两个外围要素：触发干活的<strong>提示词</strong>，和接外部工具的<strong>MCP（通用插座）</strong>。集齐，就是六大要素。</p>
+<h3 class='sub'>04.2 AI 厨房：用一间厨房记住六要素</h3>
+<p>抽象概念不好记，我用一间"AI 厨房"打比方。你（用户）是厨房主人兼总指挥，下指令、定标准、验收。核心处理中枢是"AI 厨师"（大模型），自带常识，负责理解和关键判断。</p>
+<div class="table-wrap"><table><thead><tr><th>要素</th><th>厨房里的角色</th><th>一句话</th></tr></thead><tbody><tr><td>提示词</td><td>你对厨师下的指令</td><td>告诉 AI 做什么</td></tr><tr><td>大模型</td><td>厨师（大脑）</td><td>理解、推理、下判断</td></tr><tr><td>上下文</td><td>厨房台面</td><td>当下要用的东西都摆这</td></tr><tr><td>工具</td><td>刀铲锅具</td><td>让厨师能动手</td></tr><tr><td>技能</td><td>菜谱</td><td>教厨师怎么做</td></tr><tr><td>MCP</td><td>通用插座</td><td>让外部电器接进来</td></tr></tbody></table></div>
+<p>打比方是为了好记，不追求和代码一一对应。抓住"足够像"的特征就行。下面六大块逐一拆。</p>
+<h3 class='sub'>04.3 提示词：你对厨师下的指令</h3>
+<p>提示词（prompt）就是你跟 AI 说的话——核心是"告知做什么"。</p>
+<p>它最大的特点是<strong>临时性</strong>：只在当前对话生效。厨师不会自动记住你的口味，明天想吃同样的菜，你得重新交代一遍。它能下达个性化要求，但不具备跨对话自动生效的能力。</p>
+<blockquote><p><strong>标叔的经验</strong>：技能其实在"抵消提示词的临时性"。</p><p>你要的规矩写成 Skill 之后，下次不用重新交代。这就是技能比单次提示词高级的地方——把临时指令变成常驻能力。</p></blockquote>
+<h3 class='sub'>04.4 大模型：厨师（也是大脑）</h3>
+<p>大模型就是那位真正动手的厨师，是系统的"大脑"与执行者。但脱离厨房，它只是个极聪明的"文字生成器"——能对答如流，却什么都做不了。</p>
+<p>当工具、技能这套"硬件"配齐，大模型就解锁了智能体最核心的能力：<strong>执行层面的自主决策</strong>。你只说"吃什么"（目标），厨师自己规划步骤、决定先看哪份菜谱、先切菜还是先打蛋。你不用像提线木偶一样每步发一条指令。</p>
+<p>吃什么你说了算，怎么做厨师借助设施和菜谱替你搞定。</p>
+<h3 class='sub'>04.5 上下文：厨房台面（有限空间）</h3>
+<p>厨师下厨离不开台面。食材、调料、菜谱、盘子，当下要用的都摆这。台面面积有限，摆太满就无从下手；得把早先看过的菜谱挪走腾空间，但关键信息被移走，厨师就可能"断片儿"，该放盐时放了糖。</p>
+<p><strong>上下文（context）就是台面上堆的所有东西，上下文窗口（context window）就是台面的容量上限。</strong> 你跟 AI 的对话、当前加载的技能名片、工具返回的结果，都临时放在这块"工作记忆"里。空间满了，早先的内容会被挤掉，模型就开始"忘事"。</p>
+<p>这一点<strong>直接影响技能设计</strong>：技能不能一股脑堆进上下文，而该"按需加载"——启动只加载名片，用到才读正文。这就是 <a class="xref" href="ch03.html">§03.6</a> 那套机制的底层原因。</p>
+<h3 class='sub'>04.6 工具：厨房用具（内置 / 扩展）</h3>
+<p>菜刀、案板、炒锅——厨师做饭的用具。对大模型来说，"读文件""生成图片""搜网页"本质都靠调用工具（tool）。工具分两类：</p>
+<ul class='bullets'><li><strong>内置工具</strong>：厨房自带的刀铲，智能体原生具备（读写文件、执行代码、搜网页）。</li><li><strong>扩展工具</strong>：要插电的烤箱、外接搅拌机，得通过特定接口（插件、API、协议）才能接（操作浏览器、连数据库、对接飞书）。</li></ul>
+<p>没有工具的智能体，就像没有用具的厨房——厨师厨艺再好也巧妇难为无米之炊。</p>
+<h3 class='sub'>04.7 技能：菜谱（以及框架和模型的分工）</h3>
+<p>你把"番茄炒蛋"的做法写成标准菜谱，存起来。以后做这道菜，厨师直接看菜谱，不用你每次口述，换个厨师照着做也行。</p>
+<p><strong>技能（skill）就是写给厨师看的菜谱，是给大模型用的操作手册。</strong> Anthropic 的官方定义："技能是一组有组织的文件集合，为智能体打包可组合的流程性知识。"</p>
+<p>拆开看那句话：</p>
+<ul class='bullets'><li>"有组织的文件集合" → 一个文件夹，核心是 <code>SKILL.md</code>（对应做法说明），复杂时可含脚本、参考文档、静态资源（像菜谱附带采购清单、摆盘图）。</li><li>"可组合" → 技能各自独立，需要时能组合使用。</li><li>"流程性知识" → 装的是"怎么把一件事做好"（流程、规范、检查清单），不是百科全书。</li></ul>
+<p>这里有个写技能必须搞清的点：<strong>技能到底给谁用？</strong> 大多数情况你把"大模型"和"智能体"当整体就行。但真要写技能，得区分两个角色：</p>
+<ul class='bullets'><li><strong>大模型（大脑）</strong>：负责思考、推理、下指令。</li><li><strong>智能体框架（harness）</strong>：负责加载技能、管理上下文、调度工具的底层程序。Claude Code、OpenClaw、Codex、Cursor、VS Code 里的 Copilot，这些都是不同的框架。</li></ul>
+<p>调用技能时，两者分工明确：</p>
+<div class="table-wrap"><table><thead><tr><th>谁</th><th>干什么</th><th>怎么干</th></tr></thead><tbody><tr><td>框架</td><td>递本子、跑代码</td><td>把 <code>SKILL.md</code> 和参考文档递给模型；脚本（如 Python）由框架直接在本地跑，<strong>不经过模型</strong></td></tr><tr><td>模型</td><td>读本子、下指令</td><td>读 <code>SKILL.md</code> 和参考文档，弄懂步骤后，输出一条指令让框架触发脚本</td></tr></tbody></table></div>
+<p>一句话：模型出主意，框架提供行动支持。同一个技能文件夹装进不同框架都能用，正因为 Agent Skills 开放标准规定了框架怎么加载和执行技能。这层分工，正是 <a class="xref" href="ch05.html">§05</a> 把"稳定动作脚本化"、<a class="xref" href="ch08.html">§08</a> 讲"薄驾驭厚技能"的底层依据。</p>
+<h3 class='sub'>04.8 MCP：通用插座</h3>
+<p>厨房若每种电器都有专属插头，就乱套了。你的智能体要对接数据库、邮件、日历、飞书、钉钉……各家用法不同，单独适配也乱套。</p>
+<p><strong>MCP（模型上下文协议）就是 AI 世界的"通用插座"。</strong> 对工具厂商：把插头做成通用款，就能供厨房用。对智能体：装了通用插座，所有带通用插头的设备直接接入。</p>
+<p>一句话厘清三者关系：<strong>工具让智能体能动手，技能教智能体具体怎么做，MCP 让各种外部工具无缝接入。</strong> 本书只需知道 MCP 的角色即可，细节不展开。</p>
+<h3 class='sub'>04.9 一张表记住六大要素</h3>
+<div class="table-wrap"><table><thead><tr><th>要素</th><th>厨房角色</th><th>干什么</th><th>对造技能的影响</th></tr></thead><tbody><tr><td>提示词</td><td>你下的指令</td><td>告知做什么（临时）</td><td>技能把临时指令变常驻</td></tr><tr><td>大模型</td><td>厨师</td><td>理解、判断、表达</td><td>把判断留给模型</td></tr><tr><td>上下文</td><td>厨房台面</td><td>当下工作记忆（有限）</td><td>必须按需加载，别撑爆</td></tr><tr><td>工具</td><td>刀铲锅具</td><td>动手能力</td><td>稳定动作下沉给工具/脚本</td></tr><tr><td>技能</td><td>菜谱</td><td>怎么干的操作手册</td><td>你主要造的就是它</td></tr><tr><td>MCP</td><td>通用插座</td><td>接外部世界</td><td>让技能够得着外部系统</td></tr></tbody></table></div>
+<p>机制摸清了。下一章，我教你从零造一个技能——前面讲的"上下文有限""脚本归框架跑""名片负责路由"，会全部变成你写 Skill 的具体动作。</p>
+<div class="nav-foot"><a href="ch03.html">← 上一页</a><a href="ch05.html">下一页 →</a></div>
+</main>
+<footer class='site-footer'><p><strong>标叔出品</strong> | AI Native Coder · 独立开发者</p><p>公众号「标叔」| B站「AI进化论-花生」</p><p>代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通</p></footer>
+<script>
+var bar=document.getElementById('progress');
+addEventListener('scroll',function(){var h=document.documentElement;var sc=h.scrollTop/(h.scrollHeight-h.clientHeight||1);bar.style.width=(sc*100)+'%';});
+</script>
+</body>
+</html>

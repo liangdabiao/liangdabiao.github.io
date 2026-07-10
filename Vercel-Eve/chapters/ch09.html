@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§09 实战：用 Eve 搭一支内容运营团队 · Vercel Eve 从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="../index.html">Vercel Eve 从入门到精通 <small>§09</small></a>
+  <a class="nav" href="../index.html">← 目录</a>
+</div>
+<div class="wrap">
+  <div class="part-tag">Part 3 · 进阶实战</div>
+  <h1 class="chapter-title">§09 实战：用 Eve 搭一支内容运营团队</h1>
+
+  <h3>09.1 我们要做成什么</h3>
+  <p>我有一个面向 Java 开发者的 SpringForAll 社区，一直没空维护。这一章用 Eve 从零搭一支 AI 内容团队：研究员、撰稿人、审核人，加一个当主编的主 Agent。</p>
+  <p>（这个例子改编自社区教程，已按 0.22.0 的 API 简化。）</p>
+  <p>目录结构：</p>
+  <pre data-lang="tree"><code>agent/
+  instructions.md          # 主编身份与协作规则
+  skills/                  # 选题/写作/审稿流程
+    topic_planning.md
+    article_writing.md
+    review_checklist.md
+  subagents/
+    researcher/            # 研究员，自带 topic_planning
+    writer/                # 撰稿人，自带 article_writing
+    reviewer/              # 审核人，自带 review_checklist
+  channels/
+    eve.ts</code></pre>
+
+  <h3>09.2 主编怎么分活</h3>
+  <p>root agent 的 instructions 只做判断：当前任务属于哪一步、加载哪个 skill、把什么上下文交给哪个子 Agent、返回后怎么整合、哪些还要人确认。</p>
+  <p>研究员负责选题与来源计划；撰稿人负责大纲和草稿；审核人负责风险检查。三者各自独立上下文，互不打扰。</p>
+
+  <h3>09.3 关键边界</h3>
+  <p>researcher 想用 <code>topic_planning</code> skill，得在自己目录放一份。因为子 Agent 不继承 root 的 skills——这是 Eve 反复强调的边界。</p>
+  <pre data-lang="bash"><code># 验证 Eve 是否发现了 skills 和 subagents
+npm exec -- eve info
+# 它会列出发现的 skills、subagents 和编译产物</code></pre>
+
+  <div class="callout">
+    <div class="ct">标叔的经验</div>
+    <p><strong>先跑通再扩展。</strong></p>
+    <p>这个拆法主要是说明 Eve 的 skills、subagents、协作边界，不代表内容团队最佳实践。真实项目你完全可按自己的业务重新设计角色。</p>
+  </div>
+
+  <div class="bridge">→ 团队搭好了。可上线后才是真正的开始。下一章讲可观测与评测。</div>
+
+  <div class="pager">
+    <a class="prev" href="ch08.html"><span class="lbl">← 上一章</span><span class="pg-tt">§08 Skills 与 Channels：操作手册与多入口</span></a>
+    <a class="next" href="ch10.html"><span class="lbl">下一章 →</span><span class="pg-tt">§10 Tracing 与 Evals：上线才是真正的开始</span></a>
+  </div>
+</div>
+<footer>标叔出品 · 基于 Vercel Eve 0.22.0（2026-07）撰写 · 框架仍在 Beta，API 可能变化，请以官方文档为准。</footer>
+</body>
+</html>

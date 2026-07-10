@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§11 Eve 是 Agent 时代的 Next.js 吗 · Vercel Eve 从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="../index.html">Vercel Eve 从入门到精通 <small>§11</small></a>
+  <a class="nav" href="../index.html">← 目录</a>
+</div>
+<div class="wrap">
+  <div class="part-tag">Part 3 · 进阶实战</div>
+  <h1 class="chapter-title">§11 Eve 是 Agent 时代的 Next.js 吗</h1>
+
+  <h3>11.1 类比合理，但为时过早</h3>
+  <p>Vercel 的类很大胆：像 Next.js 之于 Web App，但这次面向 Agent。</p>
+  <p>这个类比有道理。Next.js 当年没发明 React，也没发明服务端渲染，它把路由、构建、渲染、数据获取、部署装进一套约定里。Eve 走相似路线：没发明大模型、Tool Calling、工作流、沙箱或 OAuth，而是把 Agent 反复出现的结构固定下来。</p>
+  <p>但截至 2026-07，Eve 仍处 Beta（npm 0.22.0，受 Vercel beta 条款约束）。框架、API、文档、行为都可能变。说它已成"Agent 时代的 Next.js"，太早。</p>
+
+  <h3>11.2 哪些团队现在就能试</h3>
+  <p>如果你做这几类项目，Eve 值得进技术验证名单：</p>
+  <ul>
+    <li>任务会持续很久，需要暂停和恢复；</li>
+    <li>Agent 需要跑脚本或处理文件；</li>
+    <li>要接 GitHub、Slack、Linear 等团队系统；</li>
+    <li>有必须人工确认的高风险动作；</li>
+    <li>想用 Git、Preview、CI 管 Agent 变更；</li>
+    <li>项目已用 Vercel 技术栈。</li>
+  </ul>
+  <p>强依赖私有化部署、已有成熟工作流平台、或暂时接受不了 beta API 变化的团队，先别把核心业务押上去。</p>
+
+  <table>
+    <thead><tr><th>团队类型</th><th>现在试 Eve？</th><th>标叔的建议</th></tr></thead>
+    <tbody>
+      <tr><td>Vercel 栈 + 长任务</td><td>可以</td><td>直接验证</td></tr>
+      <tr><td>已有成熟 Agent 平台</td><td>暂缓</td><td>对比后再说</td></tr>
+      <tr><td>纯接口加一次问答</td><td>不必</td><td>用 AI SDK 更轻</td></tr>
+      <tr><td>强私有化部署</td><td>暂缓</td><td>等 GA 或自托管</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout summary">
+    <div class="ct">一句话总结</div>
+    <p>Eve 提出了一套很有 Vercel 风格的 Agent 工程答案。它能不能成事实标准，看开发者愿不愿意把真实 Agent 放上去跑。</p>
+  </div>
+
+  <div class="bridge">→ 书写到这里。下面给你一份速查表和常见坑。</div>
+
+  <div class="pager">
+    <a class="prev" href="ch10.html"><span class="lbl">← 上一章</span><span class="pg-tt">§10 Tracing 与 Evals：上线才是真正的开始</span></a>
+    <a class="next" href="appendix.html"><span class="lbl">下一章 →</span><span class="pg-tt">附录 · 速查表 / 常见错误 / 阅读指南</span></a>
+  </div>
+</div>
+<footer>标叔出品 · 基于 Vercel Eve 0.22.0（2026-07）撰写 · 框架仍在 Beta，API 可能变化，请以官方文档为准。</footer>
+</body>
+</html>

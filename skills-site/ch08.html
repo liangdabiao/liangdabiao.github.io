@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>§08 工程化：从需求到上线的全流程 | Agent Skills 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="progress"></div>
+<div class="topbar">
+  <a class="nav-home" href="index.html">← 目录</a>
+  <span class="nav-cur">§08</span>
+  <span class="nav-pn"><a href="ch07.html" title="上一页">←</a><a href="ch09.html" title="下一页">→</a></span>
+</div>
+<main class="wrap">
+<div class="chapter-kicker">第 08 章</div>
+<h1 class="chapter-title">§08 工程化：从需求到上线的全流程</h1>
+
+<div class='part-banner'><div class='part-name'>Part 3: 进阶实战</div><p class='part-lead'>从需求到上线，从单个到体系。这部分偏工程，但我会用大白话讲。</p></div>
+<h3 class='sub'>08.1 Thin Harness, Fat Skills：薄驾驭，重技能</h3>
+<p>2026 年 Agent 架构有个共识叫"Thin Harness, Fat Skills"——薄驾驭，重技能。</p>
+<p>Harness（驾驭层）是跑 Agent 的外层程序，也就是 <a class="xref" href="ch04.html">§04.7</a> 说的"框架"，负责模型循环、文件读写、上下文管理和安全边界。它的核心原则是：别承载复杂业务逻辑，保持极轻。</p>
+<p>Skill 反过来，要越做越厚：流程、判断、领域知识、模板、脚本、失败经验，全装进去。</p>
+<p>模型只留在它最适合的地方——理解、判断、综合、取舍、表达。确定性的活，下沉给脚本、CLI 或 API。这正是 <a class="xref" href="ch04.html">§04</a> 讲的"框架跑脚本、模型做判断"的分工在工程上的体现。</p>
+<blockquote><p><strong>标叔的经验</strong>：这个原则救过我的项目。</p><p>早先我把所有逻辑写进主程序，加一个功能就爆一次上下文。改成"主程序只调度、能力全外挂"之后，系统轻了，维护成本降了一大半。</p></blockquote>
+<h3 class='sub'>08.2 中心短，辐射厚：信息架构原则</h3>
+<p>好 Skill 的信息架构，应该是"中心短，辐射厚"。</p>
+<p>SKILL.md 只放高信号流程和判断。references/ 放重文档，按条件读取。scripts/ 放确定性逻辑，让 Agent 调用而不是重写。assets/ 放模板、schema、示例。</p>
+<p>为什么？因为每个 Skill 都是一种"税"。它进索引后，每个会话、每个用户都在为它的 name 和 description 付上下文成本；被加载后，后续对话都在为主体内容付成本。所以每一句都要问：没有这句，Agent 会不会做错？不会，就删。</p>
+<h3 class='sub'>08.3 eval 与 gotchas：像管代码一样管技能</h3>
+<p>好 Skill 不是一次写完。它要像代码质量一样维护。</p>
+<p>可靠的生命周期是：</p>
+<ol class='bullets'><li>先用无 Skill 的 Agent 跑真实任务，找到它会错在哪。</li><li>基于真实 query 写 eval（测试集），含正例、反例和"禁止加载"用例。</li><li>先调 description，确保该加载时加载、不该加载时不加载。</li><li>写主体时删掉显而易见的内容，只留会改变模型行为的判断。</li><li>把失败案例追加到 gotchas，而不是不断加长主流程。</li></ol>
+<p>Gotchas 是"别这么做"的清单，往往比正向说明更能提升稳定性。比如设计类 Skill 里写："连续三页相同节奏是 P0 错误""文字不能压脸""AI 图只在无合适真实图时使用"。</p>
+<p>正向原则模型已经知道，负面边界才是专家经验。</p>
+<h3 class='sub'>08.4 一个完整 Skill 生命周期</h3>
+<p>把前面收束成一条路径：</p>
+<div class='codewrap'><span class='codelang'>文本</span><pre><code>1. 发现真实需求（从重复工作开始）
+2. 先做一次高质量产物（别先抽象）
+3. 抽象流程（识别可复用步骤、输入输出、约束）
+4. 工程化模板（固化审美、调用、验证、修复）
+5. 跨模型测试（好模型看上限，差模型保下限）
+6. 封装发布（GitHub 托管，配 README 和示例）
+7. 内容分发（社交平台展示真实结果）
+8. 收集反馈（从 issue、评论、数据里找真问题）</code></pre></div>
+<p>这条路看着长，本质很简单：每一次真实任务，都不只是在完成任务，而是在积累下一次能调用的能力资产。</p>
+<p>工程化懂了。下一章，我们真刀真枪做一个。</p>
+<div class="nav-foot"><a href="ch07.html">← 上一页</a><a href="ch09.html">下一页 →</a></div>
+</main>
+<footer class='site-footer'><p><strong>标叔出品</strong> | AI Native Coder · 独立开发者</p><p>公众号「标叔」| B站「AI进化论-花生」</p><p>代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通</p></footer>
+<script>
+var bar=document.getElementById('progress');
+addEventListener('scroll',function(){var h=document.documentElement;var sc=h.scrollTop/(h.scrollHeight-h.clientHeight||1);bar.style.width=(sc*100)+'%';});
+</script>
+</body>
+</html>

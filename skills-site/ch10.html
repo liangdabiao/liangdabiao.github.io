@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>§10 把你的经验变成"技能书" | Agent Skills 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="progress"></div>
+<div class="topbar">
+  <a class="nav-home" href="index.html">← 目录</a>
+  <span class="nav-cur">§10</span>
+  <span class="nav-pn"><a href="ch09.html" title="上一页">←</a><a href="ch11.html" title="下一页">→</a></span>
+</div>
+<main class="wrap">
+<div class="chapter-kicker">第 10 章</div>
+<h1 class="chapter-title">§10 把你的经验变成"技能书"</h1>
+
+<h3 class='sub'>10.1 app.skill-book.ai：把知识沉淀成技能</h3>
+<p>2026 年有个我很喜欢的小工具：app.skill-book.ai。</p>
+<p>它的逻辑很简单：你选一个主题——你的生意、你的专业、你的领域——然后把你知道的都喂进去。贴文档、讲流程、分享踩过的坑，它帮你把知识组织成结构化的技能书（Skill Book）。</p>
+<p>技能书是一组可复用、可版本化、可被 Agent 读取执行的技能集合。它不像长文档那样给人看，而是给 Agent 用的"能力库"。</p>
+<p>为什么建议先建技能书、再建软件？因为大多数人一开始想的是"软件该做什么功能"。技能书把焦点拉回到"你怎么干活"——你的流程、你的判断、你独特的工作方式。这才是软件真正要编码的 IP。</p>
+<h3 class='sub'>10.2 四种分发方式</h3>
+<p>技能做出来，有四种用法的路：</p>
+<div class="table-wrap"><table><thead><tr><th>方式</th><th>怎么做</th><th>适合谁</th><th>标叔的结论</th></tr></thead><tbody><tr><td>MCP</td><td>连到支持 MCP 的 Agent（含 Claude）</td><td>想即插即用</td><td>最省心</td></tr><tr><td>API</td><td>HTTP 调用，嵌进自己系统</td><td>有技术团队</td><td>最灵活</td></tr><tr><td>市场</td><td>发到 Claude Skills Marketplace 等</td><td>想被更多人用</td><td>分发最广</td></tr><tr><td>自建 Agent</td><td>用技能当知识层，造专属 Agent</td><td>想深度定制</td><td>最可控</td></tr></tbody></table></div>
+<p>MCP 让技能即插即用，API 让技能进你自己的产品，市场让陌生人也能调用你的能力，自建 Agent 则让技能从"参考资料"变成"执行能力"。</p>
+<blockquote><p><strong>核心建议</strong>：个人先用 MCP 或市场跑起来。</p><p>等你的技能被真实调用过几十次、gotchas 攒够了，再考虑 API 或自建。别一上来就造平台，那是最容易烂尾的路。</p></blockquote>
+<h3 class='sub'>10.3 非技术人员也能造技能</h3>
+<p>这是 2026 年最让我兴奋的变化：很多非技术人员开始做 Skill。</p>
+<p>财务知道公司怎么做预算、怎么看费用。招聘知道一类岗位怎么筛人、怎么写面试反馈。法务知道合同里哪些条款有风险。过去这些经验存在人脑子里，或散落在文档、表格、邮件里。</p>
+<p>Skill 提供了一种更轻的方式，把这些流程知识整理成 Agent 能用的能力。它最适合的，恰恰是那些有大量专业流程、却不一定会写代码的人。</p>
+<p>你不需要懂 SKILL.md 怎么写。你只需要把自己的"怎么做"讲清楚，工具帮你结构化。人的角色是定品味和边界，Agent 负责收集证据、提改动、补测试。</p>
+<div class="nav-foot"><a href="ch09.html">← 上一页</a><a href="ch11.html">下一页 →</a></div>
+</main>
+<footer class='site-footer'><p><strong>标叔出品</strong> | AI Native Coder · 独立开发者</p><p>公众号「标叔」| B站「AI进化论-花生」</p><p>代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通</p></footer>
+<script>
+var bar=document.getElementById('progress');
+addEventListener('scroll',function(){var h=document.documentElement;var sc=h.scrollTop/(h.scrollHeight-h.clientHeight||1);bar.style.width=(sc*100)+'%';});
+</script>
+</body>
+</html>

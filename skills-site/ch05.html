@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>§05 从任务到技能五步走 | Agent Skills 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="progress"></div>
+<div class="topbar">
+  <a class="nav-home" href="index.html">← 目录</a>
+  <span class="nav-cur">§05</span>
+  <span class="nav-pn"><a href="ch04.html" title="上一页">←</a><a href="ch06.html" title="下一页">→</a></span>
+</div>
+<main class="wrap">
+<div class="chapter-kicker">第 05 章</div>
+<h1 class="chapter-title">§05 从任务到技能五步走</h1>
+
+<div class='part-banner'><div class='part-name'>Part 2: 核心能力</div><p class='part-lead'>深入 Skill 的关键能力。每章一个核心动作，读完你能自己造、自己串。</p></div>
+<h3 class='sub'>05.1 先给结论：别让 AI 总结，要自己拆</h3>
+<p>我见过太多人，第一次做 Skill 就把成功对话丢给 AI："请总结成一个 Skill。"结果得到一个长 Prompt。</p>
+<p>真正好用的 Skill，不是"把上次成功经验写得更详细"，而是先拆 workflow（工作流）。</p>
+<p>我用 Hermes-rss 这个真实技能举例。它的目标很简单：读一批 RSS 源，筛选值得看的，按固定格式输出摘要。</p>
+<p>如果让 AI 自动总结，很容易写成一段 Prompt："请读取这些 RSS 源，解析 XML，去重，排序，筛选，按我喜欢的格式输出。"这段话不算错，但它不是一个好 Skill——因为里面混了三种不同性质的任务。</p>
+<h3 class='sub'>05.2 五步拆法</h3>
+<p>第一步：写清楚触发场景。回答一句话："用户在什么情况下需要这个 Skill？"这直接影响 description。不要写"用于处理信息"，要写"当用户需要从多个 RSS 源筛选文章并输出阅读摘要时使用"。触发越清楚，越不容易乱用。</p>
+<p>第二步：拆出固定流程。把流程写成顺序动作：读配置 → 跑脚本 → 拿结构化列表 → 按偏好筛选 → 按模板输出。SKILL.md 里只写模型需要知道的路线，太底层的细节如果可以脚本化，就别塞进流程。</p>
+<p>第三步：把材料移到 references。凡是"需要参考但不适合写进入口"的内容——输出模板、风格偏好、配置说明、示例——都先放到 references/。入口文件更短，材料也更好维护。</p>
+<p>第四步：把稳定动作脚本化。问自己三个问题：这动作有明确规则吗？每次都该得到稳定结果吗？让模型做反而容易出错吗？如果大多是"是"，就脚本化。解析 XML、去重、排序，都不该让模型每次扮演解析器。</p>
+<div class='codewrap'><span class='codelang'>PYTHON</span><pre><code># scripts/rss_reader.py —— 稳定的机械活交给脚本（由框架直接跑，不经过模型）
+import feedparser
+feeds = ["https://a.com/rss", "https://b.com/rss"]
+# 抓、解析、去重、排序，输出结构化结果
+for url in feeds:
+    parse_and_collect(url)
+# 模型只负责后面"哪条值得读"的判断</code></pre></div>
+<p>第五步：把判断留给 AI。AI 的价值不在替你做机械活，而在处理规则写不死的地方——这篇文章值不值得读，归到技术还是商业，摘要怎么写才清楚。把这些留给 AI，Skill 才又稳又活。</p>
+<h3 class='sub'>05.3 拆完之后的样子</h3>
+<div class='codewrap'><span class='codelang'>文本</span><pre><code>Hermes-rss/
+├── SKILL.md              # 只写：触发、顺序、边界
+├── scripts/
+│   └── rss_reader.py     # 抓、解析、去重、排序
+├── references/
+│   ├── config.yaml       # RSS 源、抓取数量、过滤词
+│   ├── output-format.md  # 最终输出模板
+│   └── workflow-contract.md # 脚本输出字段，AI 怎么用</code></pre></div>
+<p>这样拆完，Skill 才从"长 Prompt"变成"可复用 workflow"。这正好对应 <a class="xref" href="ch04.html">§04.7</a> 说的分工：脚本归框架跑，判断归模型。</p>
+<blockquote><p><strong>标叔的经验</strong>：写完别只问"能不能跑"。</p><p>用这份清单自查：description 说清触发场景了吗？SKILL.md 只写入口流程了吗？有能移到 references 的模板吗？有能脚本化的稳定动作吗？换一次输入，它还能按同样路径执行吗？一半答不上来，它就还是个长 Prompt。</p></blockquote>
+<p>步法学完了。下一章，我直接给你三个能抄的。</p>
+<div class="nav-foot"><a href="ch04.html">← 上一页</a><a href="ch06.html">下一页 →</a></div>
+</main>
+<footer class='site-footer'><p><strong>标叔出品</strong> | AI Native Coder · 独立开发者</p><p>公众号「标叔」| B站「AI进化论-花生」</p><p>代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通</p></footer>
+<script>
+var bar=document.getElementById('progress');
+addEventListener('scroll',function(){var h=document.documentElement;var sc=h.scrollTop/(h.scrollHeight-h.clientHeight||1);bar.style.width=(sc*100)+'%';});
+</script>
+</body>
+</html>

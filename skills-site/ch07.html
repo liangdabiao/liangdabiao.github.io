@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>§07 组合用：搭一条多技能工作流 | Agent Skills 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="progress"></div>
+<div class="topbar">
+  <a class="nav-home" href="index.html">← 目录</a>
+  <span class="nav-cur">§07</span>
+  <span class="nav-pn"><a href="ch06.html" title="上一页">←</a><a href="ch08.html" title="下一页">→</a></span>
+</div>
+<main class="wrap">
+<div class="chapter-kicker">第 07 章</div>
+<h1 class="chapter-title">§07 组合用：搭一条多技能工作流</h1>
+
+<h3 class='sub'>07.1 单点能力 vs 系统能力</h3>
+<p>单个 Skill 解决一个点。多条串起来，才叫系统能力。</p>
+<p>举个我自己的例子。写一篇公众号，过去我要：想选题 → 查资料 → 写稿 → 配图 → 做成社交卡片 → 排版。每一步都是一次从头解释。</p>
+<p>现在我用一条工作流串起来：选题调研 Skill 查最新资料 → 写作风格 Skill 管文风 → 文章配图 Skill 出图 → 社交卡片 Skill 把段落转成小红书卡片。一条线从头到尾，我只在关键节点点头。</p>
+<p>这就是把单点能力变成系统能力。</p>
+<h3 class='sub'>07.2 一条写作流水线的样子</h3>
+<div class='codewrap'><span class='codelang'>文本</span><pre><code>输入：一个选题
+  ↓ 选题调研 Skill（查资料、核实事实）
+  ↓ 写作风格 Skill（按我的文风起草）
+  ↓ 文章配图 Skill（生成/美化配图）
+  ↓ 社交卡片 Skill（转成多平台卡片）
+输出：一篇稿 + 一套分发素材</code></pre></div>
+<p>每一步都是一个独立 Skill，按需加载、用完卸载。主程序始终是轻的，变的是挂在上面的技能。</p>
+<h3 class='sub'>07.3 MCP 接世界，Skill 教方法</h3>
+<p>这里必须讲清 MCP 和 Skill 的关系。这是 2026 年 Agent 架构里最重要的一对组合，也是 <a class="xref" href="ch04.html">§04.8</a> 那张"通用插座"的落地。</p>
+<p>Anthropic 的观察很形象：MCP 像插座，让 Agent 接上外部系统；Skill 像操作手册，让 Agent 知道接上之后怎么干活。</p>
+<p>一个 Agent 接入了客户系统、文档系统、日历、财务系统——这只是第一步，它能访问。但它不知道公司内部怎么写报告、客户分级规则是什么、审批怎么走。这些"怎么干"的知识，就是 Skill 的位置。</p>
+<div class="table-wrap"><table><thead><tr><th>角色</th><th>负责什么</th><th>标叔的结论</th></tr></thead><tbody><tr><td>MCP</td><td>连接外部世界（插座）</td><td>让 Agent 够得着工具</td></tr><tr><td>Skill</td><td>提供专业知识（手册）</td><td>让 Agent 知道怎么用</td></tr><tr><td>Agent</td><td>思考与执行</td><td>两者都装上才完整</td></tr></tbody></table></div>
+<p>MCP 由 Anthropic 在 2024 年 11 月开源，到 2026 年已是 AI 连接外部工具的事实标准。2026 年的 MCP 路线图重点在传输层可扩展、Agent 间通信、治理成熟度、企业就绪。OpenAI 也推出了 Secure MCP Tunnel。标准定了，Skill 才能放心地四处流动。</p>
+<p>工作流会搭了。下一章，我们把它工程化。</p>
+<div class="nav-foot"><a href="ch06.html">← 上一页</a><a href="ch08.html">下一页 →</a></div>
+</main>
+<footer class='site-footer'><p><strong>标叔出品</strong> | AI Native Coder · 独立开发者</p><p>公众号「标叔」| B站「AI进化论-花生」</p><p>代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通</p></footer>
+<script>
+var bar=document.getElementById('progress');
+addEventListener('scroll',function(){var h=document.documentElement;var sc=h.scrollTop/(h.scrollHeight-h.clientHeight||1);bar.style.width=(sc*100)+'%';});
+</script>
+</body>
+</html>

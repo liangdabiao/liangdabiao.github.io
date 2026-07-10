@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§07 Subagents：一支分工明确的团队 · Vercel Eve 从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="../index.html">Vercel Eve 从入门到精通 <small>§07</small></a>
+  <a class="nav" href="../index.html">← 目录</a>
+</div>
+<div class="wrap">
+  <div class="part-tag">Part 2 · 核心能力</div>
+  <h1 class="chapter-title">§07 Subagents：一支分工明确的团队</h1>
+
+  <h3>07.1 子 Agent 的价值</h3>
+  <p>子 Agent 本身也是个目录，可以有自己的 instructions、tools、skills、模型、沙箱。主 Agent 把它当工具调用，子 Agent 在干净上下文里干完，把结果交回。</p>
+  <p>它的价值不是把一个头像变五个，而是两件事：</p>
+  <p>第一，复杂任务拆成边界更清楚的子任务；第二，不同任务用不同上下文和最小权限工具。</p>
+  <p>举例一次线上事故：</p>
+  <ul>
+    <li>日志分析 Agent 只读日志与指标；</li>
+    <li>代码调查 Agent 只看 GitHub 变更；</li>
+    <li>影响评估 Agent 只查订单和用户数据；</li>
+    <li>主 Agent 综合证据做决定。</li>
+  </ul>
+  <p>这种隔离减少上下文污染，也缩小每个 Agent 的权限范围。</p>
+
+  <h3>07.2 一个边界细节</h3>
+  <p>注意：声明的子 Agent 不会继承 root 的 authored slots。</p>
+  <p>root 有 <code>agent/skills/topic_planning.md</code>，不代表 researcher 自动拥有它。每个子 Agent 是独立 agent root，只发现自己目录下的内容。想让子 Agent 用某 skill，就把它放进子 Agent 自己的 <code>skills/</code>。</p>
+
+  <h3>07.3 实战：三个角色</h3>
+  <pre data-lang="typescript"><code>// agent/subagents/researcher/agent.ts
+import { defineAgent } from "eve";
+
+export default defineAgent({
+  description: "Research topics, collect source plans, return briefs.", // 父 Agent 据此判断何时调用
+  model: "anthropic/claude-sonnet-5",
+});</code></pre>
+
+  <div class="callout advice">
+    <div class="ct">核心建议</div>
+    <p>能拆不等于应该拆。子 Agent 增加模型调用、延迟和汇总成本。一个工具调用就能搞定的事，别为了"多 Agent"三个字绕一圈。</p>
+  </div>
+
+  <table>
+    <thead><tr><th>维度</th><th>单 Agent</th><th>子 Agent 团队</th><th>标叔的结论</th></tr></thead>
+    <tbody>
+      <tr><td>上下文干净</td><td>易污染</td><td>隔离</td><td>团队赢</td></tr>
+      <tr><td>权限最小化</td><td>难</td><td>易</td><td>团队赢</td></tr>
+      <tr><td>成本</td><td>低</td><td>高</td><td>单 Agent 赢</td></tr>
+      <tr><td>适用</td><td>简单任务</td><td>复杂任务</td><td>看场景</td></tr>
+    </tbody>
+  </table>
+
+  <div class="bridge">→ 子 Agent 各管一摊。它们怎么知道每一步该怎么做？下一章讲 Skills。</div>
+
+  <div class="pager">
+    <a class="prev" href="ch06.html"><span class="lbl">← 上一章</span><span class="pg-tt">§06 Approvals：成熟的 Agent 知道何时停手</span></a>
+    <a class="next" href="ch08.html"><span class="lbl">下一章 →</span><span class="pg-tt">§08 Skills 与 Channels：操作手册与多入口</span></a>
+  </div>
+</div>
+<footer>标叔出品 · 基于 Vercel Eve 0.22.0（2026-07）撰写 · 框架仍在 Beta，API 可能变化，请以官方文档为准。</footer>
+</body>
+</html>

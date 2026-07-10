@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>§09 上实战：从零迭代一个数据分析技能 | Agent Skills 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="progress"></div>
+<div class="topbar">
+  <a class="nav-home" href="index.html">← 目录</a>
+  <span class="nav-cur">§09</span>
+  <span class="nav-pn"><a href="ch08.html" title="上一页">←</a><a href="ch10.html" title="下一页">→</a></span>
+</div>
+<main class="wrap">
+<div class="chapter-kicker">第 09 章</div>
+<h1 class="chapter-title">§09 上实战：从零迭代一个数据分析技能</h1>
+
+<h3 class='sub'>09.1 需求：财报异常自动标注</h3>
+<p>我给自己的任务很具体：上传一份财报，自动提取核心指标、标注异常数据、生成经营分析摘要。</p>
+<p>这需求边界清楚，能验证对错，适合做第一个实战技能。</p>
+<h3 class='sub'>09.2 第一版：先用 Agent 跑通</h3>
+<p>我没先写 Skill，而是先让 Agent 裸跑一次。</p>
+<p>我丢了份财报进去，说："提取核心指标，标出异常，写摘要。"它跑出来了，但有三次明显的错：把同比算成了环比、漏标了一个关键异常、摘要里用了我禁止的空话。</p>
+<p>这一步的目的不是产出，是找错。无 Skill 的 Agent 会错在哪，就是我要写进 Skill 的内容。</p>
+<h3 class='sub'>09.3 抽象流程，工程化模板</h3>
+<p>我把流程抽出来：读配置（指标口径）→ 跑分析脚本 → 拿结构化结果 → 按规则标异常 → 按模板写摘要。</p>
+<p>稳定动作脚本化：指标计算、同比环比判断、异常阈值比对，全进 scripts/。references/ 放指标口径说明和输出模板。SKILL.md 只写触发、顺序和边界——特别写明"异常必须用红字标在对应指标后"。</p>
+<p>gotchas 里我加了三条：不许把同比当环比、环比为负要标"下滑"、摘要禁用"值得一提的是"这类空话。</p>
+<h3 class='sub'>09.4 跨模型测试与迭代</h3>
+<p>第一版在强模型上跑得不错。换了个弱模型，问题来了：它开始自由发挥格式。</p>
+<p>我把输出契约写得更死——references/ 里的 output-format.md 规定了每个字段的位置和类型。弱模型照着填，下限保住了。</p>
+<blockquote><p><strong>标叔的经验</strong>：跨模型测试是很多人跳过的一步。</p><p>你以为写好了，是因为你只用最强模型测。真实环境里，调用方用的模型天差地别。好模型看上限，差模型保下限，两个都得测。</p></blockquote>
+<p>做完一个了。下一章，讲怎么把你的经验沉淀成"技能书"。</p>
+<div class="nav-foot"><a href="ch08.html">← 上一页</a><a href="ch10.html">下一页 →</a></div>
+</main>
+<footer class='site-footer'><p><strong>标叔出品</strong> | AI Native Coder · 独立开发者</p><p>公众号「标叔」| B站「AI进化论-花生」</p><p>代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通</p></footer>
+<script>
+var bar=document.getElementById('progress');
+addEventListener('scroll',function(){var h=document.documentElement;var sc=h.scrollTop/(h.scrollHeight-h.clientHeight||1);bar.style.width=(sc*100)+'%';});
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§10 Tracing 与 Evals：上线才是真正的开始 · Vercel Eve 从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="../index.html">Vercel Eve 从入门到精通 <small>§10</small></a>
+  <a class="nav" href="../index.html">← 目录</a>
+</div>
+<div class="wrap">
+  <div class="part-tag">Part 3 · 进阶实战</div>
+  <h1 class="chapter-title">§10 Tracing 与 Evals：上线才是真正的开始</h1>
+
+  <h3>10.1 Tracing：出错后能复盘</h3>
+  <p>Agent 运行后，每次模型调用、工具调用、沙箱命令都能进 trace。Eve 用 OpenTelemetry，可接入现有可观测平台；部署在 Vercel 上时，还能在 Agent Runs 里看会话执行过程。</p>
+  <p>这回答了 Demo 常忽略的问题：Agent 出错后，怎么知道它当时看了什么、调了什么工具？</p>
+
+  <h3>10.2 Evals：升级前先验证</h3>
+  <p>instructions、skills、tools 都是仓库里的文件。一次看似无害的修改，也可能改变 Agent 行为。</p>
+  <p>Eve 提供评测能力：你可以定义带评分标准的测试集，在本地运行，也能接入 CI，把行为回归挡在部署之前。具体命令和配置随版本演进，以你安装版本的文档为准。</p>
+
+  <div class="callout advice">
+    <div class="ct">核心建议</div>
+    <p>把 evals 接进 CI。我建议每次改 instructions 都跑一遍评测。比上线后发现"旧能力退化了"便宜得多。</p>
+  </div>
+
+  <table>
+    <thead><tr><th>维度</th><th>没可观测/评测</th><th>有 Tracing + Evals</th><th>标叔的结论</th></tr></thead>
+    <tbody>
+      <tr><td>出错复盘</td><td>靠猜</td><td>看 trace</td><td>评测赢</td></tr>
+      <tr><td>行为回归</td><td>上线才发现</td><td>CI 挡住</td><td>评测赢</td></tr>
+      <tr><td>接入成本</td><td>无</td><td>需写用例</td><td>平手</td></tr>
+    </tbody>
+  </table>
+
+  <div class="bridge">→ 能跑、能看、能评测，就差判断了。下一章做总结。</div>
+
+  <div class="pager">
+    <a class="prev" href="ch09.html"><span class="lbl">← 上一章</span><span class="pg-tt">§09 实战：用 Eve 搭一支内容运营团队</span></a>
+    <a class="next" href="ch11.html"><span class="lbl">下一章 →</span><span class="pg-tt">§11 Eve 是 Agent 时代的 Next.js 吗</span></a>
+  </div>
+</div>
+<footer>标叔出品 · 基于 Vercel Eve 0.22.0（2026-07）撰写 · 框架仍在 Beta，API 可能变化，请以官方文档为准。</footer>
+</body>
+</html>

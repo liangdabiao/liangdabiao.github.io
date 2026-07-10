@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§06 Approvals：成熟的 Agent 知道何时停手 · Vercel Eve 从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="../index.html">Vercel Eve 从入门到精通 <small>§06</small></a>
+  <a class="nav" href="../index.html">← 目录</a>
+</div>
+<div class="wrap">
+  <div class="part-tag">Part 2 · 核心能力</div>
+  <h1 class="chapter-title">§06 Approvals：成熟的 Agent 知道何时停手</h1>
+
+  <h3>06.1 human-in-the-loop</h3>
+  <p>Agent 能调工具，不代表每个工具都该自动执行。查订单和取消订单不是一回事；看部署记录和回滚生产也不是一回事。</p>
+  <p>Eve 内置 human-in-the-loop approval。遇到要人确认的动作，工作流暂停；你批准或拒绝后，从当前状态继续。</p>
+  <p>审批不只存在于专用后台。channel 能把审批映射到真实界面，比如在 Slack 里显示按钮。</p>
+
+  <h3>06.2 风险分级</h3>
+  <p>一个实用起点：</p>
+  <ul>
+    <li>读取与分析：自动执行；</li>
+    <li>修改外部系统：需要审批；</li>
+    <li>删数据、回滚生产、大额付费：更严格确认。</li>
+  </ul>
+  <table>
+    <thead><tr><th>动作类型</th><th>是否自动</th><th>标叔的建议</th></tr></thead>
+    <tbody>
+      <tr><td>查日志、读文档</td><td>自动</td><td>放心跑</td></tr>
+      <tr><td>发消息、建 Issue</td><td>审批</td><td>人点一下</td></tr>
+      <tr><td>删库、回滚、付费</td><td>强确认</td><td>双重确认</td></tr>
+    </tbody>
+  </table>
+
+  <h3>06.3 实战：把审批放进流程</h3>
+  <div class="callout">
+    <div class="ct">标叔的经验</div>
+    <p><strong>失败的子 Agent 别偷偷补完。</strong></p>
+    <p>内容团队里，如果 researcher 挂了，让 root Agent 悄悄把活自己干完，界面上看着流程完整，实际那人没参与。我更愿看到"researcher 这步失败了，是否缩小任务重试"。可观察比假装完整重要。</p>
+  </div>
+
+  <div class="bridge">→ 哪些动作要人批，清楚了。可一个人干不完所有活。下一章讲 Subagents。</div>
+
+  <div class="pager">
+    <a class="prev" href="ch05.html"><span class="lbl">← 上一章</span><span class="pg-tt">§05 Sandbox：给 Agent 一台隔离的电脑</span></a>
+    <a class="next" href="ch07.html"><span class="lbl">下一章 →</span><span class="pg-tt">§07 Subagents：一支分工明确的团队</span></a>
+  </div>
+</div>
+<footer>标叔出品 · 基于 Vercel Eve 0.22.0（2026-07）撰写 · 框架仍在 Beta，API 可能变化，请以官方文档为准。</footer>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§02 十分钟跑通第一个 Agent · Vercel Eve 从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="../index.html">Vercel Eve 从入门到精通 <small>§02</small></a>
+  <a class="nav" href="../index.html">← 目录</a>
+</div>
+<div class="wrap">
+  <div class="part-tag">Part 1 · 起步</div>
+  <h1 class="chapter-title">§02 十分钟跑通第一个 Agent</h1>
+
+  <h3>02.1 你需要什么</h3>
+  <ul>
+    <li>Node.js 24 或更新（这是硬要求，2026-07 的 0.22.0 版本会把 engines.node 钉在 24.x）</li>
+    <li>npm（Node 自带）</li>
+    <li>一个模型凭据：Vercel AI Gateway 的 <code>AI_GATEWAY_API_KEY</code>，或任意 AI SDK 支持的直连 Key</li>
+  </ul>
+
+  <div class="callout warn">
+    <div class="ct">注意</div>
+    <p>Node 版本不够会直接失败。我见过有人用 Node 20 跑 <code>eve init</code>，卡在引擎检查。先 <code>node -v</code>，低于 24 就用 nvm 切：<code>nvm install 24 &amp;&amp; nvm use 24</code>。</p>
+  </div>
+
+  <h3>02.2 用 eve init 创建项目</h3>
+  <pre data-lang="bash"><code># 创建项目，同时装依赖、初始化 Git
+npx eve@latest init my-agent
+cd my-agent</code></pre>
+  <p>预期结果：<code>my-agent/</code> 目录生成，<code>agent/</code> 里已有 <code>instructions.md</code> 和 <code>agent.ts</code>，还带一个内置 Eve channel。</p>
+  <p>默认模型是 <code>anthropic/claude-sonnet-5</code>，走 Vercel AI Gateway。想换模型或直连别家，改 <code>agent/agent.ts</code> 即可。</p>
+
+  <h3>02.3 加一个工具</h3>
+  <p>工具就是一个 TypeScript 文件。文件名就是工具名，必须 snake_case。</p>
+  <pre data-lang="typescript"><code>// agent/tools/get_weather.ts
+// 文件名 get_weather 直接变成模型看到的工具名
+import { defineTool } from "eve/tools";
+import { z } from "zod";
+
+export default defineTool({
+  description: "Get the current weather for a city.",
+  inputSchema: z.object({ city: z.string().min(1) }), // 入参用 zod 约束
+  async execute({ city }) {
+    return { city, condition: "Sunny", temperatureF: 72 };
+  },
+});</code></pre>
+  <p>这里要注意：工具跑在你的应用进程里，带完整 <code>process.env</code>，不在沙箱里。敏感操作要自己加保护。</p>
+
+  <h3>02.4 两种方式对话</h3>
+  <p>方式一，CLI 聊天：</p>
+  <pre data-lang="bash"><code># 启动本地运行时，打开交互式终端
+npm run dev</code></pre>
+  <p>在终端里输入一句话，你会先看到 <code>get_weather</code> 被调用，再看到结果，最后是回答。</p>
+  <p>方式二，HTTP 接口（Eve 每个应用都暴露同一套稳定 API）：</p>
+  <pre data-lang="bash"><code># 开一个持久会话
+curl -X POST http://127.0.0.1:2000/eve/v1/session \
+  -H 'content-type: application/json' \
+  -d '{"message":"What is the weather in Brooklyn?"}'</code></pre>
+  <p>返回里有 <code>continuationToken</code>（续聊用）和 <code>x-eve-session-id</code>（流式用）。</p>
+  <pre data-lang="bash"><code># 挂着看流式事件：session.started → actions.requested → action.result → message.completed
+curl http://127.0.0.1:2000/eve/v1/session/&lt;sessionId&gt;/stream</code></pre>
+
+  <div class="callout">
+    <div class="ct">标叔的经验</div>
+    <p><strong>先验证模型入口。</strong></p>
+    <p>社区里有朋友接入自定义网关，一上来就报错。后来发现是 base URL 或 Key 错了，不是 instructions 的问题。先在 <code>npm run dev</code> 之外单独 ping 一下模型入口，能省半天排查。</p>
+  </div>
+
+  <div class="bridge">→ 第一个 Agent 跑通了。但它到底长什么样？下一章讲核心架构。</div>
+
+  <div class="pager">
+    <a class="prev" href="ch01.html"><span class="lbl">← 上一章</span><span class="pg-tt">§01 Eve 解决的根本不是"怎么调模型"</span></a>
+    <a class="next" href="ch03.html"><span class="lbl">下一章 →</span><span class="pg-tt">§03 一个目录就是一个 Agent</span></a>
+  </div>
+</div>
+<footer>标叔出品 · 基于 Vercel Eve 0.22.0（2026-07）撰写 · 框架仍在 Beta，API 可能变化，请以官方文档为准。</footer>
+</body>
+</html>

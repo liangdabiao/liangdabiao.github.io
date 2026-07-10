@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§08 Skills 与 Channels：操作手册与多入口 · Vercel Eve 从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="../index.html">Vercel Eve 从入门到精通 <small>§08</small></a>
+  <a class="nav" href="../index.html">← 目录</a>
+</div>
+<div class="wrap">
+  <div class="part-tag">Part 2 · 核心能力</div>
+  <h1 class="chapter-title">§08 Skills 与 Channels：操作手册与多入口</h1>
+
+  <h3>08.1 Skills：按需翻看的手册</h3>
+  <p>skill 是 Markdown 写成的操作手册。关键是 frontmatter 里的 <code>description</code>：</p>
+  <pre data-lang="markdown"><code>---
+description: Use when planning article topics or scoring candidate ideas.
+---</code></pre>
+  <p>Eve 把 description 暴露给模型。任务匹配时，模型再通过 load_skill 把完整 skill 加进上下文。这样 Agent 不用每次都背着所有流程细节。</p>
+
+  <div class="callout warn">
+    <div class="ct">注意</div>
+    <p>别内置静态选题列表。内容 Agent 最容易凭空编"看起来像热点"的标题。skill 必须写清该查哪些真实来源；查不到就列待人工核验项，别把猜测包装成事实。</p>
+  </div>
+
+  <h3>08.2 Channels：一份逻辑，多入口</h3>
+  <p>Eve 默认提供 HTTP API，也能通过 channel adapter 接 Slack、Discord、Teams、Telegram、GitHub、Linear 等。同一份 Agent 逻辑服务多个渠道，不用每接一个聊天工具重写业务流程。</p>
+  <p>接 Slack 大致这样：</p>
+  <pre data-lang="typescript"><code>// agent/channels/slack.ts
+import { connectSlackCredentials } from "@vercel/connect/eve";
+import { slackChannel } from "eve/channels/slack";
+
+export default slackChannel({
+  credentials: connectSlackCredentials("slack/my-agent"), // Connect 管 OAuth
+});</code></pre>
+  <p>Vercel Connect 负责 OAuth 授权、同意页和 token 刷新，模型不直接看到连接地址和凭据。</p>
+
+  <table>
+    <thead><tr><th>维度</th><th>每渠道重写</th><th>Eve channel</th><th>标叔的结论</th></tr></thead>
+    <tbody>
+      <tr><td>接入成本</td><td>高</td><td>一个文件</td><td>channel 赢</td></tr>
+      <tr><td>凭据管理</td><td>自己管</td><td>Connect 接管</td><td>channel 赢</td></tr>
+      <tr><td>渠道覆盖</td><td>看人力</td><td>Slack/Discord/Teams…</td><td>channel 赢</td></tr>
+    </tbody>
+  </table>
+
+  <div class="bridge">→ 能力都齐了。把它们拼成一支真实团队。下一章实战。</div>
+
+  <div class="pager">
+    <a class="prev" href="ch07.html"><span class="lbl">← 上一章</span><span class="pg-tt">§07 Subagents：一支分工明确的团队</span></a>
+    <a class="next" href="ch09.html"><span class="lbl">下一章 →</span><span class="pg-tt">§09 实战：用 Eve 搭一支内容运营团队</span></a>
+  </div>
+</div>
+<footer>标叔出品 · 基于 Vercel Eve 0.22.0（2026-07）撰写 · 框架仍在 Beta，API 可能变化，请以官方文档为准。</footer>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§04 Durable：Agent 不害怕重启 · Vercel Eve 从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="../index.html">Vercel Eve 从入门到精通 <small>§04</small></a>
+  <a class="nav" href="../index.html">← 目录</a>
+</div>
+<div class="wrap">
+  <div class="part-tag">Part 2 · 核心能力</div>
+  <h1 class="chapter-title">§04 Durable：Agent 不害怕重启</h1>
+
+  <h3>04.1 普通请求扛不住长任务</h3>
+  <p>普通聊天接口一问一答，请求结束任务就结束。Agent 却经常不是这样。</p>
+  <p>它可能等一个慢查询，可能让用户补材料，可能在危险操作前等审批。一次任务持续几小时甚至几天，不奇怪。</p>
+  <p>把这种任务绑在普通 HTTP 请求上，超时、断线、进程重启迟早找上门。</p>
+
+  <h3>04.2 会话即工作流</h3>
+  <p>Eve 把每段会话作为 durable workflow 运行。底层用开源的 Workflow SDK。工作流步骤会被 checkpoint；任务等待消息时可以暂停，收到新消息从原位置恢复。</p>
+  <p>按官方说法，中间崩溃或重新部署，会话也能继续推进。</p>
+  <p>类比一下：</p>
+  <ul>
+    <li>普通对话像打电话，挂了就断。</li>
+    <li>Agent 会话像寄快递，中途可以停，收到新信息接着走。</li>
+    <li>Durable workflow 像带 checkpoint 的流水线，任何一步断了，从断点重来，不重做前面。</li>
+  </ul>
+
+  <div class="callout">
+    <div class="ct">标叔的经验</div>
+    <p><strong>Durable 不是免费魔法。</strong></p>
+    <p>框架能存执行状态，但决定不了"这笔退款能不能再调一次"。工具有没有副作用、恢复后会不会重复执行、操作是否幂等，仍要你设计。</p>
+  </div>
+
+  <h3>04.3 实战：一个跨天的会话</h3>
+  <pre data-lang="bash"><code># 第一天：开会话，Agent 跑到一半等你补材料
+curl -X POST http://127.0.0.1:2000/eve/v1/session \
+  -d '{"message":"帮我分析上季度日志，缺的部分告诉我"}'
+# 返回 continuationToken，进程重启也不怕
+
+# 第二天：拿 token 续聊，从停的地方继续
+curl -X POST http://127.0.0.1:2000/eve/v1/session/&lt;id&gt; \
+  -d '{"continuationToken":"&lt;token&gt;","message":"数据补上了，继续"}'</code></pre>
+  <table>
+    <thead><tr><th>维度</th><th>普通 HTTP Agent</th><th>Eve Durable</th><th>标叔的结论</th></tr></thead>
+    <tbody>
+      <tr><td>进程重启</td><td>会话丢失</td><td>从 checkpoint 恢复</td><td>Durable 赢</td></tr>
+      <tr><td>等审批</td><td>连接常驻</td><td>暂停后恢复</td><td>Durable 赢</td></tr>
+      <tr><td>实现成本</td><td>自己写队列</td><td>框架默认</td><td>Durable 赢</td></tr>
+      <tr><td>幂等责任</td><td>你自己管</td><td>还是你自己管</td><td>平手</td></tr>
+    </tbody>
+  </table>
+
+  <div class="bridge">→ 能恢复还不够。Agent 跑出来的代码，得关进笼子里。下一章讲 Sandbox。</div>
+
+  <div class="pager">
+    <a class="prev" href="ch03.html"><span class="lbl">← 上一章</span><span class="pg-tt">§03 一个目录就是一个 Agent</span></a>
+    <a class="next" href="ch05.html"><span class="lbl">下一章 →</span><span class="pg-tt">§05 Sandbox：给 Agent 一台隔离的电脑</span></a>
+  </div>
+</div>
+<footer>标叔出品 · 基于 Vercel Eve 0.22.0（2026-07）撰写 · 框架仍在 Beta，API 可能变化，请以官方文档为准。</footer>
+</body>
+</html>

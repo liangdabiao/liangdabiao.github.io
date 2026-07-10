@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>§06 三个真实可用的 Skill | Agent Skills 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="progress"></div>
+<div class="topbar">
+  <a class="nav-home" href="index.html">← 目录</a>
+  <span class="nav-cur">§06</span>
+  <span class="nav-pn"><a href="ch05.html" title="上一页">←</a><a href="ch07.html" title="下一页">→</a></span>
+</div>
+<main class="wrap">
+<div class="chapter-kicker">第 06 章</div>
+<h1 class="chapter-title">§06 三个真实可用的 Skill</h1>
+
+<h3 class='sub'>06.1 会议纪要 Skill</h3>
+<p>这是最容易上手、回报最高的一个。</p>
+<p>触发场景写清楚："当用户需要把会议录音、转录或聊天记录，整理成含结论、待办、责任人和优先级的纪要时使用。"</p>
+<p>结构很简单：</p>
+<div class='codewrap'><span class='codelang'>文本</span><pre><code>meeting-minutes/
+├── SKILL.md          # 触发 + 输出结构
+├── references/
+│   └── format.md     # 纪要模板：结论/待办/@人/优先级
+└── scripts/          # 可选：把录音转文字的脚本</code></pre></div>
+<p>核心价值：你不用再每次解释"纪要要长什么样"。一句话，它出标准件。</p>
+<h3 class='sub'>06.2 写作风格 Skill</h3>
+<p>这个技能，是把自己的文风固化下来。</p>
+<p>很多团队要统一文档风格。你把自己的偏好写进 references/：用词习惯、段落长度、禁用句式、语气。下次让 Agent 写东西，它先读这个风格文件。</p>
+<p>我用它管公众号稿子。我的风格文件里写着：短句为主、第一人称、不用"强大的"这种空词、转折用"但"不用"然而"。Agent 写初稿就贴着我的人设，改起来省一半劲。</p>
+<blockquote><p><strong>核心建议</strong>：写作风格 Skill 是最好的"个人资产"。</p><p>它不只能给你自己用，还能发给团队，让所有人的对外文档保持同一种声音。</p></blockquote>
+<h3 class='sub'>06.3 文章配图 Skill</h3>
+<p>写文章要配图，是最烦的重复劳动之一。</p>
+<p>这个技能把"读文章 → 选配图类型 → 生成/美化 → 输出"的流程固化。references/ 里放版式骨架和配色规范，scripts/ 里放截图美化、尺寸裁剪的确定性逻辑，AI 只负责判断"这张图配这段文合不合适"。</p>
+<p>关键是把"审美判断"写成可执行的约束：不用纯白纯黑、文字不能压脸、AI 生图只在没合适真实图时才用。这些规则看着限制自由，实际是在保护输出下限。</p>
+<div class="table-wrap"><table><thead><tr><th>技能</th><th>解决什么痛点</th><th>标叔的结论</th></tr></thead><tbody><tr><td>会议纪要</td><td>每次重新解释格式</td><td>最该先装</td></tr><tr><td>写作风格</td><td>文风不统一</td><td>个人资产首选</td></tr><tr><td>文章配图</td><td>配图流程重复</td><td>内容创作者必用</td></tr></tbody></table></div>
+<p>三个会抄了？下一章，把它们串成一条线。</p>
+<div class="nav-foot"><a href="ch05.html">← 上一页</a><a href="ch07.html">下一页 →</a></div>
+</main>
+<footer class='site-footer'><p><strong>标叔出品</strong> | AI Native Coder · 独立开发者</p><p>公众号「标叔」| B站「AI进化论-花生」</p><p>代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通</p></footer>
+<script>
+var bar=document.getElementById('progress');
+addEventListener('scroll',function(){var h=document.documentElement;var sc=h.scrollTop/(h.scrollHeight-h.clientHeight||1);bar.style.width=(sc*100)+'%';});
+</script>
+</body>
+</html>

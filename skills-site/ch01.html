@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>§01 一场 2850 亿美元的恐慌 | Agent Skills 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="progress"></div>
+<div class="topbar">
+  <a class="nav-home" href="index.html">← 目录</a>
+  <span class="nav-cur">§01</span>
+  <span class="nav-pn"><a href="index.html" title="上一页">←</a><a href="ch02.html" title="下一页">→</a></span>
+</div>
+<main class="wrap">
+<div class="chapter-kicker">第 01 章</div>
+<h1 class="chapter-title">§01 一场 2850 亿美元的恐慌</h1>
+
+<div class='part-banner'><div class='part-name'>Part 1: 起步</div><p class='part-lead'>从零到一。读完这部分，你能跑通第一个技能，看懂它的内部长相，并搞清它跑在哪套机制上。</p></div>
+<h3 class='sub'>01.1 2026 年 2 月 5 日，那条新闻</h3>
+<p>2026 年 2 月 5 日，一个普通的星期四。</p>
+<p>Anthropic 没有发新模型，也没宣布什么算法突破。它给 Claude 加了一项新能力：Agent Skills，也就是"技能包"。</p>
+<p>然后，纳斯达克软件板块单日蒸发了约 2850 亿美元。高盛的软件股组合跌了 6%，法律科技公司 LegalZoom 暴跌 20%，汤森路透跌了 16%。业内人把这天叫"SaaS Apocalypse"——SaaS 末日。</p>
+<p>我第一次看到这新闻，反应和很多人一样：就这？不就是多了个功能吗？</p>
+<p>直到我认真研究了背后的逻辑，才意识到资本市场的恐慌是有道理的。</p>
+<blockquote><p><strong>标叔的经验</strong>：市场的反应，往往比我们的直觉快半拍。</p><p>当时我也觉得"不就是个插件"？后来我亲手用了一个合同审查 Skill，才发现它绕过了我过去要点的七八次鼠标。那一刻我才懂，恐慌的不是功能，是"入口"没了。</p></blockquote>
+<h3 class='sub'>01.2 界面即阻碍：SaaS 的锁被撬开了</h3>
+<p>要理解这件事，得先回到一个问题：软件公司靠什么赚钱？</p>
+<p>答案不是技术，也不是数据，是入口。</p>
+<p>传统 SaaS 是一套"三明治结构"：底下是数据，中间是业务逻辑，最上面是一层图形界面（GUI）。你要用软件，就得学这套界面——怎么上传、怎么配置、怎么导出。</p>
+<p>这套界面看着是"方便用户"，本质是一道锁。你学会了 A 家的界面，换 B 家要重新学。你的数据在 A 家存了三年，迁移成本高得吓人。</p>
+<p>Agent Skills 出现后，这逻辑被从根上断掉了。</p>
+<p>举一个具体例子。一家公司要审一份采购合同，看有没有违规条款。</p>
+<p>传统 SaaS 流程：买法律科技软件 → 员工学怎么用 → 手动上传合同 → 配置审查规则 → 等系统跑 → 手动复核 → 导出报告。人得参与好几个环节，软件的界面是绕不开的中转站。</p>
+<p>加载了 Legal Skill 的 Agent：直接访问企业云盘里的合同 → 按 Skill 内置的法律 SOP 自动比对风险 → 直接输出合规报告。用户全程不用打开任何界面，不用学任何操作。</p>
+<p>UI，被整个绕过去了。</p>
+<p>黄仁勋的判断是："AI 不会消灭 SaaS，SaaS 只是变成了基础设施。"这句话给 SaaS 留了面子，但"基础设施"意味着什么——水电煤也是基础设施，可没人说自来水公司"掌握用户入口"。</p>
+<p>Agent Skills 消灭的不是软件，而是软件的独立入口权。</p>
+<h3 class='sub'>01.3 三个认知：Tool、Workflow、Skill 不是一回事</h3>
+<p>很多人看完上面的描述，第一反应是：这不就是 API 吗？这不就是 Workflow 吗？</p>
+<p>不是。这里有一个必须厘清的认知误区。</p>
+<div class="table-wrap"><table><thead><tr><th>概念</th><th>它是什么</th><th>类比</th><th>标叔的结论</th></tr></thead><tbody><tr><td>Tool</td><td>单一能力，只会做一件事</td><td>一把锤子</td><td>太碎，拼不出活</td></tr><tr><td>Workflow</td><td>把 A→B→C 串起来，但流程写死</td><td>一张施工图</td><td>太死，改不了路</td></tr><tr><td>MCP</td><td>通信协议，解决 Agent 和工具怎么"说话"</td><td>插座</td><td>只接电，不教活</td></tr><tr><td>Skill</td><td>可复用的业务执行单元</td><td>有经验的工人</td><td>真正能干活的</td></tr></tbody></table></div>
+<p>Tool 是一把锤子。Workflow 是一张施工图。Skill 是一个有经验的工人——他知道什么时候用锤子，什么时候用电钻，出了问题怎么处理，还记得上次这类活儿怎么干的。</p>
+<p>一个完整的 Skill，包含六样东西：Prompt 策略（怎么理解任务）、Tool 调用链（用什么工具、按什么顺序）、SOP 流程（业务标准作业程序）、Memory 机制（记住什么、忘掉什么）、权限控制（能访问什么）、失败恢复（出错了怎么办）。</p>
+<p>有人把 Skill 的标准形态 skill.yaml 比作 Docker 的 Dockerfile。我觉得很准。Dockerfile 定义了一个容器环境，让代码能在任何地方跑；skill.yaml 定义了一套业务能力，让 Agent 能在任何地方调用它。</p>
+<h3 class='sub'>01.4 标叔的结论：Skill 是 2026 年最该懂的词</h3>
+<p>先给结论：如果你今年只想搞懂一个 AI 概念，就选 Agent Skills。</p>
+<p>它不是又一个花哨词。它改的是软件的底层逻辑——从"人学界面"变成"Agent 直接拿结果"。</p>
+<p>这个变化，对写代码的人、做产品的人、做业务的人，全都相关。</p>
+<blockquote><p><strong>核心建议</strong>：别急着背定义。</p><p>先记住一句话：Skill 是把"专家怎么干活"打包成 Agent 能直接调用的能力单元。后面所有章节，都是这句话的展开。</p></blockquote>
+<p>装完了？故事听完了？下一章，你自己跑一个。</p>
+<div class="nav-foot"><a href="index.html">← 上一页</a><a href="ch02.html">下一页 →</a></div>
+</main>
+<footer class='site-footer'><p><strong>标叔出品</strong> | AI Native Coder · 独立开发者</p><p>公众号「标叔」| B站「AI进化论-花生」</p><p>代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通</p></footer>
+<script>
+var bar=document.getElementById('progress');
+addEventListener('scroll',function(){var h=document.documentElement;var sc=h.scrollTop/(h.scrollHeight-h.clientHeight||1);bar.style.width=(sc*100)+'%';});
+</script>
+</body>
+</html>

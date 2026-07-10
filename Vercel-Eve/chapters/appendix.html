@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>附录 · Vercel Eve 从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="../index.html">Vercel Eve 从入门到精通 <small>附录</small></a>
+  <a class="nav" href="../index.html">← 目录</a>
+</div>
+<div class="wrap">
+  <div class="part-tag">附录</div>
+  <h1 class="chapter-title">速查表 · 常见错误 · 阅读指南</h1>
+
+  <h3>A 核心概念速查表</h3>
+  <table>
+    <thead><tr><th>概念</th><th>一句话</th><th>文件位置</th></tr></thead>
+    <tbody>
+      <tr><td>instructions.md</td><td>常驻系统提示</td><td>agent/instructions.md</td></tr>
+      <tr><td>agent.ts</td><td>模型与运行时配置</td><td>agent/agent.ts</td></tr>
+      <tr><td>tools/</td><td>类型化工具，文件名即工具名</td><td>agent/tools/*.ts</td></tr>
+      <tr><td>skills/</td><td>按需加载的操作手册</td><td>agent/skills/*.md</td></tr>
+      <tr><td>subagents/</td><td>子 Agent，独立上下文</td><td>agent/subagents/*/</td></tr>
+      <tr><td>channels/</td><td>多入口（Slack/Discord/Web）</td><td>agent/channels/*.ts</td></tr>
+      <tr><td>sandbox/</td><td>隔离执行环境</td><td>agent/sandbox/sandbox.ts</td></tr>
+      <tr><td>connections/</td><td>外部 MCP/OpenAPI 连接</td><td>agent/connections/</td></tr>
+      <tr><td>schedules/</td><td>定时任务</td><td>agent/schedules/*.ts</td></tr>
+      <tr><td>hooks/</td><td>生命周期钩子</td><td>agent/hooks/</td></tr>
+    </tbody>
+  </table>
+
+  <h3>B 常见错误与解决方案</h3>
+  <table>
+    <thead><tr><th>问题</th><th>原因</th><th>解决</th></tr></thead>
+    <tbody>
+      <tr><td><code>eve init</code> 报引擎错误</td><td>Node 低于 24</td><td><code>nvm install 24 &amp;&amp; nvm use 24</code></td></tr>
+      <tr><td>工具不被调用</td><td>文件名非 snake_case</td><td>改成 <code>get_weather.ts</code></td></tr>
+      <tr><td>子 Agent 看不到 skill</td><td>子 Agent 不继承 root skills</td><td>在子 Agent 目录放一份</td></tr>
+      <tr><td>改了 instructions 行为变了</td><td>没跑评测</td><td>把 evals 接进 CI</td></tr>
+      <tr><td>沙箱里删了项目文件</td><td>没区分 /workspace 与源码</td><td>产物写进 /workspace</td></tr>
+    </tbody>
+  </table>
+
+  <h3>阅读指南</h3>
+  <table>
+    <thead><tr><th>时间</th><th>章节</th><th>目标</th></tr></thead>
+    <tbody>
+      <tr><td>Day 1</td><td>§01-§03</td><td>从零到第一次跑通</td></tr>
+      <tr><td>Day 2-3</td><td>§04-§08</td><td>掌握核心能力</td></tr>
+      <tr><td>Day 4</td><td>§09-§10</td><td>进阶实战与评测</td></tr>
+      <tr><td>Day 5</td><td>§11 + 附录</td><td>做判断与查漏</td></tr>
+    </tbody>
+  </table>
+
+  <div class="bridge">→ 全书读完。去 Vercel 官网把 Agent 跑起来吧。</div>
+
+  <div class="pager">
+    <a class="prev" href="ch11.html"><span class="lbl">← 上一章</span><span class="pg-tt">§11 Eve 是 Agent 时代的 Next.js 吗</span></a>
+    <a class="next" href="../index.html"><span class="lbl">返回 →</span><span class="pg-tt">目录</span></a>
+  </div>
+</div>
+<footer>标叔出品 · 基于 Vercel Eve 0.22.0（2026-07）撰写 · 框架仍在 Beta，API 可能变化，请以官方文档为准。</footer>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§05 Sandbox：给 Agent 一台隔离的电脑 · Vercel Eve 从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="../index.html">Vercel Eve 从入门到精通 <small>§05</small></a>
+  <a class="nav" href="../index.html">← 目录</a>
+</div>
+<div class="wrap">
+  <div class="part-tag">Part 2 · 核心能力</div>
+  <h1 class="chapter-title">§05 Sandbox：给 Agent 一台隔离的电脑</h1>
+
+  <h3>05.1 真实计算能扩大能力，也扩大风险</h3>
+  <p>很多复杂任务无法提前备好所有工具。让 Agent 分析陌生日志，它可能临时写段 Python；处理 CSV，它可能生成聚合脚本。</p>
+  <p>模型生成的命令和代码，应被视为不可信输入。直接放进应用运行时执行，一次错误路径判断就可能把 Agent 问题变成生产事故。</p>
+
+  <h3>05.2 默认就有的隔离</h3>
+  <p>Eve 给每个 Agent 提供隔离沙箱。本地开发可用 Docker、microsandbox 等适配器；部署到 Vercel 后可切到 Vercel Sandbox，不改业务逻辑。</p>
+  <p>注意一个关键区别：你在 <code>tools/</code> 里写的工具跑在应用进程（带 <code>process.env</code>）；而文件读写、Shell 执行、代码运行，默认进沙箱。</p>
+  <p>配置沙箱很简单：</p>
+  <pre data-lang="typescript"><code>// agent/sandbox/sandbox.ts
+import { defineSandbox, vercelSandboxBackend } from "eve/sandbox";
+
+export default defineSandbox({
+  backend: vercelSandboxBackend({ runtime: "node24" }), // 选运行时
+});</code></pre>
+
+  <h3>05.3 安全观：默认不信任</h3>
+  <p>我很喜欢这个设计背后的态度：不是禁止 Agent 写代码，而是默认它写出的代码不值得信任。</p>
+
+  <div class="callout advice">
+    <div class="ct">核心建议</div>
+    <p>文件产物别污染源码。Agent 在 <code>/workspace</code> 下写的研究笔记、草稿、临时文件，是沙箱工作区，不是你的项目源码。把运行产物和 Agent 定义代码分清楚。</p>
+  </div>
+
+  <table>
+    <thead><tr><th>维度</th><th>直接跑应用进程</th><th>进沙箱</th><th>标叔的结论</th></tr></thead>
+    <tbody>
+      <tr><td>文件删除风险</td><td>高</td><td>隔离</td><td>沙箱赢</td></tr>
+      <tr><td>依赖污染</td><td>可能</td><td>干净</td><td>沙箱赢</td></tr>
+      <tr><td>执行延迟</td><td>低</td><td>略高</td><td>进程略赢</td></tr>
+      <tr><td>配置成本</td><td>无</td><td>一个文件</td><td>平手</td></tr>
+    </tbody>
+  </table>
+
+  <div class="bridge">→ 沙箱解决了"乱跑"的问题。可有些事，不该让它自己跑。下一章讲 Approvals。</div>
+
+  <div class="pager">
+    <a class="prev" href="ch04.html"><span class="lbl">← 上一章</span><span class="pg-tt">§04 Durable：Agent 不害怕重启</span></a>
+    <a class="next" href="ch06.html"><span class="lbl">下一章 →</span><span class="pg-tt">§06 Approvals：成熟的 Agent 知道何时停手</span></a>
+  </div>
+</div>
+<footer>标叔出品 · 基于 Vercel Eve 0.22.0（2026-07）撰写 · 框架仍在 Beta，API 可能变化，请以官方文档为准。</footer>
+</body>
+</html>

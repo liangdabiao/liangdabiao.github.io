@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>§03 看门道：Skill 到底长什么样 | Agent Skills 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="progress"></div>
+<div class="topbar">
+  <a class="nav-home" href="index.html">← 目录</a>
+  <span class="nav-cur">§03</span>
+  <span class="nav-pn"><a href="ch02.html" title="上一页">←</a><a href="ch04.html" title="下一页">→</a></span>
+</div>
+<main class="wrap">
+<div class="chapter-kicker">第 03 章</div>
+<h1 class="chapter-title">§03 看门道：Skill 到底长什么样</h1>
+
+<h3 class='sub'>03.1 一个文件夹，一个文件</h3>
+<p>很多人以为 Skill 是个超长 Prompt。错了。</p>
+<p>Anthropic 对 Skills 的定义很简单：Skills 是一组组织好的文件，用来打包可复用的流程知识。说白了，它就是一个文件夹。</p>
+<p>这个设计是故意做得很简单。它简单到任何人、任何 Agent，只要有一台电脑，就能创建和使用。你可以把它放进 Git 做版本管理，可以塞进网盘，也可以压缩成 zip 发给团队。</p>
+<p>最早的误解来自"自动总结"。很多人第一次做 Skill，会把一段成功对话丢给 AI："请总结成一个可复用的 Skill。" AI 吐出来一篇长 Prompt，看着完整，下次复用却漏步骤、混规则、乱输出。</p>
+<p>原因不是 AI 不会写文档，是它不会自动做结构设计。</p>
+<p>一个最简单的技能，里面就一个文件：<code>SKILL.md</code>。你甚至不需要任何脚本或参考文档，先跑通再说。等后面需求变复杂，再往里加 <code>references/</code>、<code>scripts/</code>、<code>assets/</code>。</p>
+<h3 class='sub'>03.2 SKILL.md 的三个部分</h3>
+<p>打开任意一个 <code>SKILL.md</code>，你会看到大致如下的结构：</p>
+<div class='codewrap'><span class='codelang'>MARKDOWN</span><pre><code>---
+name: meeting-minutes
+description: 当用户需要把一段会议录音或聊天记录，整理成含结论、待办、责任人和优先级的纪要时使用。
+---
+
+# 会议纪要 Skill
+
+## 流程
+1. 读取输入的会议内容
+2. 按结论 / 待办 / 责任人 / 优先级四块组织
+3. 待办必须 @ 到具体人
+...
+
+## 检查清单
+- [ ] 是否遗漏了任何决策点？
+- [ ] 待办是否都指定了责任人？</code></pre></div>
+<p>它分成三个部分，各有各的用处：</p>
+<div class="table-wrap"><table><thead><tr><th>部分</th><th>位置</th><th>干什么用</th><th>标叔的结论</th></tr></thead><tbody><tr><td>name</td><td>第一个 <code>---</code> 上方/内</td><td>技能 ID，也是文件夹名</td><td>让 Agent 区分彼此</td></tr><tr><td>description</td><td>同上，YAML 里</td><td>一句话说清"干什么、何时用"</td><td>触发命门，<a class="xref" href="ch03.html">§03.3</a> 细讲</td></tr><tr><td>正文</td><td>第二个 <code>---</code> 之后</td><td>具体步骤、规则、检查清单</td><td>被选中才读</td></tr></tbody></table></div>
+<p>两个 <code>---</code> 之间的部分有个专门的名字，叫 <strong>YAML 前置信息（YAML frontmatter）</strong>。你不用抠每个字的意思，把它看成技能的"名片"就行。</p>
+<p>一个关键机制：智能体启动时<strong>不会立刻读完整正文</strong>，而是只扫描每张名片（name + description），用来判断当前任务该调哪个技能。只有判断要用，才去读正文里的详细指令。</p>
+<blockquote><p><strong>标叔的经验</strong>：创建器比你想的周到。</p><p>你创建技能时没提"检查清单"，skill-creator 这类工具会根据需求自动补上——它判断哪些环节容易出错，主动加检查项。你不用事事交代，让工具帮你想到。</p></blockquote>
+<h3 class='sub'>03.3 description 不是广告，是路由触发器</h3>
+<p>这是最容易踩的坑，也是 Skill 质量的命门。</p>
+<p>很多人把 description 写成："这是一个强大的、多功能的智能信息处理 Skill。"漂亮，但触发信号极弱。模型看了不知道什么时候该用它。</p>
+<p>好的 description 应该描述"用户什么时候需要它"，最好来自真实用户原话：</p>
+<div class='codewrap'><span class='codelang'>文本</span><pre><code># 差的写法（这是广告）
+这是一个强大的会议纪要生成技能。
+
+# 好的写法（这是路由条件）
+当用户需要把一段会议录音或聊天记录，整理成含结论、待办、责任人和优先级的纪要时使用。</code></pre></div>
+<p>前者是广告，后者是 Agent 的判断条件。一个告诉模型"我多厉害"，一个告诉模型"什么时候轮到我上场"。</p>
+<blockquote><p><strong>核心建议</strong>：写 description 时，先假装你是模型。</p><p>你手里有一百个 Skill，用户说一句话，你得挑一个。你靠什么挑？靠每个 Skill 的 description 里写的触发场景。所以写得越像"用户原话"，越容易被正确加载。</p></blockquote>
+<h3 class='sub'>03.4 技能存放在哪里</h3>
+<p>技能跑通了，它到底躺在硬盘的哪个角落？这关系到你能不能复用、共享、备份。</p>
+<p><strong>云端智能体</strong>（扣子、Manus 这类）</p>
+<p>技能存在厂商的服务器上。你只用在网页界面里点"添加/管理"，不用管路径。好处是零维护，坏处是它不跟着你的电脑走。</p>
+<p><strong>本地智能体</strong>（以 Claude Code 为例）</p>
+<p>按作用范围分两层：</p>
+<div class="table-wrap"><table><thead><tr><th>层级</th><th>路径</th><th>跟着谁走</th><th>标叔的结论</th></tr></thead><tbody><tr><td>全局技能</td><td><code>~/.claude/skills/</code></td><td>电脑</td><td>你的私有百宝箱，任何项目都能用</td></tr><tr><td>项目技能</td><td><code>&lt;项目&gt;/.claude/skills/</code></td><td>项目</td><td>存进代码库，团队直接共享</td></tr></tbody></table></div>
+<p>全局技能也叫"个人技能"，相当于你的私有百宝箱，整台电脑生效。项目技能存在当前项目里，只在那个项目生效；因为它在代码库里，同事拉下来就能用。用 skill-creator 这类命令行工具建的技能，默认通常落在全局目录。</p>
+<p><strong>重要：技能文件格式是通用的</strong></p>
+<p>不同智能体的存放路径略有不同。Claude Code 用自己的 <code>.claude/skills/</code>，而大多数采纳 <strong>Agent Skills 开放标准</strong>的智能体（如 OpenCode 等）统一用 <code>.agents/skills/</code>。路径不同，但 <code>SKILL.md</code> 的格式完全一样——你在 Claude Code 写的技能，复制到 OpenCode 目录下就能直接用，反过来也一样。这就是为什么技能能跨平台流动。</p>
+<blockquote><p><strong>注意</strong>：你不用死记路径。</p><p>想不起来时，直接问你的智能体："我的技能装在哪里？"它会告诉你。</p></blockquote>
+<h3 class='sub'>03.5 SKILL.md 是入口，references/ 和 scripts/ 是后盾</h3>
+<p>一个好 Skill 长大了，通常长这样：</p>
+<div class='codewrap'><span class='codelang'>文本</span><pre><code>my-skill/
+├── SKILL.md          # 入口：什么时候用、先做什么、后做什么
+├── references/       # 参考资料：模板、配置、示例、术语表
+├── scripts/          # 脚本：抓数据、解析、排序、去重等稳定动作
+└── assets/           # 素材：字体、主题、版式骨架</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>位置</th><th>应该放什么</th><th>不应该放什么</th><th>标叔的结论</th></tr></thead><tbody><tr><td>SKILL.md</td><td>触发条件、核心流程、边界规则</td><td>大段模板、长背景</td><td>越短越准</td></tr><tr><td>references/</td><td>配置、模板、示例、输出契约</td><td>每次必执行的步骤</td><td>按需读</td></tr><tr><td>scripts/</td><td>解析、排序、去重、校验</td><td>需要价值判断的活</td><td>交给机器</td></tr><tr><td>assets/</td><td>字体、主题、版式</td><td>会变的逻辑</td><td>保持稳定</td></tr></tbody></table></div>
+<p>关键点：复杂 Skill 不怕内容多，怕的是把内容一次性塞给模型。文件系统本身就是一种上下文工程——模型只在需要时，才去读对应的文件。</p>
+<h3 class='sub'>03.6 渐进式加载：模型不会一次读完所有技能</h3>
+<p>Anthropic 采用了一个很朴素但关键的设计：运行时，模型先只看到每个 Skill 的元数据（名字 + 描述）——也就是 <a class="xref" href="ch03.html">§03.2</a> 说的那张"名片"。</p>
+<p>它知道自己有这个 Skill，但不会立刻把整个 SKILL.md 读进来。等判断当前任务需要了，才去加载完整内容。</p>
+<p>这样做的好处只有一个，但足够重要：同一个 Agent 可以拥有几百、几千个 Skill，却不会一开始就把上下文窗口占满。它只在处理具体任务时，动态把相关 Skill 拉进来。</p>
+<p>这也解释了为什么"把所有能力塞进一个大 Agent"不是好方向。大而全的框架会把工具定义、协议细节、长文档塞满上下文，换来更高延迟、更高成本和更多误用。薄驾驭、厚技能，才是正路——这个我们 <a class="xref" href="ch08.html">§08</a> 专门讲。</p>
+<p>看懂了形态、也知道它躺在哪里了？下一章，我带你钻到表层底下，看清楚智能体到底由什么组成、技能在里头算哪一块。</p>
+<div class="nav-foot"><a href="ch02.html">← 上一页</a><a href="ch04.html">下一页 →</a></div>
+</main>
+<footer class='site-footer'><p><strong>标叔出品</strong> | AI Native Coder · 独立开发者</p><p>公众号「标叔」| B站「AI进化论-花生」</p><p>代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通</p></footer>
+<script>
+var bar=document.getElementById('progress');
+addEventListener('scroll',function(){var h=document.documentElement;var sc=h.scrollTop/(h.scrollHeight-h.clientHeight||1);bar.style.width=(sc*100)+'%';});
+</script>
+</body>
+</html>

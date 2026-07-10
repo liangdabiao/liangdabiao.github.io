@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>§11 结语：从菜谱到厨艺 | Agent Skills 从入门到精通</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="progress"></div>
+<div class="topbar">
+  <a class="nav-home" href="index.html">← 目录</a>
+  <span class="nav-cur">§11</span>
+  <span class="nav-pn"><a href="ch10.html" title="上一页">←</a><a href="appendix.html" title="下一页">→</a></span>
+</div>
+<main class="wrap">
+<div class="chapter-kicker">第 11 章</div>
+<h1 class="chapter-title">§11 结语：从菜谱到厨艺</h1>
+
+<h3 class='sub'>11.1 模型是处理器，Runtime 是系统，Skill 是应用</h3>
+<p>Anthropic 用一个计算机史的类比收尾，我觉得讲得最透：</p>
+<p>模型像处理器。它需要巨大投入，也有巨大潜力，但处理器本身解决不了所有问题。后来人类做了操作系统，让处理器更有价值——它能调度进程、资源和数据。</p>
+<p>在 AI 里，Agent Runtime（运行环境，也就是本书说的"框架 / harness"）正在扮演操作系统的角色。它负责把正确的 token 送进模型，把模型输出组织成能执行的动作。</p>
+<p>但有了平台之后，真正的价值来自应用。处理器和操作系统只由少数公司构建，应用却由大量开发者做出。这些应用里，装着不同领域的专业知识和经验。</p>
+<p>Anthropic 希望 Skills 打开的，就是这个应用层。让更多人把自己的专业能力、流程经验、解决问题的方法，放进一个文件夹，交给 Agent 使用。</p>
+<p>这就是为什么他们说："不要继续重做 Agent，开始做 Skills。"</p>
+<h3 class='sub'>11.2 最稀缺的，是可复用的能力组织方式</h3>
+<p>Agent 时代最稀缺的，不是更聪明的模型，也不是更炫的界面。</p>
+<p>是能把人的经验、工作流和品味，变成一种可以分发、调用、评价和持续迭代的商品。Skill 第一次让这件事变得可能。</p>
+<p>它不只能给技术团队用。财务、招聘、法律、健身、餐饮、活动策划——每个有专业流程的人，都能把自己的"怎么干"变成可调用的能力。</p>
+<blockquote><p><strong>标叔的经验</strong>：这半年我最大的体会就一句。</p><p>真正拉开差距的，不是你会不会用某个工具，而是你有没有把自己的经验，沉淀成别人（和 Agent）能复用的资产。</p></blockquote>
+<h3 class='sub'>11.3 你该从哪里开始</h3>
+<p>别想太宏大了。</p>
+<p>今晚就做一件小事：挑一个你每周都重复、又懒得每次解释的任务。按 <a class="xref" href="ch05.html">§05</a> 的五步，把它拆成一个 Skill。会议纪要、写作风格、文章配图——这三个随便选一个，先跑通。</p>
+<p>跑通一个，你就懂了八成。剩下的，是在这个基础上长出来的。</p>
+<p>软件时代，我们下载 App。Agent 时代，我们加载 Skills。先上手、先积累 Skill 的人，会比别人早一步建立真正的护城河。</p>
+<p>去造你的第一个吧。</p>
+<div class="nav-foot"><a href="ch10.html">← 上一页</a><a href="appendix.html">下一页 →</a></div>
+</main>
+<footer class='site-footer'><p><strong>标叔出品</strong> | AI Native Coder · 独立开发者</p><p>公众号「标叔」| B站「AI进化论-花生」</p><p>代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通</p></footer>
+<script>
+var bar=document.getElementById('progress');
+addEventListener('scroll',function(){var h=document.documentElement;var sc=h.scrollTop/(h.scrollHeight-h.clientHeight||1);bar.style.width=(sc*100)+'%';});
+</script>
+</body>
+</html>

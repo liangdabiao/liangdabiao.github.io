@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§01 Eve 解决的根本不是"怎么调模型" · Vercel Eve 从入门到精通</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="../index.html">Vercel Eve 从入门到精通 <small>§01</small></a>
+  <a class="nav" href="../index.html">← 目录</a>
+</div>
+<div class="wrap">
+  <div class="part-tag">Part 1 · 起步</div>
+  <h1 class="chapter-title">§01 Eve 解决的根本不是"怎么调模型"</h1>
+
+  <h3>01.1 2026 年 6 月 17 日，Vercel 把 Eve 开源了</h3>
+  <p>2026 年 6 月 17 日，Vercel 把 Eve 开源了。我当天就翻完了发布文章和仓库。</p>
+  <p>先说我的判断：Eve 值得关注。但原因不是它又提供了一种调大模型的新写法。</p>
+  <p>它真正有意思的地方，是把 Agent 跑起来之后那一大堆没人愿意重复造的基础设施，收进了一个文件系统优先的框架里。</p>
+
+  <div class="callout">
+    <div class="ct">标叔的经验</div>
+    <p><strong>Agent Demo 很好做。</strong></p>
+    <p>写个系统提示词，备几个工具，调模型循环几轮，一个能查数据、搜网页的 Agent 半天就能跑起来。我做过不下十个这样的 Demo。但没一个真正上线过。</p>
+  </div>
+
+  <h3>01.2 Agent 上生产后，七个真问题来了</h3>
+  <p>Demo 跑起来不难。可一旦准备放进真实业务，问题马上就来：</p>
+  <ul>
+    <li>任务跑了半小时，进程重启了怎么办？</li>
+    <li>Agent 等用户批准时，连接要一直挂着吗？</li>
+    <li>模型生成的脚本，敢不敢直接在应用服务器上执行？</li>
+    <li>回滚生产版本，也能自动做吗？</li>
+    <li>同一 Agent 要接 Web、Slack、API，每入口都要重写吗？</li>
+    <li>Agent 出错后，怎么知道它当时看了什么、调了什么工具？</li>
+    <li>改了一句 instructions，怎么确认旧能力没悄悄退化？</li>
+  </ul>
+  <p>这些问题，没有一个能靠"再优化下 Prompt"解决。</p>
+
+  <h3>01.3 Eve 切入的位置</h3>
+  <p>过去大家要自己拼：模型 SDK、工作流引擎、任务队列、状态存储、沙箱、OAuth、审批页、日志系统、评测框架。Demo 几百行，包住它的生产基建却膨胀成另一个项目。</p>
+
+  <table>
+    <thead><tr><th>维度</th><th>自己拼装</th><th>用 Eve</th><th>标叔的结论</th></tr></thead>
+    <tbody>
+      <tr><td>持久执行</td><td>自己写队列</td><td>框架默认 Durable</td><td>省掉最难的 30%</td></tr>
+      <tr><td>沙箱隔离</td><td>自己接容器</td><td>内置 Sandbox</td><td>安全观开箱即用</td></tr>
+      <tr><td>人工审批</td><td>自己写页面</td><td>内置 Approvals</td><td>边界显式化</td></tr>
+      <tr><td>子 Agent</td><td>自己调度</td><td>目录即子 Agent</td><td>结构更清晰</td></tr>
+      <tr><td>可观测</td><td>自己接 ELK</td><td>OpenTelemetry</td><td>复用现有平台</td></tr>
+      <tr><td>评测</td><td>自己写脚本</td><td>内置 Evals</td><td>接 CI 挡回归</td></tr>
+    </tbody>
+  </table>
+  <p>重点看最后一列。Eve 不是给你更多模型调用方式，而是把"生产 Agent 该有的样子"固定成约定。</p>
+
+  <div class="callout advice">
+    <div class="ct">核心建议</div>
+    <p>先想清楚要不要框架。如果你只是给接口加一次模型问答，直接用 AI SDK 更轻。为了两步流程引入整套框架，不划算。</p>
+  </div>
+
+  <div class="bridge">→ 装好它，跑通第一个 Agent。下一章，我们动手。</div>
+
+  <div class="pager">
+    <a class="prev" href="../index.html"><span class="lbl">← 返回</span><span class="pg-tt">目录</span></a>
+    <a class="next" href="ch02.html"><span class="lbl">下一章 →</span><span class="pg-tt">§02 十分钟跑通第一个 Agent</span></a>
+  </div>
+</div>
+<footer>标叔出品 · 基于 Vercel Eve 0.22.0（2026-07）撰写 · 框架仍在 Beta，API 可能变化，请以官方文档为准。</footer>
+</body>
+</html>
