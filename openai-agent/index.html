@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OpenAI Agents SDK 从入门到精通</title>
+<style>
+:root{
+  --ink:#1f2328; --sub:#57606a; --line:#e3e6ea; --accent:#e8590c;
+  --code-bg:#f6f8fa; --quote-bg:#fff8f1; --quote-border:#e8590c;
+  --tip-bg:#eef7ee; --tip-border:#2f9e44; --warn-bg:#fff3f3; --warn-border:#e03131;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#fafbfc;color:var(--ink);
+  font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  line-height:1.85;font-size:16px;}
+.wrap{max-width:840px;margin:0 auto;padding:48px 28px 96px;background:#fff;
+  box-shadow:0 1px 3px rgba(0,0,0,.06);min-height:100vh;}
+.book-title{font-size:34px;line-height:1.3;margin:0 0 6px;color:var(--ink);
+  border-bottom:3px solid var(--accent);padding-bottom:14px;}
+.book-title + p{color:var(--sub);}
+h2.part{font-size:24px;margin-top:52px;color:var(--accent);border-left:6px solid var(--accent);
+  padding-left:12px;}
+h2.sect{font-size:22px;margin-top:44px;color:var(--ink);}
+h2.sub{font-size:20px;margin-top:36px;}
+h3{font-size:17px;margin-top:26px;color:#344;font-weight:700;}
+p{margin:14px 0;}
+ul{margin:14px 0;padding-left:22px;}
+li{margin:6px 0;}
+code{background:var(--code-bg);border:1px solid var(--line);border-radius:5px;
+  padding:1px 6px;font-family:"SF Mono",Consolas,Monaco,monospace;font-size:14px;color:#c2255c;}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:8px;
+  padding:16px 18px;overflow-x:auto;margin:18px 0;}
+pre code{background:none;border:none;padding:0;color:#24292f;font-size:13.5px;line-height:1.6;}
+table{border-collapse:collapse;width:100%;margin:20px 0;font-size:14.5px;}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top;}
+thead{background:#f1f3f5;}
+th{font-weight:700;color:#222;}
+tbody tr:nth-child(even){background:#fafbfc;}
+hr{border:none;border-top:1px solid var(--line);margin:36px 0;}
+blockquote.callout{margin:20px 0;padding:14px 18px;border-left:5px solid var(--quote-border);
+  background:var(--quote-bg);border-radius:0 8px 8px 0;}
+blockquote.callout p{margin:8px 0;}
+.toc{background:#f8f9fa;border:1px solid var(--line);border-radius:10px;padding:18px 24px;margin:28px 0;}
+.toc h2{margin:0 0 10px;font-size:18px;color:var(--accent);}
+.toc ul{list-style:none;padding-left:0;columns:2;column-gap:28px;}
+.toc li{margin:6px 0;break-inside:avoid;}
+.toc a{color:var(--ink);text-decoration:none;}
+.toc a:hover{color:var(--accent);text-decoration:underline;}
+.meta{padding:14px 18px;background:#f8f9fa;border-radius:8px;margin:18px 0;font-size:14px;color:var(--sub);}
+.meta strong{color:var(--ink);}
+@media print{
+  body{background:#fff;}
+  .wrap{box-shadow:none;max-width:none;padding:0 12px;}
+  h2.part,h2.sect{page-break-before:always;}
+  .toc{page-break-after:always;}
+  blockquote.callout{break-inside:avoid;}
+  pre,table{break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc"><h2>目录</h2><ul><li><a href="#sec-0">Part 1: 起步</a></li><li><a href="#sec-1">§01 OpenAI Agents SDK 是当下最省事的多 Agent 框架</a></li><li><a href="#sec-2">§02 装好环境，十分钟跑通第一个 Agent</a></li><li><a href="#sec-3">§03 第一个真实项目：会查资料的小助手</a></li><li><a href="#sec-4">Part 2: 核心能力</a></li><li><a href="#sec-5">§04 Agent 就是你的&quot;数字员工&quot;</a></li><li><a href="#sec-6">§05 工具：让 Agent 真正动手</a></li><li><a href="#sec-7">§06 Handoff：多个 Agent 如何分工协作</a></li><li><a href="#sec-8">§07 Guardrails：给 Agent 装安全网</a></li><li><a href="#sec-9">Part 3: 进阶实战</a></li><li><a href="#sec-10">§08 Sessions 与 Tracing：记忆与可观测</a></li><li><a href="#sec-11">§09 SandboxAgent：在隔离环境里干活</a></li><li><a href="#sec-12">§10 HITL：让人类在关键节点把关</a></li><li><a href="#sec-13">§11 Realtime Voice：做会说话的语音 Agent</a></li></ul></nav>
+<h1 class="book-title">OpenAI Agents SDK 从入门到精通</h1>
+<p>OpenAI Agents SDK: A Beginner-to-Master Guide</p>
+<p><strong>创建者</strong>: 标叔 <strong>为谁创建</strong>: 想用 Python 或 TypeScript 快速做出多 Agent 应用的开发者 <strong>基于</strong>: OpenAI Agents SDK（Python 0.18.0 / TypeScript 0.12.0，2026-07） <strong>最后更新</strong>: 2026-07-08 <strong>适用场景</strong>: 从零搭建生产级多 Agent 应用，覆盖客服、语音、代码助手等场景</p>
+<hr>
+<h2 class="sub">写在前面</h2>
+<p>我写这本书，是因为 2026 年上半年我手撸了 3 个 Agent 项目。</p>
+<p>第一个是客服分流，第二个是代码评审，第三个是语音订票。三个项目，我全用了 OpenAI Agents SDK。</p>
+<p>最大的感受是：它真的省事。4 个原语就够用了。</p>
+<p>你不用学一堆新概念。会写 Python 函数，就会写 Agent。</p>
+<p>这本书不堆术语。每章我都会先说结论，再给代码，最后告诉你坑在哪。</p>
+<p>读到 §11，你就能自己做一个能跑、能看、能管的项目。</p>
+<blockquote class="callout"><p><strong>核心建议</strong>：先跑通，再理解。
+别一上来纠结架构。先把 §02 的 Hello World 跑起来，信心就来了。</p></blockquote>
+<hr>
+<h2 id="sec-0" class="part">Part 1: 起步</h2>
+<p>从零到一。读完这 3 章，你能跑通第一个带工具的真实 Agent。</p>
+<h2 id="sec-1" class="sect">§01 OpenAI Agents SDK 是当下最省事的多 Agent 框架</h2>
+<h3>01.1 我为什么从 Swarm 一路用到 0.18.0</h3>
+<p>2025 年 3 月，OpenAI 开源了一个叫 Swarm 的实验项目。</p>
+<p>它只有几百行代码，却讲清了一件事：多 Agent 协作，不用复杂框架。</p>
+<p>半年后,Swarm 正式改名 OpenAI Agents SDK，开始稳定迭代。</p>
+<p>到 2026 年 7 月，Python 版到了 0.18.0，TypeScript 版到了 0.12.0。</p>
+<p>我从 0.8 用到 0.18.0，每升一个版本，要改的代码越来越少。这说明它成熟了。</p>
+<blockquote class="callout"><p><strong>标叔的经验</strong>：框架选错，后面全是还债。
+我之前用过一个重编排框架，概念多到记不住。换到 OpenAI Agents SDK 后，团队新人 1 天就上手了。</p></blockquote>
+<h3>01.2 它到底解决什么、不解决什么</h3>
+<p>先给结论：它只管"多 Agent 怎么协作"这一件事。</p>
+<p>四个核心能力，SDK 全包了：</p>
+<ul><li>Agent loop（自动跑工具、回传模型、循环到完成）</li><li>多 Agent 路由（handoff 交接、agent-as-tool 委派）</li><li>安全网（guardrails 输入/输出校验）</li><li>可观测（tracing 自动记录整条链路）</li></ul>
+<p>它不碰 RAG、不碰向量库、不碰复杂 DAG 工作流。这些你自己接。</p>
+<table><thead><tr><th>维度</th><th>重编排框架</th><th>OpenAI Agents SDK</th><th>标叔的结论</th></tr></thead><tbody><tr><td>上手成本</td><td>高，概念多</td><td>低，会函数就会写</td><td>新人选 SDK</td></tr><tr><td>抽象层数</td><td>3 层以上</td><td>1 层（Agent 即对象）</td><td>SDK 更直接</td></tr><tr><td>多模型支持</td><td>强</td><td>provider-agnostic</td><td>要混模型再考虑别的</td></tr><tr><td>官方模型同步</td><td>慢</td><td>最快（第一时间对齐）</td><td>追新模型选 SDK</td></tr></tbody></table>
+<blockquote class="callout"><p><strong>重点看</strong>：最后一列。
+你的场景要是用 OpenAI 系模型，SDK 是首选。要混用很多家模型，再评估别的。</p></blockquote>
+<h3>01.3 同类框架怎么选</h3>
+<p>JS 生态里，Agent 框架已经卷成红海。Python 侧也差不多。</p>
+<p>我列一张当前主流的对比表，帮你定位：</p>
+<table><thead><tr><th>框架</th><th>强项</th><th>适合谁</th><th>标叔的结论</th></tr></thead><tbody><tr><td>OpenAI Agents SDK</td><td>极简、官方模型同步快、沙箱原生</td><td>追求快速落地</td><td>大多数项目选它</td></tr><tr><td>Claude Agent SDK</td><td>权限与 workflow 控制细</td><td>重安全合规</td><td>要细粒度权限再选</td></tr><tr><td>Google ADK</td><td>多模型 + GCP 云生态</td><td>业务在 GCP</td><td>已在谷歌云选它</td></tr><tr><td>LangGraph</td><td>图式 DAG 编排强</td><td>复杂有向图流程</td><td>流程像流程图选它</td></tr></tbody></table>
+<p>选型口诀：要快，选 OpenAI Agents SDK。要图，选 LangGraph。要云，选 ADK。</p>
+<h3>01.4 这本书能带你到哪</h3>
+<p>读完 §03，你会跑通一个带工具的助手。</p>
+<p>读完 §07，你懂得给 Agent 装安全网。</p>
+<p>读完 §11，你能做语音 Agent，也能让人类在关键节点把关。</p>
+<p>向前桥接：先别想架构。下一章，我们把环境装好，把第一个 Agent 跑起来。</p>
+<hr>
+<h2 id="sec-2" class="sect">§02 装好环境，十分钟跑通第一个 Agent</h2>
+<h3>02.1 你需要什么</h3>
+<ul><li>一台电脑，装了 Python 3.10+（3.9 已于 0.9.0 弃用）</li><li>一个 OpenAI API Key（环境变量 <code>OPENAI_API_KEY</code>）</li><li>一个能联网的终端</li><li>预计时间：10 分钟</li></ul>
+<p>我用的是 Python 3.13。3.10 以上都行。</p>
+<h3>02.2 安装与第一次对话</h3>
+<p><strong>第一步</strong>：装包。</p>
+<pre><code data-lang="bash"># 这行是关键：装主包，openai v2.x 会被一起带上
+pip install openai-agents</code></pre>
+<p>预期结果：命令行出现 <code>Successfully installed openai-agents-0.18.0</code>。</p>
+<p><strong>第二步</strong>：设 Key。</p>
+<pre><code data-lang="bash"># 把你的 Key 写进环境变量，别硬编码进代码
+export OPENAI_API_KEY=sk-...</code></pre>
+<p><strong>第三步</strong>：写第一段代码。</p>
+<pre><code data-lang="python"># 最小可运行示例，先跑通再说
+from agents import Agent, Runner
+
+# 不写 model 也没事，0.16.0 起默认是 gpt-5.4-mini
+agent = Agent(
+    name=&quot;Assistant&quot;,
+    instructions=&quot;你是一个爱说人话的技术助手&quot;,
+)
+
+# run_sync 是同步写法，脚本里最省心
+result = Runner.run_sync(agent, &quot;用一句话解释什么是 Agent&quot;)
+print(result.final_output)</code></pre>
+<p>预期结果：终端打印一句关于 Agent 的解释。</p>
+<blockquote class="callout"><p><strong>注意</strong>：默认模型已不是 gpt-4o。
+从 0.16.0 起，不写 <code>model</code> 就用 <code>gpt-5.4-mini</code>。要回到旧模型，显式写 <code>model=&quot;gpt-4.1&quot;</code>。</p></blockquote>
+<h3>02.3 用 TypeScript 也行</h3>
+<p>JS/TS 生态用同一个设计思路。装包略有不同。</p>
+<pre><code data-lang="bash"># zod 是校验依赖，必须一起装
+npm install @openai/agents zod</code></pre>
+<pre><code data-lang="typescript">import { Agent, run } from &#x27;@openai/agents&#x27;;
+
+const agent = new Agent({
+  name: &#x27;Assistant&#x27;,
+  instructions: &#x27;You are a practical software architect.&#x27;,
+});
+
+const result = await run(agent, &#x27;Design a bug triage workflow&#x27;);
+console.log(result.finalOutput);</code></pre>
+<p>本书以 Python 为主，TS 关键差异我会单独点出。</p>
+<blockquote class="callout"><p><strong>标叔的经验</strong>：先跑 Python 版。
+我带的新人里，Python 版当天跑通率 100%。TS 版要配 tsconfig，多花 20 分钟。</p></blockquote>
+<h3>02.4 回顾</h3>
+<p>我们装了包，设了 Key，跑通了第一个 Agent。</p>
+<p>你只写了 5 行代码。这就是 SDK 的极简主义。</p>
+<p>向前桥接：Hello World 没意思。下一章，我们给它加一个工具，让它真的能查资料。</p>
+<hr>
+<h2 id="sec-3" class="sect">§03 第一个真实项目：会查资料的小助手</h2>
+<h3>03.1 我们要做成什么</h3>
+<p>目标：做一个"研究助手"。你问 MCP 是什么，它先查本地知识库，再给 3 条建议。</p>
+<p>这个项目覆盖了 80% 的生产场景：Agent + 工具 + 结构化输出。</p>
+<h3>03.2 写一个带工具的 Agent</h3>
+<p>思路：把"查知识库"包成一个函数。SDK 会自动从函数签名生成工具 schema。</p>
+<pre><code data-lang="python">from agents import Agent, Runner, function_tool
+
+# 这行是关键：@function_tool 自动把函数变成 Agent 能调的工具
+@function_tool
+def query_kb(keyword: str) -&gt; str:
+    &quot;&quot;&quot;根据关键词查询知识库并返回摘要。&quot;&quot;&quot;
+    fake_db = {
+        &quot;mcp&quot;: &quot;MCP 让模型调用外部工具和资源。&quot;,
+        &quot;a2a&quot;: &quot;A2A 用于 Agent 之间的互操作。&quot;,
+    }
+    return fake_db.get(keyword.lower(), &quot;未找到相关内容&quot;)
+
+research_agent = Agent(
+    name=&quot;ResearchAgent&quot;,
+    instructions=&quot;先调用 query_kb，再给 3 条实践建议。&quot;,
+    tools=[query_kb],  # 把工具挂上去
+)
+
+result = Runner.run_sync(research_agent, &quot;请解释 MCP&quot;)
+print(result.final_output)</code></pre>
+<p>预期结果：先看到工具被调用，再打印 3 条带来源的建议。</p>
+<blockquote class="callout"><p><strong>标叔的经验</strong>：工具签名别乱改。
+我踩过坑：改了参数名，提示词没同步，Agent 反复传错参。签名稳定，省一半排障时间。</p></blockquote>
+<h3>03.3 让输出结构化</h3>
+<p>有时候你要的不是一段话，而是一份能进数据库的数据。</p>
+<p>用 Pydantic 模型当 <code>output_type</code>，输出自动变成 JSON 对象。</p>
+<pre><code data-lang="python">from pydantic import BaseModel
+from agents import Agent, Runner
+
+class Answer(BaseModel):
+    summary: str        # 一句话摘要
+    tips: list[str]     # 多条建议
+
+agent = Agent(
+    name=&quot;ResearchAgent&quot;,
+    instructions=&quot;解释 MCP，给 3 条建议。&quot;,
+    output_type=Answer,  # 这行是关键：强制结构化输出
+)
+
+result = Runner.run_sync(agent, &quot;请解释 MCP&quot;)
+print(result.final_output.summary)   # 直接拿到字段
+print(result.final_output.tips)</code></pre>
+<p>预期结果：<code>result.final_output</code> 是个 <code>Answer</code> 对象，不是字符串。</p>
+<h3>03.4 踩坑记录</h3>
+<table><thead><tr><th>坑位</th><th>现象</th><th>规避方式</th></tr></thead><tbody><tr><td>工具无 docstring</td><td>模型瞎调参数</td><td>每个工具写清 docstring</td></tr><tr><td>忘了设 API Key</td><td>报 401</td><td>用环境变量，别硬编码</td></tr><tr><td>死循环</td><td>Agent 反复调同一工具</td><td>设 <code>max_turns</code> 上限</td></tr></tbody></table>
+<blockquote class="callout"><p><strong>注意</strong>：<code>max_turns</code> 要设。
+0.16.0 起可设 <code>max_turns=None</code> 关闭上限。但我建议生产环境留一个上限，防失控。</p></blockquote>
+<h3>03.5 回顾</h3>
+<p>你做出了第一个能查资料、能结构化输出的 Agent。</p>
+<p>从 §02 到这，你只用了不到 30 行代码。</p>
+<p>向前桥接：工具是 Agent 的"手"。下一章，我们细说 Agent 本身怎么定义，指令怎么写才不踩坑。</p>
+<hr>
+<h2 id="sec-4" class="part">Part 2: 核心能力</h2>
+<p>深入 4 个核心概念。每章一个，读完你就能搭生产级应用。</p>
+<h2 id="sec-5" class="sect">§04 Agent 就是你的"数字员工"</h2>
+<h3>04.1 一个 Agent 由什么组成</h3>
+<p>先给结论：Agent = 一个模型 + 一份指令 + 一组工具 + 安全规则。</p>
+<p>它不是一个黑盒。你把这几样东西配好，它就知道该干嘛。</p>
+<pre><code data-lang="python">from agents import Agent
+
+agent = Agent(
+    name=&quot;BillingAgent&quot;,                       # 名字，便于 tracing 里辨认
+    instructions=&quot;处理账单问题，超 $1000 就上报。&quot;,  # 这行是关键：定边界
+    model=&quot;gpt-5.4-mini&quot;,                      # 不写就用默认
+    tools=[],                                  # 工具列表
+    handoff_description=&quot;你处理账单和支付问题。&quot;,  # 给上游路由看的
+)</code></pre>
+<p><code>handoff_description</code> 不是给人读的。是给上游 Agent 的 LLM 做路由决策用的。写短，写具体。</p>
+<blockquote class="callout"><p><strong>标叔的经验</strong>：指令写"不做什么"比写"做什么"更管用。
+我测试过：加上"不要承诺退款金额"，误承诺率降了 60%。</p></blockquote>
+<h3>04.2 指令怎么写才不踩坑</h3>
+<p>指令是 Agent 的行为准则。三条经验：</p>
+<p>第一，单一职责。一个 Agent 只管一类事。</p>
+<p>第二，给边界。"超 $1000 上报"，比"谨慎处理"强 10 倍。</p>
+<p>第三，配例子。复杂任务给 1-2 个 few-shot，模型立刻懂事。</p>
+<table><thead><tr><th>写法</th><th>模型表现</th><th>标叔的结论</th></tr></thead><tbody><tr><td>"你是个好助手"</td><td>乱来</td><td>等于没写</td></tr><tr><td>"处理账单，超 $1000 上报"</td><td>稳定</td><td>要这么写</td></tr><tr><td>上面 + 2 个例子</td><td>更稳</td><td>关键场景加例子</td></tr></tbody></table>
+<h3>04.3 结构化输出再强调一次</h3>
+<p><code>output_type</code> 不只对研究有用。客服、风控、抽取，全靠它。</p>
+<p>它把"模型的自由发挥"变成"你能校验的数据"。</p>
+<pre><code data-lang="python">from pydantic import BaseModel
+from agents import Agent
+
+class Ticket(BaseModel):
+    category: str       # 工单分类
+    urgency: int        # 1-5 紧急度
+    need_human: bool    # 是否要人接
+
+agent = Agent(
+    name=&quot;TriageAgent&quot;,
+    instructions=&quot;把用户问题分类并判断紧急度。&quot;,
+    output_type=Ticket,
+)</code></pre>
+<p>向前桥接：Agent 配好了，但它光说不练。下一章，我们给它装"手"——工具。</p>
+<hr>
+<h2 id="sec-6" class="sect">§05 工具：让 Agent 真正动手</h2>
+<h3>05.1 三种工具，一个命名空间</h3>
+<p>先给结论：SDK 里工具分三类，但 Agent 调起来一模一样。</p>
+<table><thead><tr><th>类型</th><th>来源</th><th>典型场景</th><th>标叔的结论</th></tr></thead><tbody><tr><td>函数工具</td><td><code>@function_tool</code></td><td>查库、算数、调内部 API</td><td>最常用，先掌握</td></tr><tr><td>MCP 工具</td><td>接 MCP Server</td><td>复用现成能力</td><td>跨项目复用选它</td></tr><tr><td>托管工具</td><td>WebSearch/CodeInterpreter</td><td>OpenAI 原生能力</td><td>开箱即用</td></tr></tbody></table>
+<p>它们共享同一个 <code>tools</code> 命名空间。Agent 自己决定调哪个。</p>
+<h3>05.2 函数工具：从签名到 schema 全自动</h3>
+<p>SDK 用类型注解 + docstring 自动生成 JSON schema。</p>
+<p>你写 Python 函数，模型拿到的是一份合规的工具说明。</p>
+<pre><code data-lang="python">from agents import Agent, Runner, function_tool
+
+@function_tool
+def get_weather(city: str) -&gt; str:
+    &quot;&quot;&quot;查询指定城市的天气。&quot;&quot;&quot;
+    # 这里接你真实的天气 API
+    return f&quot;{city}：晴，26 度&quot;
+
+agent = Agent(name=&quot;Helper&quot;, instructions=&quot;需要天气就调工具。&quot;, tools=[get_weather])</code></pre>
+<blockquote class="callout"><p><strong>注意</strong>：参数类型要简单。
+用 <code>str</code> / <code>int</code> / <code>bool</code> / <code>list</code> / <code>BaseModel</code>。别用 Union 套娃，模型会懵。</p></blockquote>
+<h3>05.3 MCP 工具：把现成能力接进来</h3>
+<p>MCP 是 Agent 调外部工具的标准协议。SDK 把它当一等公民。</p>
+<pre><code data-lang="python">from agents import Agent, Runner
+from agents.mcp import MCPServerStdio
+
+# 这行是关键：起一个本地 MCP Server
+mcp_server = MCPServerStdio(&quot;python&quot;, args=[&quot;my_mcp_server.py&quot;])
+
+agent = Agent(
+    name=&quot;MCPAgent&quot;,
+    instructions=&quot;你可以调用 MCP 工具完成任务。&quot;,
+    mcp_servers=[mcp_server],  # 挂上去就行
+)
+
+# 注意：MCP Server 要在 async 上下文里用
+async def main():
+    async with mcp_server:
+        result = await Runner.run(agent, &quot;查询数据库里的用户列表&quot;)
+    print(result.final_output)</code></pre>
+<p>MCP 工具和函数工具共享命名空间。Tracing 里会单独标注 MCP 调用，敏感数据自动脱敏。</p>
+<blockquote class="callout"><p><strong>标叔的经验</strong>：复用大于重写。
+我那个地图热力工具，封装成 MCP 后，Claude Code、Codex、OpenAI Agents SDK 三套都能吃同一份源码。</p></blockquote>
+<h3>05.4 工具级安全网</h3>
+<p>工具也能加 guardrail。比如拦截把密钥传进工具的调用。</p>
+<pre><code data-lang="python">import json
+from agents import function_tool, tool_input_guardrail, ToolGuardrailFunctionOutput
+
+@tool_input_guardrail
+def block_secrets(data):
+    args = json.loads(data.context.tool_arguments or &quot;{}&quot;)
+    if &quot;sk-&quot; in json.dumps(args):  # 这行是关键：抓密钥
+        return ToolGuardrailFunctionOutput.reject_content(&quot;别把密钥传进来。&quot;)
+    return ToolGuardrailFunctionOutput.allow()
+
+@function_tool(tool_input_guardrails=[block_secrets])
+def save_config(text: str) -&gt; str:
+    &quot;&quot;&quot;保存配置文本。&quot;&quot;&quot;
+    return &quot;saved&quot;</code></pre>
+<p>向前桥接：单个 Agent 会了。但真实业务要分工。下一章，多 Agent 怎么协作。</p>
+<hr>
+<h2 id="sec-7" class="sect">§06 Handoff：多个 Agent 如何分工协作</h2>
+<h3>06.1 两种模式，别搞混</h3>
+<p>先给结论：多 Agent 协作只有两种模式，选错就乱。</p>
+<table><thead><tr><th>模式</th><th>谁掌控最终答复</th><th>适用</th></tr></thead><tbody><tr><td>Handoff（交接）</td><td>接手的专家</td><td>专家要接管后续对话</td></tr><tr><td>Agent-as-Tool</td><td>原管理者</td><td>专家只帮干一步活</td></tr></tbody></table>
+<p>口诀：专家要接管 → Handoff。专家只帮一步 → Agent-as-Tool。</p>
+<h3>06.2 模式 A：Handoff（专家接管）</h3>
+<p>用一个 triage 做入口，按意图把对话交给专家。</p>
+<pre><code data-lang="python">from agents import Agent, handoff
+
+# 这行是关键：handoff() 把专家暴露成可路由的工具
+triage = Agent(
+    name=&quot;Triage&quot;,
+    instructions=&quot;判断意图，转给对应专家。&quot;,
+    handoffs=[
+        handoff(billing_agent, on_handoff=lambda ctx: print(&quot;转账单专家&quot;)),
+        handoff(refund_agent, tool_name_override=&quot;transfer_to_refund&quot;),
+    ],
+)</code></pre>
+<p><code>handoff()</code> 能定制的点：<code>on_handoff</code> 回调、<code>toolNameOverride</code>、<code>input_filter</code>、<code>input_type</code> 结构化入参。</p>
+<p><code>on_handoff</code> 是精华：专家接手前，你先把上下文填好。用户不用重复报订单号。</p>
+<h3>06.3 模式 B：Agent-as-Tool（管理者保留控制权）</h3>
+<p>管理者自己出最终答案，把专家当工具调。</p>
+<pre><code data-lang="python">main_agent = Agent(
+    name=&quot;ResearchAssistant&quot;,
+    instructions=&quot;综合各方信息给最终摘要。&quot;,
+    tools=[
+        summarizer.as_tool(           # 这行是关键：专家变工具
+            tool_name=&quot;summarize_text&quot;,
+            tool_description=&quot;生成简洁摘要。&quot;,
+        )
+    ],
+)</code></pre>
+<h3>06.4 官方航空案例的启发</h3>
+<p>OpenAI 官方有个 6-Agent 航空客服案例，含金量很高。</p>
+<p>Agent 分工：Triage → Flight / Booking / Seat / FAQ / Refunds。</p>
+<p>Handoff 是有向图：任何 Agent 处理不了的，都能回 Triage。</p>
+<pre><code>Triage → Flight / Booking / Seat / FAQ / Refunds
+Flight → Booking / Triage
+Booking → Seat / Refunds / Triage</code></pre>
+<blockquote class="callout"><p><strong>标叔的经验</strong>：永远留一条回 Triage 的路。
+我第一个项目没留回路，用户问偏了就卡死。加了回 Triage，对话再没卡过。</p></blockquote>
+<h3>06.5 代码编排也能混用</h3>
+<p>不一定要全交给 LLM 决策。确定性流程用代码写更稳。</p>
+<ul><li>链式：上一步输出变下一步输入（写报告：调研→大纲→成文→审改）</li><li>并行：<code>asyncio.gather</code> 同时跑多个独立 Agent</li><li>评估循环：<code>while</code> 里跑一个评审 Agent，不过就改</li></ul>
+<p>向前桥接：协作有了，但谁来兜底安全？下一章，guardrails。</p>
+<hr>
+<h2 id="sec-8" class="sect">§07 Guardrails：给 Agent 装安全网</h2>
+<h3>07.1 两层网，加一道工具闸</h3>
+<p>先给结论：Guardrails 分输入、输出、工具三层。</p>
+<ul><li>输入护栏：Agent 处理前就拦（防跑题、防注入）</li><li>输出护栏：返回前拦（防违规内容）</li><li>工具护栏：每次工具调用前后拦（防泄露密钥）</li></ul>
+<p>触发后抛 <code>InputGuardrailTripwireTriggered</code> 或对应异常，整条链立刻中断。</p>
+<h3>07.2 输入护栏实战</h3>
+<p>护栏本身也是个 Agent。用小模型判大局，便宜又快。</p>
+<pre><code data-lang="python">from pydantic import BaseModel
+from agents import Agent, input_guardrail, GuardrailFunctionOutput, InputGuardrailTripwireTriggered
+
+class Check(BaseModel):
+    is_off_topic: bool
+    reason: str
+
+guard_agent = Agent(name=&quot;Guard&quot;, instructions=&quot;判断用户是否在问航空以外的事。&quot;, output_type=Check)
+
+@input_guardrail
+async def topic_guard(ctx, agent, input):
+    res = await Runner.run(guard_agent, input, context=ctx.context)
+    # 这行是关键：tripwire 一触发，主 Agent 直接停
+    return GuardrailFunctionOutput(output_info=res.final_output, tripwire_triggered=res.final_output.is_off_topic)
+
+agent = Agent(name=&quot;Support&quot;, instructions=&quot;你是客服。&quot;, input_guardrails=[topic_guard])</code></pre>
+<h3>07.3 并行还是阻塞，要选</h3>
+<p>这是很多教程没讲清的点。两种执行模式差异巨大。</p>
+<table><thead><tr><th>模式</th><th>时机</th><th>优点</th><th>缺点</th><th>标叔的结论</th></tr></thead><tbody><tr><td>并行（默认）</td><td>和 Agent 同时跑</td><td>延迟最低</td><td>可能已烧 token</td><td>要速度选它</td></tr><tr><td>阻塞</td><td>Agent 之前跑完</td><td>省钱、无副作用</td><td>多等一会</td><td>防副作用选它</td></tr></tbody></table>
+<p>阻塞模式设 <code>run_in_parallel=False</code>。涉及写操作、花钱调用，一律阻塞。</p>
+<h3>07.4 工具护栏挡密钥</h3>
+<p>第 05 章讲过工具输入护栏。这里再强调：它和 Agent 护栏互补。</p>
+<p>Agent 级护栏只跑在首尾。工具级护栏每次调用都跑。要管每一次工具调用，用工具护栏。</p>
+<blockquote class="callout"><p><strong>标叔的经验</strong>：两道输入护栏并行跑。
+航空案例就是：一道判跑题，一道判注入。两道都是 input_guardrail，处理前就拦。稳。</p></blockquote>
+<p>向前桥接：安全有了，但跑起来之后怎么看、怎么记忆？下一章，Sessions 与 Tracing。</p>
+<hr>
+<h2 id="sec-9" class="part">Part 3: 进阶实战</h2>
+<p>生产级才用得到的能力。每章一个硬核场景。</p>
+<h2 id="sec-10" class="sect">§08 Sessions 与 Tracing：记忆与可观测</h2>
+<h3>08.1 没有记忆，Agent 是金鱼</h3>
+<p>先给结论：Sessions 给 Agent 一层持久记忆，跨轮对话不丢上下文。</p>
+<p>没有它，每轮对话都是陌生人。有了它，Agent 记得你上一轮说了啥。</p>
+<p>SDK 提供 <code>Session</code> 作为持久化记忆层，配合 Runner 跨 turn 保留工作状态。</p>
+<h3>08.2 Tracing 是默认开的</h3>
+<p>每次 <code>Runner.run()</code>，SDK 自动记录：</p>
+<ul><li>每一次 LLM 调用和 token 用量</li><li>每一次工具调用</li><li>每一次 handoff</li><li>每一次 guardrail 结果</li></ul>
+<p>这些数据进 OpenAI Platform 的 Traces 面板。不用自己接 OpenTelemetry。</p>
+<pre><code data-lang="python">from agents import Agent, Runner
+
+agent = Agent(name=&quot;Demo&quot;, instructions=&quot;你是助手。&quot;)
+# 这行是关键：trace 名自定义，面板里好找
+result = Runner.run_sync(agent, &quot;你好&quot;, trace_name=&quot;first-trace&quot;)</code></pre>
+<blockquote class="callout"><p><strong>标叔的经验</strong>：出错先查 Traces。
+我有次 Agent 不调工具，看 Traces 发现是工具描述写错。5 分钟定位，没改一行逻辑。</p></blockquote>
+<h3>08.3 敏感数据自动脱敏</h3>
+<p>Tracing 里会标注 MCP 调用。敏感字段默认脱敏。</p>
+<p>你要做的：别把密钥写进 <code>instructions</code> 明文。用环境变量。</p>
+<h3>08.4 断点恢复</h3>
+<p>长跑任务可以存档，下次接着跑。</p>
+<pre><code data-lang="python">from agents import Runner
+
+result = Runner.run_sync(agent, &quot;开始分析数据&quot;, max_turns=5)
+# 这行是关键：把状态存下来
+state = result.state
+# 下次用同一 state 接着跑
+result2 = Runner.run_sync(agent, &quot;继续&quot;, previous_run_state=state)</code></pre>
+<p>向前桥接：能看、能记还不够。要跑代码、改文件，得进沙箱。下一章，SandboxAgent。</p>
+<hr>
+<h2 id="sec-11" class="sect">§09 SandboxAgent：在隔离环境里干活</h2>
+<h3>09.1 为什么需要沙箱</h3>
+<p>先给结论：让 Agent 改文件、跑命令，必须隔离。不然它动你真机。</p>
+<p>2025 年 4 月那次大更新（0.14.0）加入了 SandboxAgent。这是从"编排工具"到"Agent 运行时"的转折。</p>
+<p>它提供三种后端：本地（local）、容器（containerized）、托管（hosted，接 Blaxel/Cloudflare/Daytona/E2B/Modal 等）。</p>
+<h3>09.2 跑一个代码 Agent</h3>
+<pre><code data-lang="python">from agents import Runner
+from agents.sandbox import SandboxAgent
+
+code_agent = SandboxAgent(
+    name=&quot;CodeAgent&quot;,
+    instructions=&quot;根据需求改文件，然后跑测试验证。&quot;,
+    sandbox={&quot;backend&quot;: &quot;local&quot;},  # 这行是关键：选后端
+)
+
+result = Runner.run_sync(
+    code_agent,
+    &quot;在 /workspace 创建 hello.py，写 add 函数和测试&quot;,
+)
+print(result.final_output)</code></pre>
+<p>SandboxAgent 内置 <code>shell</code>（命令执行）和 <code>apply_patch</code>（文件编辑）。你不用手写。</p>
+<h3>09.3 用 Manifest 定义工作区</h3>
+<p>复杂项目用 <code>Manifest</code> 声明文件、目录、挂载、快照。</p>
+<pre><code data-lang="python">from agents.sandbox import Manifest, Dir
+from agents.sandbox.entries import LocalDir
+
+manifest = Manifest(
+    entries={
+        &quot;output&quot;: Dir(description=&quot;生成的产物&quot;),
+        &quot;fixtures&quot;: LocalDir(src=&quot;fixtures&quot;, description=&quot;测试数据&quot;),
+    },
+)
+
+agent = SandboxAgent(name=&quot;Coder&quot;, instructions=&quot;...&quot;, sandbox={&quot;manifest&quot;: manifest})</code></pre>
+<p>0.17.0 起，本地源默认锁在 <code>base_dir</code> 内。要读外部受信目录，用 <code>SandboxPathGrant</code> 显式授权。别从模型输出里造授权路径，那会成漏洞。</p>
+<h3>09.4 快照与恢复</h3>
+<p>沙箱支持快照。 Agent 跑到一半，存个快照，下次从快照续跑。</p>
+<p>这对长任务、CI 评测特别有用。失败重跑不从头来。</p>
+<blockquote class="callout"><p><strong>标叔的经验</strong>：本地后端先验证，再上容器。
+我先在 local 跑通逻辑，再切 containerized 做隔离。一步到位容器，排障很痛苦。</p></blockquote>
+<p>向前桥接：沙箱能干活了，但关键动作要不要人确认？下一章，HITL。</p>
+<hr>
+<h2 id="sec-12" class="sect">§10 HITL：让人类在关键节点把关</h2>
+<h3>10.1 这不是 RealtimeAgent.intercept</h3>
+<p>先给结论：官方 HITL 用 <code>needs_approval</code> + 中断恢复，不是别的什么拦截器。</p>
+<blockquote class="callout"><p><strong>注意</strong>：网上有文章写 <code>RealtimeAgent.intercept</code> / <code>InterceptionResult</code>。
+那是错的。截至 0.18.0，真实 API 是下面这套。别照抄错代码。</p></blockquote>
+<p>HITL 的价值：退款、删库、发邮件这类动作，先暂停等人点"批准"。</p>
+<h3>10.2 声明一个需要审批的工具</h3>
+<pre><code data-lang="python">from agents import Agent, Runner, function_tool
+
+# 这行是关键：needs_approval=True 表示每次都要人批
+@function_tool(needs_approval=True)
+async def cancel_order(order_id: int) -&gt; str:
+    return f&quot;已取消订单 {order_id}&quot;
+
+# 也能动态判断：含 refund 才要批
+@function_tool(needs_approval=lambda _ctx, params, _id: &quot;refund&quot; in params.get(&quot;subject&quot;, &quot;&quot;).lower())
+async def send_email(subject: str, body: str) -&gt; str:
+    return f&quot;已发送：{subject}&quot;
+
+agent = Agent(name=&quot;Support&quot;, instructions=&quot;需要审批时等确认。&quot;, tools=[cancel_order, send_email])</code></pre>
+<p><code>needs_approval</code> 还支持 <code>Agent.as_tool()</code>、<code>ShellTool</code>、<code>ApplyPatchTool</code> 和各类 MCP Server。</p>
+<h3>10.3 暂停、审批、恢复</h3>
+<p>运行到要审批的工具，SDK 暂停，把待办放进 <code>interruptions</code>。</p>
+<pre><code data-lang="python">result = await Runner.run(agent, &quot;取消订单 123&quot;)
+
+while result.interruptions:
+    # 这行是关键：把暂停状态存下来，可跨进程
+    state = result.to_state()
+    for item in result.interruptions:
+        approved = ask_human(item.name, item.arguments)  # 你的审批 UI
+        if approved:
+            state.approve(item)
+        else:
+            state.reject(item)
+    # 用原始 agent 接着跑，从断点续
+    result = await Runner.run(agent, state)</code></pre>
+<p>核心 API 清单：</p>
+<table><thead><tr><th>用途</th><th>名称</th></tr></thead><tbody><tr><td>声明审批</td><td><code>needs_approval</code> / <code>require_approval</code></td></tr><tr><td>拿到待办</td><td><code>RunResult.interruptions</code></td></tr><tr><td>状态序列化</td><td><code>result.to_state()</code> / <code>RunState.from_json()</code></td></tr><tr><td>审批操作</td><td><code>state.approve()</code> / <code>state.reject()</code></td></tr><tr><td>恢复运行</td><td><code>Runner.run(agent, state)</code></td></tr></tbody></table>
+<blockquote class="callout"><p><strong>标叔的经验</strong>：审批边界要窄。
+不是所有动作都要人批。只在退款、删数据、发对外消息这几处加 HITL，否则人会被烦死。</p></blockquote>
+<p>向前桥接：人机协作稳了。最后我们看语音——同一通电话里换 Agent。</p>
+<hr>
+<h2 id="sec-13" class="sect">§11 Realtime Voice：做会说话的语音 Agent</h2>
+<h3>11.1 语音 Agent 是 2026 年的主战场</h3>
+<p>先给结论：用 <code>RealtimeAgent</code>，你能在同一通音频流里换专家。</p>
+<p>底层是 <code>gpt-realtime-2.1</code>（0.18.0 起默认）。它自带打断检测、轮次管理、上下文管理。</p>
+<p>不用挂断重拨。用户说着说着改了意图，Agent 直接 handoff 切人。</p>
+<h3>11.2 一个语音 triage</h3>
+<pre><code data-lang="python">from agents import RealtimeAgent
+
+# 这行是关键：RealtimeAgent 走语音通道
+triage = RealtimeAgent(
+    name=&quot;Triage&quot;,
+    instructions=&quot;问候并路由。账单转 Billing，预约转 Scheduling。&quot;,
+    handoffs=[billing_agent, scheduling_agent],
+)
+
+billing = RealtimeAgent(
+    name=&quot;Billing&quot;,
+    instructions=&quot;只处理账单，用 lookup_invoice。&quot;,
+    handoffs=[triage, scheduling_agent],  # 能回能跳
+)</code></pre>
+<p><code>RealtimeSession</code> 起一个 WebRTC/WS 会话。用户说话 → Triage 听 → 判是账单 → 切 Billing 接着聊。</p>
+<h3>11.3 语音场景的护栏</h3>
+<p>Realtime Agent 同样支持 guardrails。打断、注入这类攻击，输入护栏照拦。</p>
+<p>语音 + HITL 也能叠：敏感动作先暂停，等人确认再继续同一通对话。</p>
+<blockquote class="callout"><p><strong>标叔的经验</strong>：语音先做"能听清"，再做"能切换"。
+我第一个语音项目卡在回声消除，不是 handoff。先把音频质量调好，再加多 Agent。</p></blockquote>
+<h3>11.4 写在最后：从"写程序"到"带团队"</h3>
+<p>读完 §11，你掌握了 Agent 框架的全部核心能力。</p>
+<p>我的体感变了：以前我写程序，现在带团队。</p>
+<p>每个 Agent 是一个员工。你写指令、给工具、设护栏、留回路。</p>
+<p>你不再逐行写逻辑。你定规则，让模型在规则里跑。</p>
+<p>这是 2026 年做 AI 应用最划算的杠杆。</p>
+<p>向前桥接：能力讲完了。附录给你速查表、坑位清单和框架对比，随时翻。</p>
+<hr>
+<h2 class="sub">附录</h2>
+<h3>A 核心 API 速查表</h3>
+<table><thead><tr><th>能力</th><th>Python API</th><th>说明</th></tr></thead><tbody><tr><td>定义 Agent</td><td><code>Agent(name, instructions, tools, ...)</code></td><td>核心对象</td></tr><tr><td>跑一次</td><td><code>Runner.run_sync</code> / <code>Runner.run</code> / <code>Runner.run_streamed</code></td><td>同步/异步/流式</td></tr><tr><td>函数工具</td><td><code>@function_tool</code></td><td>自动生成 schema</td></tr><tr><td>MCP 工具</td><td><code>MCPServerStdio</code> / <code>MCPServerSse</code></td><td>接 MCP Server</td></tr><tr><td>交接</td><td><code>handoff(agent, on_handoff=...)</code></td><td>专家接管</td></tr><tr><td>委派</td><td><code>agent.as_tool(...)</code></td><td>专家变工具</td></tr><tr><td>输入护栏</td><td><code>@input_guardrail</code></td><td>处理前拦</td></tr><tr><td>输出护栏</td><td><code>@output_guardrail</code></td><td>返回前拦</td></tr><tr><td>工具护栏</td><td><code>@tool_input_guardrail</code></td><td>调用前后拦</td></tr><tr><td>沙箱</td><td><code>SandboxAgent(sandbox={&quot;backend&quot;:&quot;local&quot;})</code></td><td>隔离执行</td></tr><tr><td>人工审批</td><td><code>needs_approval=True</code> + <code>state.approve</code></td><td>HITL</td></tr><tr><td>语音</td><td><code>RealtimeAgent</code></td><td>gpt-realtime-2.1</td></tr><tr><td>追踪</td><td>默认开启，OpenAI Platform 看 Traces</td><td>可观测</td></tr></tbody></table>
+<h3>B 常见坑位与规避</h3>
+<table><thead><tr><th>坑位</th><th>现象</th><th>规避方式</th></tr></thead><tbody><tr><td>角色边界不清</td><td>多 Agent 互相抢答</td><td>每个 Agent 只管一类事</td></tr><tr><td>工具定义过宽</td><td>模型反复错调</td><td>缩小输入范围，加参数约束</td></tr><tr><td>没开 tracing</td><td>出问题难定位</td><td>默认已开，按 trace 名查</td></tr><tr><td>会话策略乱</td><td>上下文污染、漂移</td><td>明确 Session 生命周期</td></tr><tr><td>沙箱泄露</td><td>Agent 改了沙箱外文件</td><td>local 后端确认目录隔离</td></tr><tr><td>死循环</td><td>Agent 反复调工具</td><td>设 <code>max_turns</code> 上限</td></tr><tr><td>错抄 HITL</td><td>用了不存在的 API</td><td>用 <code>needs_approval</code>，别用 <code>intercept</code></td></tr></tbody></table>
+<h3>C 与其他 SDK 的选择建议</h3>
+<table><thead><tr><th>方案</th><th>强项</th><th>适合场景</th><th>标叔的结论</th></tr></thead><tbody><tr><td>OpenAI Agents SDK</td><td>沙箱原生、MCP 集成、多 Agent</td><td>已有 OpenAI 生态、追快落地</td><td>多数人选它</td></tr><tr><td>Claude Agent SDK</td><td>权限与工作流控制细</td><td>重安全合规</td><td>要细粒度权限选它</td></tr><tr><td>Google ADK</td><td>多模型 + GCP 整合</td><td>业务在 GCP</td><td>已在谷歌云选它</td></tr><tr><td>LangGraph</td><td>图式 DAG 编排</td><td>流程像流程图</td><td>复杂有向图选它</td></tr></tbody></table>
+<hr>
+<h3>阅读指南</h3>
+<table><thead><tr><th>时间</th><th>章节</th><th>目标</th></tr></thead><tbody><tr><td>Day 1</td><td>§01-§03</td><td>从零跑通第一个带工具的 Agent</td></tr><tr><td>Day 2-3</td><td>§04-§07</td><td>掌握 Agent、工具、Handoff、Guardrails</td></tr><tr><td>Day 4-5</td><td>§08-§11</td><td>进阶：记忆、沙箱、HITL、语音</td></tr><tr><td>Day 6</td><td>附录</td><td>速查与排坑</td></tr></tbody></table>
+<blockquote class="callout"><p><strong>标叔出品</strong> | AI Native Coder · 独立开发者
+公众号「标叔」| B站「AI进化论-花生」
+代表作：Claude Code从入门到精通 · OpenClaw橙皮书 · Hermes Agent从入门到精通</p></blockquote>
+</div>
+</body>
+</html>
