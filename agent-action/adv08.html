@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>进八 Agentic AI 六大支柱：一套能落地的架构评审框架 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="agentic-ai">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-4"><a href="#081-agentic-harness">08.1 Agentic Harness：最被低估的支柱</a></li><li class="lvl-4"><a href="#082-unit-of-work">08.2 Unit of Work：把「聊天」变成「把事办成」</a></li><li class="lvl-4"><a href="#083-workflows-commands">08.3 Workflows &amp; Commands：把最佳实践变成可复现流程</a></li><li class="lvl-4"><a href="#084-memory">08.4 Memory：会自学、会自治、有边界的记忆</a></li><li class="lvl-4"><a href="#085-skills">08.5 Skills：可复用、可测试、会进化的能力</a></li><li class="lvl-4"><a href="#086-oversight-agent">08.6 Oversight：让你「敢」把 Agent 放出去</a></li><li class="lvl-4"><a href="#087">08.7 怎么用这套框架：评审、新建、选型</a></li><li class="lvl-4"><a href="#088">08.8 两套「六大支柱」的关系</a></li></ul></details>
+<p>进一讲过「产品会换，支柱不换」。但进一的「六大支柱」（模型机制 / Loop / 工具 / 上下文 / 多智能体 / 工程兜底）是<strong>学习地图</strong>——告诉你该学什么。</p>
+<p>这章换一把尺子：<strong>架构评审地图</strong>。当你真要搭一个能上线、能托付的 Agent，拿什么 checklist 照它？2026 年社区（与 Anthropic 长效 Agent / Harness Engineering 同源）沉淀出一套 <strong>Six Essentials of Agentic AI</strong>：Agentic Harness、Unit of Work、Workflows、Memory、Skills、Oversight。</p>
+<blockquote>
+<p><strong>核心洞见：模型不是 Agent，系统是。</strong>
+大多数人一上来死磕模型。但能干活的是那一整套壳：循环、工具、上下文、边界、反馈。模型只是发动机，系统才是车。</p>
+</blockquote>
+<p>这套框架有<strong>两个语境</strong>，都适用同一套六支柱：
+- <strong>搭 Agent</strong>：让 AI 自主把活干完（如客服 Agent、数据分析 Agent）。
+- <strong>用 Agent 做开发</strong>：把 Agentic AI 当开发工具（如 Claude Code 写代码）。</p>
+<p>两件事缺的支柱一模一样。</p>
+<p><strong>示意图 23：六大支柱分层栈</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  O[&quot;Oversight 监督：知道它干得对不对&quot;] --&gt; S[&quot;Skills 技能：给它能力&quot;]
+  S --&gt; M[&quot;Memory 记忆：给它上下文&quot;]
+  M --&gt; W[&quot;Workflows 工作流：告诉它干什么&quot;]
+  W --&gt; U[&quot;Unit of Work 工作单元：给它边界&quot;]
+  U --&gt; H[&quot;Harness 马具：跑起循环&quot;]
+  style O fill:#fde68a,stroke:#d97706
+  style H fill:#e8f0fe,stroke:#2563eb
+</code></pre>
+<p>下面一个一个过。</p>
+<h4 id="081-agentic-harness">08.1 Agentic Harness：最被低估的支柱</h4>
+<p>Harness 是包在模型外的<strong>运行时</strong>：管循环（Plan→Act→Observe→Repeat）、管工具访问与调用、管上下文窗口（缓存+压缩）、管错误恢复与重试。</p>
+<p>进二讲了 Loop 心脏，进六讲了 Harness 工程，进四讲了缓存与压缩——<strong>本书记载的全在这根支柱上</strong>。这里补它的「薄弱信号」：</p>
+<table>
+<thead>
+<tr>
+<th>薄弱信号</th>
+<th>说明</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任务中途丢上下文</td>
+<td>长任务跑到一半忘了前面</td>
+<td>Harness 没做 compaction</td>
+</tr>
+<tr>
+<td>突然撞 token 上限</td>
+<td>明明没多少活却爆窗</td>
+<td>上下文管理缺失</td>
+</tr>
+<tr>
+<td>重复调同一工具</td>
+<td>同样查询打三次</td>
+<td>缺结果缓存</td>
+</tr>
+<tr>
+<td>死循环不终止</td>
+<td>没出口条件</td>
+<td>缺停止判据</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>经验</strong>：Claude Code 是教科书级 Harness——它管文件/终端/搜索工具、自动压缩上下文、跑 plan-act-observe、还能接 MCP 扩展。想学 Harness，先把它拆一遍。</p>
+</blockquote>
+<h4 id="082-unit-of-work">08.2 Unit of Work：把「聊天」变成「把事办成」</h4>
+<p>这是书里<strong>之前没单独讲</strong>的一根支柱，也最关键——它区分「聊天机器人」和「能把事办完的系统」。</p>
+<p><strong>工作单元</strong>是给 Agent 一个<strong>有边界、能持久、能收尾</strong>的容器。</p>
+<p><strong>示意图 24：从聊天到工作单元的复杂度光谱</strong></p>
+<pre><code class="language-mermaid">flowchart LR
+  A[&quot;聊天会话 起止即对话 上下文临时 活易逝&quot;] --&gt; B[&quot;工单/Ticket 跨小时天 状态持久 可恢复可追踪&quot;]
+  style A fill:#fee2e2,stroke:#dc2626
+  style B fill:#dcfce7,stroke:#16a34a
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>聊天会话</th>
+<th>工作单元（Ticket / Job / Task）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>起止</td>
+<td>随对话结束</td>
+<td>可跨小时 / 天</td>
+</tr>
+<tr>
+<td>上下文</td>
+<td>临时</td>
+<td>状态持久</td>
+</tr>
+<tr>
+<td>工作</td>
+<td>易逝</td>
+<td>可暂停、可恢复、可追踪、可收尾</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong>：多数团队从聊天会话起步，但生产系统需要更耐久的容器——项目管理里的工单、队列里的 Job、工作流引擎里的 Task。它给 Agent 一个具体的「做完了」的定义。</p>
+</blockquote>
+<p><strong>薄弱信号</strong>：Agent 干不了跨会话的活、没法追踪它干了啥、会话一结束活就丢、没有「完成」的概念。</p>
+<h4 id="083-workflows-commands">08.3 Workflows &amp; Commands：把最佳实践变成可复现流程</h4>
+<p>没有工作流，你就指望 LLM 从一个模糊 prompt 里「猜」该干嘛。工作流把团队最佳实践<strong>编码成可复现的自动化</strong>——这是「让 AI 帮个忙」和「跑这个流程」的区别。</p>
+<p><strong>三步模式</strong>：</p>
+<p><strong>示意图 25：Workflow 三步法</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  T[&quot;Trigger 触发 命令/事件/定时&quot;] --&gt; C[&quot;Context 注入 相关数据/历史/约束&quot;] --&gt; E[&quot;Execute 执行 带目标与边界跑 Loop&quot;]
+  style T fill:#e8f0fe,stroke:#2563eb
+  style C fill:#e8f0fe,stroke:#2563eb
+  style E fill:#e8f0fe,stroke:#2563eb
+</code></pre>
+<ul>
+<li><strong>Trigger</strong>：命令、事件或定时任务拉起。</li>
+<li><strong>Context</strong>：工作流先加载相关数据、历史、约束。</li>
+<li><strong>Execute</strong>：Agentic Loop 在清晰目标与边界下跑。</li>
+</ul>
+<blockquote>
+<p><strong>经验</strong>：工作流要可参数化（不同输入）、可组合（一个调另一个）、最好用户也能自建。进六的 Hook、进七的 LangGraph 图，本质都是工作流的不同形态。</p>
+</blockquote>
+<p><strong>薄弱信号</strong>：每次交互从零开始、同类任务结果不一致、没法标准化常规操作、常规活要写一大段 prompt 才动。</p>
+<h4 id="084-memory">08.4 Memory：会自学、会自治、有边界的记忆</h4>
+<p>进四讲透了记忆的存储（文件派 vs 数据库派）、五种失效、RAG。这里补生产级记忆的<strong>三个硬指标</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Self-Learning 自学</td>
+<td>从干过的活自动更新，无需人工维护</td>
+<td>不自学 = 每次从零</td>
+</tr>
+<tr>
+<td>Self-Managing 自治</td>
+<td>自己修剪 / 排序 / 组织，防变成噪声</td>
+<td>无界记忆 = 噪声</td>
+</tr>
+<tr>
+<td>Properly Scoped 有边界</td>
+<td>不同上下文用不同记忆</td>
+<td>串味 = 项目 A 污染 B</td>
+</tr>
+</tbody>
+</table>
+<p><strong>四层作用域</strong>（这是新框架点出的关键分类）：</p>
+<ul>
+<li><strong>Personal 个人</strong>：单用户偏好与历史。</li>
+<li><strong>Project 项目</strong>：某件活的专属上下文。</li>
+<li><strong>Organisation 组织</strong>：团队 / 公司共享知识。</li>
+<li><strong>Global 全局</strong>：到处用得到的通识。</li>
+</ul>
+<blockquote>
+<p><strong>经验</strong>：作用域边界必须强制——否则项目 A 的上下文漏进项目 B，Agent 就开始胡说。进四的「记忆五种失效」里「污染」那条，根因往往就是作用域没划清。</p>
+</blockquote>
+<h4 id="085-skills">08.5 Skills：可复用、可测试、会进化的能力</h4>
+<p>进三把 Skills 讲成「Agent 时代的知识分发系统」。这里补它的<strong>工程属性</strong>与<strong>进化闭环</strong>：</p>
+<p><strong>Skills 五属性</strong>：系统级（全组织共享）、版本化（可回滚）、可测试（上线前验）、可组合（技能拼技能）、自改进（用中优化）。</p>
+<p><strong>示意图 26：Skills 持续进化闭环</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  D[&quot;Deploy 上线&quot;] --&gt; O[&quot;Observe 观测用法与结果&quot;] --&gt; E[&quot;Evaluate 按标准度量&quot;] --&gt; R[&quot;Refine 据所学更新&quot;] --&gt; D
+  style D fill:#e8f0fe,stroke:#2563eb
+  style R fill:#dcfce7,stroke:#16a34a
+</code></pre>
+<blockquote>
+<p><strong>类比</strong>：Skills 像包管理器里的包（npm / pip），但在知识层而非代码层——它编码「怎么把 X 干好」，并随用随强。
+<strong>注意</strong>：防 skill bloat——技能太多反而拉低选择质量（呼应进三 TianPan 的「工具过载」：选准率可低至 13%）。</p>
+</blockquote>
+<p><strong>薄弱信号</strong>：Agent 样样平平、没法沉淀领域专长、改进不被复用、系统用而不强。</p>
+<h4 id="086-oversight-agent">08.6 Oversight：让你「敢」把 Agent 放出去</h4>
+<p>§07 讲了评测与安全，进一讲了反馈闭环。Oversight 是把它们<strong>立为顶层支柱</strong>，并点出它和下面五层是<strong>双向</strong>的。</p>
+<p><strong>三大能力</strong>：</p>
+<ul>
+<li><strong>Evaluation 评测</strong>：系统判定产出达不达标——不是「跑完没」而是「好不好」。可自动（二遍 LLM 打分、确定性检查、测试套件）可人工（审阅队列、审批闸）。</li>
+<li><strong>Transparency 透明</strong>：Agent 干了啥、为啥干的完整轨迹（推理、工具调用、用到的上下文、决策）。这不是 debug 日志，是让其他层能改进的审计 trail。</li>
+<li><strong>Escalation 上报</strong>：Agent 认得出自己不懂，在正确时刻拉人。要点：<strong>不确定时默认上报，而非默认瞎猜。</strong></li>
+</ul>
+<p><strong>示意图 27：Oversight 的双向反馈电路</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  OV[&quot;Oversight 评测/透明/上报&quot;] -.评测结果改 Skills.-&gt; S[&quot;Skills&quot;]
+  OV -.轨迹改进 Workflows.-&gt; W[&quot;Workflows&quot;]
+  OV -.上报暴露 Memory 缺口.-&gt; M[&quot;Memory&quot;]
+  OV -.质量指标调 Harness.-&gt; H[&quot;Harness&quot;]
+  OV -.完成质量重定 Done.-&gt; U[&quot;Unit of Work&quot;]
+  style OV fill:#fde68a,stroke:#d97706
+</code></pre>
+<blockquote>
+<p><strong>核心建议</strong>：没有这条电路，§08.4 / §08.5 讲的「自学」「自改进」只是空话—— plumbing 没接上。评测别成瓶颈压垮吞吐；但也别啥都不评，把未知风险全盘接收。</p>
+</blockquote>
+<p><strong>薄弱信号</strong>：团队说不清 Agent 多久对一次、错误是用户先发现、自改进只停在 PPT、人要么全审（白用 Agent）要么全不审（裸奔）、Agent 从不说「我不确定」。</p>
+<h4 id="087">08.7 怎么用这套框架：评审、新建、选型</h4>
+<p><strong>成熟度标尺</strong>（评审每个支柱）：</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Missing 缺失</td>
+<td>完全没有</td>
+</tr>
+<tr>
+<td>Ad hoc 临时</td>
+<td>有但非正式、不一致、靠手</td>
+</tr>
+<tr>
+<td>Defined 已定义</td>
+<td>刻意设计、接口清晰</td>
+</tr>
+<tr>
+<td>Managed 受管</td>
+<td>有监控、有度量、主动维护</td>
+</tr>
+<tr>
+<td>Optimising 自优化</td>
+<td>带反馈环自我改进</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>经验</strong>：不必全到 Optimising 才值钱。但任何支柱落在 <strong>Missing</strong> 都是大洞。先让六项都到 <strong>Defined</strong>——大部分价值在这解锁。</p>
+</blockquote>
+<p><strong>新建项目起点</strong>：先上 Harness + Unit of Work（地基，两个就能跑出一个有用系统）；重复搭同款上下文时加 Workflows；发现 Agent 在重学已知东西时加 Memory；有领域专长要复用时加 Skills；错的代价（质量 / 信任 / 风险）够大时加 Oversight——实践中多数生产系统都得到这一步。</p>
+<p><strong>评工具 / 平台</strong>：拿六支柱当 checklist。多数工具强在 Harness、弱在其它。差异在它把 Unit of Work / Workflows / Memory / Skills / Oversight 做得如何。</p>
+<table>
+<thead>
+<tr>
+<th>用法</th>
+<th>看什么</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>架构评审</td>
+<td>六支柱成熟度</td>
+<td>有 Missing 就先补</td>
+</tr>
+<tr>
+<td>新建</td>
+<td>先 Harness + UoW</td>
+<td>按需往上加</td>
+</tr>
+<tr>
+<td>选型</td>
+<td>六支柱覆盖度</td>
+<td>别只看模型</td>
+</tr>
+</tbody>
+</table>
+<h4 id="088">08.8 两套「六大支柱」的关系</h4>
+<p>收个尾，免得你混乱：</p>
+<ul>
+<li><strong>进一的六大支柱</strong>（模型机制 / Loop / 工具 / 上下文 / 多智能体 / 工程兜底）= <strong>学习地图</strong>：告诉你 2026 该学什么。</li>
+<li><strong>这章的 Six Essentials</strong>（Harness / Unit of Work / Workflows / Memory / Skills / Oversight）= <strong>架构评审地图</strong>：告诉你上线前照什么查。</li>
+</ul>
+<p>两图互补：先按进一学全，再拿这章查生产就绪。</p>
+<blockquote>
+<p><strong>最后一句话</strong>：模型会换代，框架不会。把这本的入门 11 章 + 进阶 8 章吃透，你不仅能看懂任何新 Agent，还能一眼评出它「能不能真的上线」。</p>
+</blockquote>
+<p><strong>知识来源（本章）</strong>：
+- <strong>Six Essentials of Agentic AI</strong> 架构评审框架（用户提供补充资料，2026；与 Anthropic 长效 Agent / Harness Engineering 社区同源，核心洞见「模型不是 Agent，系统是」）
+- <strong>harness-engineering.ai</strong>《The Complete Guide to Agent Harness: six core components》（2026-03）
+- <strong>Anthropic</strong> 长效 AI 智能体设计蓝图：Agent Harness 架构解析（经 agents.ac.cn 解读，2026-03）
+- <strong>ai-boost / awesome-harness-engineering</strong>（GitHub，2026-06，Agent Harness 构成性定义）
+- 交叉引用：本书 §07、进一 ~ 进七 各章</p>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="adv07.html">← 进七 回到框架与结课</a>
+      <a class="pager-next" href="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

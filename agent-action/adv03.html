@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>进三 Tool System：给 Agent 装手脚 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">进三 Tool System：给 Agent 装手脚</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="tool-system-agent">进三 Tool System：给 Agent 装手脚</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-4"><a href="#031-function-calling-structured-output">03.1 Function Calling 与 Structured Output：模型怎么"学会"调函数</a></li><li class="lvl-4"><a href="#032-claude-code">03.2 一次工具调用背后，经历了什么（以 Claude Code 为例）</a></li><li class="lvl-4"><a href="#033-deferred-loading">03.3 工具太多选不准？Deferred Loading 与动态工具集</a></li><li class="lvl-4"><a href="#034-mcp">03.4 MCP 的工程真相：协议很好，也有硬伤</a></li><li class="lvl-4"><a href="#035-skillsagent">03.5 Skills：Agent 时代的知识分发系统</a></li><li class="lvl-4"><a href="#036-ai-rm-rf">03.6 你敢让 AI 直接跑 rm -rf 吗？四层防线</a></li></ul></details>
+<h4 id="031-function-calling-structured-output">03.1 Function Calling 与 Structured Output：模型怎么"学会"调函数</h4>
+<p>呼应 §03.3。补一句底层：模型不是你教它调函数，是<strong>训练时就学会了"输出符合 Schema 的 tool_use JSON"</strong>。你给工具清单（名字+参数类型），它生成调用；Structured Output（类型化输出，§03.3.1）是把返回也锁死成结构。</p>
+<p>两者区别一句话：<strong>Function Calling 管"它想调啥"，Structured Output 管"它返回啥样"</strong>。</p>
+<h4 id="032-claude-code">03.2 一次工具调用背后，经历了什么（以 Claude Code 为例）</h4>
+<p>你以为"调个工具"是一瞬间。其实是四步往返：</p>
+<pre><code class="language-text">① 模型输出 tool_use（要调啥、参数）
+② Harness 收到，在沙箱里真正执行
+③ 执行结果包成 tool_result 返回
+④ 模型带着结果进入下一轮推理
+</code></pre>
+<blockquote>
+<p><strong>经验</strong>：所谓"Agent 卡"，常卡在 ②③——工具慢、权限弹窗、沙箱起不来。优化工具侧，比优化模型侧见效快。</p>
+</blockquote>
+<h4 id="033-deferred-loading">03.3 工具太多选不准？Deferred Loading 与动态工具集</h4>
+<p>2026 年 4 月，TianPan 一篇文给了个扎心数据：<strong>工具一多，LLM 选工具的准确率能跌到 13%</strong>。把所有工具 Schema 塞进上下文，既烧钱又选错。</p>
+<p>解法三家共认：</p>
+<ul>
+<li><strong>Deferred Loading（懒加载）</strong>：先只给少数常用工具，用到再加载。</li>
+<li><strong>动态工具检索</strong>：按用户意图，从几百个工具里检索最相关的 5–10 个塞进去。</li>
+<li><strong>路由层</strong>：用小模型先做"选工具"这道分类，再交大模型。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>思路</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全塞</td>
+<td>简单但笨</td>
+<td>工具&gt;20 就崩</td>
+</tr>
+<tr>
+<td>懒加载</td>
+<td>用到才给</td>
+<td>大多数场景够</td>
+</tr>
+<tr>
+<td>动态检索</td>
+<td>按意图挑</td>
+<td>工具成百上千必上</td>
+</tr>
+</tbody>
+</table>
+<h4 id="034-mcp">03.4 MCP 的工程真相：协议很好，也有硬伤</h4>
+<p>§03 把 MCP 吹成 USB-C。补个平衡视角——2026 年 6 月 lonae《MCP 工程实战》从五维扒了硬伤：</p>
+<table>
+<thead>
+<tr>
+<th>硬伤</th>
+<th>表现</th>
+<th>工程解法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>传输</td>
+<td>早期 stdio 难上云、难流式</td>
+<td>换 Streamable HTTP 传输</td>
+</tr>
+<tr>
+<td>鉴权</td>
+<td>没有统一 auth 标准</td>
+<td>网关层补 OAuth</td>
+</tr>
+<tr>
+<td>上下文膨胀</td>
+<td>工具 Schema 全塞爆窗口</td>
+<td>懒加载（03.3）</td>
+</tr>
+<tr>
+<td>发现</td>
+<td>没有原生服务注册</td>
+<td>中心化 registry</td>
+</tr>
+<tr>
+<td>可观测</td>
+<td>中间过程黑盒</td>
+<td>链路追踪补齐</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>核心建议</strong>：MCP 是方向，但别神话。接之前先想清：鉴权谁管？流式怎么推？失败了咋办？</p>
+</blockquote>
+<h4 id="035-skillsagent">03.5 Skills：Agent 时代的知识分发系统</h4>
+<p>这是 2026 很新的一种形态：<strong>把"某件事的 know-how"打包成可插拔的 Skill</strong>——里面是 prompt、流程、参考文档。Agent 需要时加载，像给人发一本操作手册。</p>
+<p>它解决的是：<strong>知识不再写死在系统提示里，而是按需分发</strong>。你给 Agent 装 100 个 Skill，它一次只激活相关的两三个。</p>
+<blockquote>
+<p><strong>经验</strong>：Skill 本质是"上下文工程的产物"。它让"知识"从沉重提示，变成轻便、可版本化、可分享的模块。</p>
+</blockquote>
+<h4 id="036-ai-rm-rf">03.6 你敢让 AI 直接跑 rm -rf 吗？四层防线</h4>
+<p>呼应 §07 七层安全。落到"执行"这一层，生产级权限要四道：</p>
+<ol>
+<li><strong>允许清单</strong>：只允许白名单命令/工具。</li>
+<li><strong>沙箱</strong>：在隔离环境跑，炸了不影响宿主。</li>
+<li><strong>人工审批</strong>：删库、外发、转账必须人点确认。</li>
+<li><strong>审计日志</strong>：做了啥全留痕、可撤销。</li>
+</ol>
+<blockquote>
+<p><strong>注意</strong>：永远别给 Agent 一个"全权限 Shell + 你的主账号"。宁可每步问你。</p>
+</blockquote>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="adv02.html">← 进二 Agent Loop：心脏手术</a>
+      <a class="pager-next" href="adv04.html">进四 Context Engineering：真正的护城河（含 Memory） →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

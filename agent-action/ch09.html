@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§09 Agentic 循环是 Agent 的发动机 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">§09 Agentic 循环是 Agent 的发动机</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="09-agentic-agent">§09 Agentic 循环是 Agent 的发动机</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-3"><a href="#091-2026-7-4">09.1 2026 年 7 月 4 日</a></li><li class="lvl-3"><a href="#092">09.2 它不是一次函数</a></li><li class="lvl-3"><a href="#093">09.3 标准七环节</a></li><li class="lvl-3"><a href="#094">09.4 边界比聪明重要</a></li><li class="lvl-3"><a href="#095">09.5 四个典型翻车</a></li><li class="lvl-3"><a href="#096">09.6 它不等于自主意识</a></li></ul></details>
+<h3 id="091-2026-7-4">09.1 2026 年 7 月 4 日</h3>
+<p>QubitTool 发了篇《Agent Loop 是什么》。我把核心拆给你。</p>
+<h3 id="092">09.2 它不是一次函数</h3>
+<p>传统 chatbot，像一次函数调用：你问，它答。</p>
+<p>Agent Loop，像受控的事件循环：它多轮"观察→推理→行动→反馈"。</p>
+<p>模型每轮都基于上一轮反馈，决定下一步。</p>
+<h3 id="093">09.3 标准七环节</h3>
+<p>生产级 Agent Loop，通常七步：</p>
+<pre><code>1. Goal      明确目标（含范围、标准、约束）
+2. Context   构造上下文（注入最相关信息）
+3. Reason    推理下一步（直接答/调工具/澄清/停）
+4. Act       执行动作（调用工具）
+5. Observe   读取反馈（工具结果是证据）
+6. Update    更新状态（记步骤、观察、成本）
+7. Stop      判断停止（达标/超步/超预算/需审批）
+</code></pre>
+<p><strong>示意图 15：Agentic Loop 七步发动机</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  G[&quot;1 目标 Goal&quot;] --&gt; C[&quot;2 上下文 Context&quot;]
+  C --&gt; R[&quot;3 推理 Reason&quot;]
+  R --&gt; A[&quot;4 行动 Act&quot;]
+  A --&gt; O[&quot;5 观察 Observe&quot;]
+  O --&gt; U[&quot;6 更新状态 Update&quot;]
+  U --&gt; S{&quot;7 停止?&quot;}
+  S --&gt;|&quot;否&quot;| R
+  S --&gt;|&quot;是&quot;| D[&quot;交付结果&quot;]
+  style G fill:#e8f0fe,stroke:#2563eb
+  style D fill:#0ea5a4,stroke:#0f766e,color:#fff
+</code></pre>
+<h3 id="094">09.4 边界比聪明重要</h3>
+<p>没有停止条件的 Loop，迟早变成本和风险黑洞。</p>
+<p>常见停止条件：达标、到最大步数、到成本预算、工具连败、需高风险权限、信息不足。</p>
+<blockquote>
+<p><strong>注意</strong>：模型越强，越需要清晰边界。不是换更强模型，是设更紧的边界。</p>
+</blockquote>
+<h3 id="095">09.5 四个典型翻车</h3>
+<table>
+<thead>
+<tr>
+<th>失败模式</th>
+<th>表现</th>
+<th>解法</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目标漂移</td>
+<td>让修测试，它重构半模块</td>
+<td>目标写进每轮上下文</td>
+<td>边界要常驻</td>
+</tr>
+<tr>
+<td>结果不可解析</td>
+<td>工具返回一大段废话</td>
+<td>工具输出结构化 JSON</td>
+<td>给 ok/error 字段</td>
+</tr>
+<tr>
+<td>自我验证</td>
+<td>自己写自己审自己判</td>
+<td>换独立 Reviewer</td>
+<td>别又当又立</td>
+</tr>
+<tr>
+<td>无成本上限</td>
+<td>失败工具死循环重试</td>
+<td>设步数/Token 预算</td>
+<td>钱会烧穿</td>
+</tr>
+</tbody>
+</table>
+<h3 id="096">09.6 它不等于自主意识</h3>
+<p>这点必须说清。</p>
+<p>Agent Loop 只是让模型多步执行任务。它能表现"一定的自主性"。</p>
+<p>但本质，仍是受目标、上下文、工具、策略约束的运行机制。</p>
+<p>别把它想成"活了"。</p>
+<p>§09 讲完"发动机"。下一章讲"进化"——认知型 Agent，会监控自己、会学习。</p>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="ch08.html">← §08 从 Demo 到生产要跨四道坎</a>
+      <a class="pager-next" href="ch10.html">§10 认知型 Agent 会监控自己、会进化 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

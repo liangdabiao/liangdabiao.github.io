@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§11 搭智能体系统的 7 条实战建议 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">§11 搭智能体系统的 7 条实战建议</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="11-7">§11 搭智能体系统的 7 条实战建议</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-3"><a href="#111">11.1 先看谷歌的五大趋势</a></li><li class="lvl-3"><a href="#112-ai">11.2 谷歌的 AI 学习五支柱</a></li><li class="lvl-3"><a href="#113-7">11.3 我的 7 条搭建建议</a></li><li class="lvl-3"><a href="#114">11.4 给普通人的上手路径</a></li></ul></details>
+<h3 id="111">11.1 先看谷歌的五大趋势</h3>
+<p>2026 年 2 月。谷歌发《AI Agent trends 2026》，调研 3466 位决策者。</p>
+<p>五个趋势，我翻译成人话：</p>
+<ol>
+<li><strong>人人有 Agent</strong>：员工从"下指令"变"表意图"。角色变"智能体团队协调者"。</li>
+<li><strong>每工作流有 Agent</strong>：A2A + MCP 打通数据孤岛。</li>
+<li><strong>面向客户的 Agent</strong>："礼宾式"服务，接入 CRM、物流，主动解决问题。</li>
+<li><strong>管安全的 Agent</strong>：半自主循环，多个安全 Agent 协同分诊响应。</li>
+<li><strong>规模化靠人</strong>：技能半衰期缩到 4 年。新角色"智能体协调者"诞生。</li>
+</ol>
+<h3 id="112-ai">11.2 谷歌的 AI 学习五支柱</h3>
+<p>企业要建 AI 就绪团队，五根柱子：</p>
+<ul>
+<li><strong>明确目标</strong>：定可量的采用目标。</li>
+<li><strong>获得支持</strong>：高管赞助 + 基层推动 + 技术加速。</li>
+<li><strong>持续赋能</strong>：游戏化、同行分享、季度奖励。</li>
+<li><strong>融入工作流</strong>：黑客松、实战挑战日。</li>
+<li><strong>风险防控</strong>：数据规范、社会工程威胁识别培训。</li>
+</ul>
+<h3 id="113-7">11.3 我的 7 条搭建建议</h3>
+<blockquote>
+<p><strong>经验</strong>：我按前面十章，压成 7 条。照着做，少走半年弯路。</p>
+</blockquote>
+<p><strong>第一条：目标写进每轮。</strong> 别只放第一轮。范围、不可做项、验收标准，每轮都喂。</p>
+<p><strong>第二条：工具输出结构化。</strong> 让工具返回 JSON，带 <code>ok/errorCode/retryable</code>。别返回自然语言。</p>
+<p><strong>第三条：留完整轨迹。</strong> 记每一步决策、调用、结果、成本。没轨迹，没法调试。</p>
+<p><strong>第四条：设停止条件。</strong> 最大步数、Token 预算、超时、失败停。四样至少给三样。</p>
+<p><strong>第五条：验证要独立。</strong> 写代码归写，审查交给测试或独立 Reviewer Agent。别又当又立。</p>
+<p><strong>第六条：高风险必审批。</strong> 转账、删库、外发，人工门必过。日志全留、可撤销。</p>
+<p><strong>第七条：简单任务别上团队。</strong> 单体能搞定的，别杀鸡用牛刀。超认知阈值才上多智能体。</p>
+<p><strong>示意图 18：搭建智能体系统的 7 条军规</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  T1[&quot;① 目标写进每轮&quot;] --&gt; T2[&quot;② 工具输出结构化&quot;]
+  T2 --&gt; T3[&quot;③ 留完整轨迹&quot;]
+  T3 --&gt; T4[&quot;④ 设停止条件&quot;]
+  T4 --&gt; T5[&quot;⑤ 验证要独立&quot;]
+  T5 --&gt; T6[&quot;⑥ 高风险必审批&quot;]
+  T6 --&gt; T7[&quot;⑦ 简单别上团队&quot;]
+  style T1 fill:#e8f0fe,stroke:#2563eb
+  style T7 fill:#0ea5a4,stroke:#0f766e,color:#fff
+</code></pre>
+<h3 id="114">11.4 给普通人的上手路径</h3>
+<p>你不是开发者也没关系。</p>
+<ol>
+<li>打开任一 AI 工具（ChatGPT / Claude / 豆包 / 元宝 / DeepSeek）。</li>
+<li>输入："我是开咖啡店的小老板，周末想做小红书引流，预算 500。请给方案并列出材料清单。"</li>
+<li>感受它怎么从一句话，变一份能落地的计划。</li>
+<li>进阶：用 Coze（扣子）/ Dify，零代码接你的日历、邮箱、知识库。</li>
+</ol>
+<blockquote>
+<p><strong>核心建议</strong>：第一次别追求复杂。先让 Agent 帮你干一件真事。干成了，你才真正懂它。</p>
+</blockquote>
+<hr />
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="ch10.html">← §10 认知型 Agent 会监控自己、会进化</a>
+      <a class="pager-next" href="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视） →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

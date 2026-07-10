@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§03 MCP 把"调工具"变成了插 USB-C · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">§03 MCP 把"调工具"变成了插 USB-C</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="03-mcp-usb-c">§03 MCP 把"调工具"变成了插 USB-C</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-3"><a href="#031-2024-11-25">03.1 2024 年 11 月 25 日</a></li><li class="lvl-3"><a href="#032">03.2 以前调工具有多乱</a></li><li class="lvl-3"><a href="#033-function-callingagent">03.3 Function Calling：Agent 的"伸手"</a></li><li class="lvl-3"><a href="#0331">03.3.1 一个工程细节：让输出"有类型"</a></li><li class="lvl-3"><a href="#034-mcpai-usb-c">03.4 MCP：AI 世界的 USB-C</a></li><li class="lvl-3"><a href="#035-mcp-a2a">03.5 MCP 和 A2A 不是一回事</a></li><li class="lvl-3"><a href="#036">03.6 对你意味着什么</a></li></ul></details>
+<h3 id="031-2024-11-25">03.1 2024 年 11 月 25 日</h3>
+<p>Anthropic 发了篇文章。标题叫《Introducing the Model Context Protocol》。</p>
+<p>这一天，被很多人当成 Agent 工程的转折点。</p>
+<h3 id="032">03.2 以前调工具有多乱</h3>
+<p>你想让 Agent 发邮件。你得为 Gmail 写一套适配。</p>
+<p>换 Outlook，再写一套。</p>
+<p>换 Claude 模型，又写一套。</p>
+<p>一团乱麻。开发者苦不堪言。</p>
+<h3 id="033-function-callingagent">03.3 Function Calling：Agent 的"伸手"</h3>
+<p>先说基础。开发者给模型列好"有哪些函数可用"：</p>
+<pre><code class="language-python"># 定义 Agent 能调用的工具
+tools = [
+  {
+    &quot;name&quot;: &quot;send_email&quot;,      # 发邮件
+    &quot;params&quot;: {&quot;to&quot;: &quot;string&quot;, &quot;body&quot;: &quot;string&quot;}
+  },
+  {
+    &quot;name&quot;: &quot;query_db&quot;,        # 查数据库
+    &quot;params&quot;: {&quot;sql&quot;: &quot;string&quot;}
+  }
+]
+# 模型需要时自己选函数并填参数
+</code></pre>
+<p>这叫函数调用（Function Calling）。Agent 由此从"动嘴"变"动手"。</p>
+<h3 id="0331">03.3.1 一个工程细节：让输出"有类型"</h3>
+<p>模型默认吐自然语言。你让"返回 JSON"，它偶尔漏个逗号就崩。</p>
+<p>专业做法叫<strong>类型化输出（Typed Outputs）</strong>：先定义好返回结构（像表格的列），模型只能按列填。解析不再靠"猜文本"，而是读确定字段。</p>
+<pre><code class="language-python"># 类型化输出：先定结构，再让模型填
+class EmailResult(BaseModel):
+    ok: bool                 # 成功没
+    error_code: str | None   # 失败原因
+    message_id: str | None   # 发出去的邮件 ID
+# 模型按这结构返回，解析零歧义
+</code></pre>
+<blockquote>
+<p><strong>经验</strong>：凡是要让另一个程序读 Agent 的产出，就用类型化输出。少一处文本解析，少十个线上 bug。</p>
+</blockquote>
+<h3 id="034-mcpai-usb-c">03.4 MCP：AI 世界的 USB-C</h3>
+<p>MCP（Model Context Protocol，模型上下文协议）定了一套统一标准。</p>
+<blockquote>
+<p><strong>一句话</strong>：任何 Agent，都能"插上"任何工具或数据源。即插即用，可替换。</p>
+</blockquote>
+<p>这就是经典的"USB-C 比喻"。</p>
+<p>以前电脑接打印机、硬盘、显示器，各用各的口。乱。后来统一成 USB-C，一个口通吃。</p>
+<p>MCP 就是 AI 的 USB-C。</p>
+<p><strong>示意图 4：MCP = AI 世界的 USB-C</strong></p>
+<pre><code class="language-mermaid">flowchart LR
+  A[&quot;任意 Agent&quot;] --&gt;|&quot;MCP 协议&quot;| H[&quot;MCP 中枢&lt;br/&gt;(AI 的 USB-C)&quot;]
+  H --&gt; T1[&quot;发邮件&quot;]
+  H --&gt; T2[&quot;查数据库&quot;]
+  H --&gt; T3[&quot;读日历&quot;]
+  H --&gt; T4[&quot;出图表&quot;]
+  style H fill:#0ea5a4,stroke:#0f766e,color:#fff
+  style A fill:#e8f0fe,stroke:#2563eb
+</code></pre>
+<h3 id="035-mcp-a2a">03.5 MCP 和 A2A 不是一回事</h3>
+<p>2026 年还有个协议叫 A2A（Agent2Agent，Google 推）。别混。</p>
+<table>
+<thead>
+<tr>
+<th>协议</th>
+<th>解决啥</th>
+<th>类比</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MCP</td>
+<td>Agent 调工具/数据</td>
+<td>USB-C 接外设</td>
+<td>接"物"用 MCP</td>
+</tr>
+<tr>
+<td>A2A</td>
+<td>Agent 找 Agent 协作</td>
+<td>微服务间通信</td>
+<td>找"人"用 A2A</td>
+</tr>
+</tbody>
+</table>
+<p>两者互补。一个 Agent 团队里，MCP 接工具，A2A 连同伴。</p>
+<p><strong>示意图 5：MCP 接‘物’，A2A 连‘人’</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  A[&quot;Agent A&quot;] --&gt;|&quot;MCP 接工具/数据&quot;| Tools[&quot;工具 · 数据源&quot;]
+  A --&gt;|&quot;A2A 找同伴&quot;| B[&quot;Agent B&quot;]
+  style A fill:#e8f0fe,stroke:#2563eb
+  style Tools fill:#f1f5f9,stroke:#94a3b8
+  style B fill:#e8f0fe,stroke:#2563eb
+</code></pre>
+<h3 id="036">03.6 对你意味着什么</h3>
+<p>以前 Agent 只能聊。现在它能：查你日历、拉销售数据、发邮件、出图表。</p>
+<p>而且不用每个功能从零写。插上就行。</p>
+<blockquote>
+<p><strong>核心建议</strong>：选 Agent 工具时，看它支不支持 MCP。支持，等于它的"外设生态"是开放的。</p>
+</blockquote>
+<p>§03 讲完"手"。下一章讲"组队"——多智能体系统，2026 年最热的方向。</p>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="ch02.html">← §02 大模型、提示词、智能体是三件不同的事</a>
+      <a class="pager-next" href="ch04.html">§04 多智能体不是堆人，是分工 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

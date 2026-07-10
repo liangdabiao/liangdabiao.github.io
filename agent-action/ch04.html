@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§04 多智能体不是堆人，是分工 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">§04 多智能体不是堆人，是分工</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="04">§04 多智能体不是堆人，是分工</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-3"><a href="#041-2026-7">04.1 2026 年 7 月的一个数字</a></li><li class="lvl-3"><a href="#042">04.2 为什么一个不够</a></li><li class="lvl-3"><a href="#043">04.3 一个经典团队配置</a></li><li class="lvl-3"><a href="#044">04.4 三层治理架构</a></li><li class="lvl-3"><a href="#045">04.5 四个反直觉原则</a></li></ul></details>
+<h3 id="041-2026-7">04.1 2026 年 7 月的一个数字</h3>
+<p>腾讯云一篇文提到麦肯锡《2026 企业级 AI 代理经济报告》。</p>
+<p>数字很硬：<strong>多智能体协作，任务完成率比单体 Agent 高 4.2 倍。错误恢复能力增强 67%。</strong></p>
+<p>同年，IEEE 发布《自主智能体互操作与伦理治理标准》。</p>
+<p>多智能体，从概念变成工程刚需。</p>
+<h3 id="042">04.2 为什么一个不够</h3>
+<p>单体 Agent 干复杂活，会暴露三个毛病：</p>
+<p>第一，<strong>认知过载</strong>。一个脑子又想规则、又调工具、又写内容，容易乱。</p>
+<p>第二，<strong>单点故障</strong>。它一错，全任务断。</p>
+<p>第三，<strong>没有制衡</strong>。它自说自话，难自查。</p>
+<h3 id="043">04.3 一个经典团队配置</h3>
+<p>内容创作的多智能体，常是 5 个角色，职责完全隔离：</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>干啥</th>
+<th>类比</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主编 Agent</td>
+<td>定方向审大纲</td>
+<td>项目经理</td>
+<td>必须唯一拍板</td>
+</tr>
+<tr>
+<td>研究 Agent</td>
+<td>找资料标源</td>
+<td>调研员</td>
+<td>只管搜不管写</td>
+</tr>
+<tr>
+<td>写作 Agent</td>
+<td>出初稿</td>
+<td>笔杆子</td>
+<td>专注产出</td>
+</tr>
+<tr>
+<td>评审 Agent</td>
+<td>挑错挑刺</td>
+<td>质检</td>
+<td>和写的分开</td>
+</tr>
+<tr>
+<td>执行 Agent</td>
+<td>排版发布</td>
+<td>运营</td>
+<td>最后落地</td>
+</tr>
+</tbody>
+</table>
+<p>分工清楚，互不越界。一个累垮，别的顶上。</p>
+<p><strong>示意图 6：多智能体团队（5 角色 + 总协调器）</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  O[&quot;Orchestrator 总协调器&quot;] --&gt; E1[&quot;主编 Agent&lt;br/&gt;定方向·审大纲&quot;]
+  O --&gt; E2[&quot;研究 Agent&lt;br/&gt;找资料·标源&quot;]
+  O --&gt; E3[&quot;写作 Agent&lt;br/&gt;出初稿&quot;]
+  O --&gt; E4[&quot;评审 Agent&lt;br/&gt;挑错·挑刺&quot;]
+  O --&gt; E5[&quot;执行 Agent&lt;br/&gt;排版·发布&quot;]
+  style O fill:#0ea5a4,stroke:#0f766e,color:#fff
+</code></pre>
+<h3 id="044">04.4 三层治理架构</h3>
+<p>生产级多智能体，不是堆几个 LLM。它有三层：</p>
+<ul>
+<li><strong>角色定义层</strong>：每个 Agent 干啥、能用啥工具、输出啥格式。最小权限。</li>
+<li><strong>协作协议层</strong>：Agent 间怎么通信、怎么路由、冲突怎么解。用结构化消息（JSON），别用自然语言。</li>
+<li><strong>监督控制层</strong>：一个全局协调器（Orchestrator）。负责任务分解、进度、异常、聚合。</li>
+</ul>
+<p><strong>示意图 7：多智能体三层治理架构</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  L1[&quot;① 角色定义层&lt;br/&gt;最小权限·输出格式&quot;] --&gt; L2[&quot;② 协作协议层&lt;br/&gt;结构化消息 JSON&quot;]
+  L2 --&gt; L3[&quot;③ 监督控制层&lt;br/&gt;Orchestrator 调度&quot;]
+  style L3 fill:#0ea5a4,stroke:#0f766e,color:#fff
+</code></pre>
+<h3 id="045">04.5 四个反直觉原则</h3>
+<blockquote>
+<p><strong>经验</strong>：我踩过坑才懂这几条。</p>
+</blockquote>
+<p>第一，<strong>别追求全自主</strong>。留人类"否决权"和"重置权"。</p>
+<p>第二，<strong>别让 Agent 自由聊</strong>。用 Schema 定消息格式。牺牲点灵活，换稳定。</p>
+<p>第三，<strong>别忽视沉默成本</strong>。Agent 间无效通信也是钱。要监控效率。</p>
+<p>第四，<strong>别拿 MAS 当万能药</strong>。简单任务，单体更快。超了认知阈值才上团队。</p>
+<p>§04 讲完"组队"。下一章讲"脑子"——推理与规划，决定 Agent 聪不聪明。</p>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="ch03.html">← §03 MCP 把"调工具"变成了插 USB-C</a>
+      <a class="pager-next" href="ch05.html">§05 推理和规划决定 Agent 聪不聪明 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

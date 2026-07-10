@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§06 记忆和 RAG 让 Agent 记住你 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">§06 记忆和 RAG 让 Agent 记住你</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="06-rag-agent">§06 记忆和 RAG 让 Agent 记住你</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-3"><a href="#061">06.1 金鱼困境</a></li><li class="lvl-3"><a href="#062">06.2 记忆分四种</a></li><li class="lvl-3"><a href="#063-rag-agent">06.3 RAG：给 Agent 一本可翻的资料库</a></li><li class="lvl-3"><a href="#064">06.4 记忆要压缩</a></li></ul></details>
+<h3 id="061">06.1 金鱼困境</h3>
+<p>早期 Agent 像金鱼。对话一关，全忘。</p>
+<p>2025-2026 年，"长期记忆"从论文变成产品（Mem0、Letta、Zep）。</p>
+<h3 id="062">06.2 记忆分四种</h3>
+<p>人怎么记，Agent 就怎么记：</p>
+<table>
+<thead>
+<tr>
+<th>记忆类型</th>
+<th>记啥</th>
+<th>例子</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>工作记忆</td>
+<td>当前在想啥</td>
+<td>临时便签</td>
+<td>一轮任务内用</td>
+</tr>
+<tr>
+<td>语义记忆</td>
+<td>关于你的常识</td>
+<td>你爱喝美式</td>
+<td>长期用户画像</td>
+</tr>
+<tr>
+<td>情景记忆</td>
+<td>发生过的事</td>
+<td>上次你发过火</td>
+<td>避免再踩雷</td>
+</tr>
+<tr>
+<td>程序记忆</td>
+<td>怎么做事</td>
+<td>报销先 A 后 B</td>
+<td>固化工作流</td>
+</tr>
+</tbody>
+</table>
+<p><strong>示意图 10：四种记忆类型</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  WM[&quot;工作记忆&lt;br/&gt;当前在想啥&quot;]
+  SM[&quot;语义记忆&lt;br/&gt;关于你的常识&quot;]
+  EM[&quot;情景记忆&lt;br/&gt;发生过的事&quot;]
+  PM[&quot;程序记忆&lt;br/&gt;怎么做事&quot;]
+  style SM fill:#e8f0fe,stroke:#2563eb
+</code></pre>
+<h3 id="063-rag-agent">06.3 RAG：给 Agent 一本可翻的资料库</h3>
+<p>光靠模型"脑内知识"不够。它会编。</p>
+<p>RAG（检索增强生成）的做法：</p>
+<p>你问之前，系统先去你的文档库<strong>检索相关段落</strong>，塞给模型当"参考资料"。</p>
+<p>模型基于真材料答，不凭空编。</p>
+<p>生产级 Agent 用<strong>多路召回</strong>。不是只搜相似度：</p>
+<pre><code class="language-python"># 多路召回：比单一路更准
+def retrieve(query):
+    s = vector_search(query, top_k=10)   # 1. 语义相似
+    k = keyword_search(query, top_k=10)  # 2. 关键词精确
+    g = graph_query(query)               # 3. 知识图谱关系
+    t = temporal_search(query, &quot;7d&quot;)     # 4. 近期时序
+    return rerank([s, k, g, t])          # 5. 融合重排
+</code></pre>
+<p><strong>示意图 11：RAG 多路召回 + 融合重排</strong></p>
+<pre><code class="language-mermaid">flowchart LR
+  Q[&quot;用户问题&quot;] --&gt; R1[&quot;向量语义召回&quot;]
+  Q --&gt; R2[&quot;关键词精确&quot;]
+  Q --&gt; R3[&quot;知识图谱&quot;]
+  Q --&gt; R4[&quot;近期时序&quot;]
+  R1 --&gt; Re[&quot;融合重排&quot;]
+  R2 --&gt; Re
+  R3 --&gt; Re
+  R4 --&gt; Re
+  Re --&gt; LLM[&quot;基于真材料作答&quot;]
+  style LLM fill:#0ea5a4,stroke:#0f766e,color:#fff
+</code></pre>
+<h3 id="064">06.4 记忆要压缩</h3>
+<p>长期记忆会爆炸。解法叫<strong>分层摘要</strong>：</p>
+<ul>
+<li>Level 1：原始对话，留 7 天。</li>
+<li>Level 2：每日摘要，留 30 天。</li>
+<li>Level 3：周度总结，留 90 天。</li>
+<li>Level 4：月度洞察，永久留。</li>
+</ul>
+<p>每层由"摘要 Agent"生成。留关键的，丢冗余的。</p>
+<blockquote>
+<p><strong>核心建议</strong>：想让 Agent 真"懂你"，把你的笔记、邮件历史接给它。它从陌生人变老搭档。</p>
+</blockquote>
+<p>§06 讲完"笔记本"。下一章讲"质检员"——评估与反馈，决定靠不靠谱。</p>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="ch05.html">← §05 推理和规划决定 Agent 聪不聪明</a>
+      <a class="pager-next" href="ch07.html">§07 评估与反馈是 Agent 的质检员 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

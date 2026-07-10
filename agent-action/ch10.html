@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§10 认知型 Agent 会监控自己、会进化 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">§10 认知型 Agent 会监控自己、会进化</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="10-agent">§10 认知型 Agent 会监控自己、会进化</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-3"><a href="#101-2026">10.1 2026 年的"第三次觉醒"</a></li><li class="lvl-3"><a href="#102">10.2 认知架构长这样</a></li><li class="lvl-3"><a href="#103">10.3 元认知：知道自己不知道</a></li><li class="lvl-3"><a href="#104">10.4 反思：干完复盘</a></li><li class="lvl-3"><a href="#105-agent">10.5 价值对齐：给 Agent 装道德罗盘</a></li><li class="lvl-3"><a href="#106">10.6 它会主动服务</a></li></ul></details>
+<h3 id="101-2026">10.1 2026 年的"第三次觉醒"</h3>
+<p>2026 年 5 月。掘金一篇文说 Agent 正经历"第三次觉醒"：</p>
+<p>2023 工具调用。2024 Agent 框架。2025 多智能体。</p>
+<p>2026，从"工具调用者"变"认知主体"。</p>
+<h3 id="102">10.2 认知架构长这样</h3>
+<p>传统 Agent：接收→理解→选工具→执行→返回。被动。</p>
+<p>认知架构：感知→注意→记忆→推理→决策→<strong>反思</strong>→<strong>学习</strong>。主动。</p>
+<p>关键在：它有个持续运转的"心智"。</p>
+<p><strong>示意图 16：认知型 Agent 的主动心智循环</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  P[&quot;感知&quot;] --&gt; A[&quot;注意&quot;]
+  A --&gt; M[&quot;记忆&quot;]
+  M --&gt; R[&quot;推理&quot;]
+  R --&gt; D[&quot;决策&quot;]
+  D --&gt; Re[&quot;反思&quot;]
+  Re --&gt; L[&quot;学习&quot;]
+  L --&gt; P
+  style Re fill:#0ea5a4,stroke:#0f766e,color:#fff
+</code></pre>
+<h3 id="103">10.3 元认知：知道自己不知道</h3>
+<p>元认知，是"对认知的认知"。</p>
+<p>Agent 表现为四件事：</p>
+<ul>
+<li><strong>置信度估计</strong>：给答案打可靠分。</li>
+<li><strong>知识边界</strong>：知道自己不懂哪块。</li>
+<li><strong>错误检测</strong>：发现自个儿推理的漏洞。</li>
+<li><strong>策略选择</strong>：何时该检索、何时该推理。</li>
+</ul>
+<pre><code class="language-python"># 低置信度就触发检索增强
+def answer(query):
+    ans = llm.generate(query)
+    score = self_check(ans)      # 自评可靠度 0-100
+    if score &lt; 50:
+        return retrieve_and_regenerate(query)  # 不可靠，去查
+    if score &lt; 70:
+        return add_disclaimer(ans)             # 中等，加免责
+    return ans                                 # 高，直接给
+</code></pre>
+<p><strong>示意图 17：元认知——知道自己不懂</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  Q[&quot;问题&quot;] --&gt; Gen[&quot;生成答案&quot;]
+  Gen --&gt; Sc{&quot;自评置信度&quot;}
+  Sc --&gt;|&quot;高 ≥70&quot;| Out[&quot;直接给&quot;]
+  Sc --&gt;|&quot;中 50-70&quot;| Dis[&quot;加免责说明&quot;]
+  Sc --&gt;|&quot;低 &lt;50&quot;| Ret[&quot;检索重生成&quot;]
+  style Sc fill:#e8f0fe,stroke:#2563eb
+</code></pre>
+<h3 id="104">10.4 反思：干完复盘</h3>
+<p>反思（Reflection）是元认知核心。</p>
+<p>执行前：计划是啥？预期是啥？
+执行中：实际咋样？偏了没？
+执行后：哪些对？哪些改？</p>
+<p>这让 Agent 从错误里学，越干越对。</p>
+<h3 id="105-agent">10.5 价值对齐：给 Agent 装道德罗盘</h3>
+<p>Agent 越自主，安全越要紧。</p>
+<p>Anthropic 提了 Constitutional AI（宪法式 AI）：给 Agent 一列原则。</p>
+<pre><code>&quot;不执行损害用户数据的操作&quot;
+&quot;处理敏感信息要二次确认&quot;
+&quot;拒绝非法或不道德请求&quot;
+&quot;解释自己的决策过程&quot;
+</code></pre>
+<p>每个动作先用原则过一遍。违规就拦下，给替代方案。</p>
+<h3 id="106">10.6 它会主动服务</h3>
+<p>认知 Agent 不止"你问才答"。</p>
+<p>谷歌报告举了个例：物流 Agent 下午 3 点标记"配送失败"。</p>
+<p>它自动查原因、重约次日最早时段、发 10 美元补偿、短信告知客户。</p>
+<p>全程客户没投诉。Agent 主动把事办了。</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>传统 Agent</th>
+<th>认知型 Agent</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>响应</td>
+<td>你问才答</td>
+<td>主动提醒</td>
+<td>从被动到主动</td>
+</tr>
+<tr>
+<td>自知</td>
+<td>无</td>
+<td>有置信度</td>
+<td>知道自己不懂</td>
+</tr>
+<tr>
+<td>学习</td>
+<td>不改</td>
+<td>反思进化</td>
+<td>越用越聪明</td>
+</tr>
+<tr>
+<td>安全</td>
+<td>靠提示词</td>
+<td>宪法对齐</td>
+<td>装了道德罗盘</td>
+</tr>
+</tbody>
+</table>
+<p>§10 讲完"进化"。最后一章，给你能落地的搭建建议。</p>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="ch09.html">← §09 Agentic 循环是 Agent 的发动机</a>
+      <a class="pager-next" href="ch11.html">§11 搭智能体系统的 7 条实战建议 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

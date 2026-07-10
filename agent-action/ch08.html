@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§08 从 Demo 到生产要跨四道坎 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">§08 从 Demo 到生产要跨四道坎</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="08-demo">§08 从 Demo 到生产要跨四道坎</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-3"><a href="#081">08.1 一句扎心的话</a></li><li class="lvl-3"><a href="#082">08.2 跨越一：从单次对话到长时任务</a></li><li class="lvl-3"><a href="#083-agent-agent">08.3 跨越二：从单 Agent 到多 Agent</a></li><li class="lvl-3"><a href="#084">08.4 跨越三：从本地跑到弹性伸缩</a></li><li class="lvl-3"><a href="#085">08.5 跨越四：从"能跑"到"可观测"</a></li><li class="lvl-3"><a href="#086">08.6 真实落地数据</a></li></ul></details>
+<h3 id="081">08.1 一句扎心的话</h3>
+<p>2026 年 5 月。阿里云一篇文说："Demo 做得挺惊艳，一到生产就翻车。"</p>
+<p>我深以为然。</p>
+<h3 id="082">08.2 跨越一：从单次对话到长时任务</h3>
+<p>你的原型在 Notebook 跑得好好的。</p>
+<p>一上线，"分析 100 篇财报出报告"，跑 3 分钟超时了。</p>
+<p>传统 API 假设几百毫秒返回。Agent 要跑 5-10 分钟。</p>
+<p>解法：上 WebSocket 或 SSE，流式推中间结果。会话状态持久化。异步任务队列。</p>
+<h3 id="083-agent-agent">08.3 跨越二：从单 Agent 到多 Agent</h3>
+<p>一个 Agent 啥都干，上下文爆了，准确率暴跌。</p>
+<p>拆多个，新问题来了：怎么通信？谁调度？失败咋办？</p>
+<p>解法：同团队用 A2A 通信、MCP 接工具。Agent 数 &gt; 5，必须上正式协同框架。</p>
+<h3 id="084">08.4 跨越三：从本地跑到弹性伸缩</h3>
+<p>Demo 你一个人用，GPU 闲着无所谓。</p>
+<p>上线 1000 人同时跑，GPU 排到天荒地老。半夜没人用还烧钱。</p>
+<p>解法：<strong>Serverless GPU</strong>。按需分配，低谷缩到 0，按调用付费。</p>
+<p>某车厂上了函数计算 GPU，算力成本降了约 33%。</p>
+<h3 id="085">08.5 跨越四：从"能跑"到"可观测"</h3>
+<p>客户说"答得不对"。你打开日志，只有一行 <code>execution completed</code>。</p>
+<p>完全不知道中间发生了啥。</p>
+<p>生产级可观测要三件事：</p>
+<ul>
+<li><strong>链路追踪</strong>：每步都记（谁调了啥、耗时多少）。</li>
+<li><strong>质量评估</strong>：建 50-100 测试用例，每次更新自动跑。</li>
+<li><strong>成本监控</strong>：给每次调用加 Token 预算，单任务限最大步数。</li>
+</ul>
+<p><strong>示意图 14：从 Demo 到生产的四道坎</strong></p>
+<pre><code class="language-mermaid">flowchart LR
+  C1[&quot;单次对话 → 长时任务&quot;] --&gt; C2[&quot;单 Agent → 多 Agent&quot;]
+  C2 --&gt; C3[&quot;本地跑 → 弹性伸缩&quot;]
+  C3 --&gt; C4[&quot;能跑 → 可观测&quot;]
+  style C4 fill:#0ea5a4,stroke:#0f766e,color:#fff
+</code></pre>
+<h3 id="086">08.6 真实落地数据</h3>
+<p>谷歌 2026 年报告，调研 3466 位企业决策者：</p>
+<ul>
+<li><strong>52%</strong> 的生成式 AI 企业，已把 Agent 投产。</li>
+<li><strong>88%</strong> 的早期采用者，已在至少一个场景拿到正 ROI。</li>
+<li>加拿大电信 TELUS，5.7 万员工定期用 Agent，每次互动平均省 40 分钟。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>平台能力</th>
+<th>自建成本</th>
+<th>成熟平台</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>长时+流式</td>
+<td>改 API 网关</td>
+<td>原生支持</td>
+<td>小团队别自建</td>
+</tr>
+<tr>
+<td>多 Agent 协同</td>
+<td>自建注册中心</td>
+<td>内置模板</td>
+<td>直接用好平台</td>
+</tr>
+<tr>
+<td>GPU 弹性</td>
+<td>K8s+调度</td>
+<td>Serverless</td>
+<td>按量省钱</td>
+</tr>
+<tr>
+<td>可观测</td>
+<td>自建追踪</td>
+<td>控制台可视</td>
+<td>必须上</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>核心建议</strong>：团队不到 20 人，别在基础设施上造轮子。选覆盖这四点的一站式平台。</p>
+</blockquote>
+<p>§08 讲完"上线"。下一章讲"发动机"——Agentic 循环，Agent 真正的内核。</p>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="ch07.html">← §07 评估与反馈是 Agent 的质检员</a>
+      <a class="pager-next" href="ch09.html">§09 Agentic 循环是 Agent 的发动机 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

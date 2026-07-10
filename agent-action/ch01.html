@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§01 AI Agent 已经不是聊天机器人了 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">§01 AI Agent 已经不是聊天机器人了</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="01-ai-agent">§01 AI Agent 已经不是聊天机器人了</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-3"><a href="#011">01.1 一个被忽略的事实</a></li><li class="lvl-3"><a href="#012">01.2 先给一个定义</a></li><li class="lvl-3"><a href="#013">01.3 它和聊天机器人差在哪</a></li><li class="lvl-3"><a href="#014">01.4 自主性有阶梯</a></li></ul></details>
+<h3 id="011">01.1 一个被忽略的事实</h3>
+<p>2023 年。AutoGPT 一周冲上 GitHub 热榜。</p>
+<p>我当时试了。我说"帮我调研竞品"。它自己开浏览器、自己搜、自己写报告。</p>
+<p>我第一次感到：AI 不是"回答"，是"办事"。</p>
+<p>2024 年 9 月。OpenAI 发布 o1。模型学会"想久一点"。</p>
+<p>2025 年 1 月。DeepSeek-R1 用强化学习开源了推理配方。</p>
+<p>2025 年。Anthropic 推出 MCP。Letta、Mem0 把"长期记忆"做成产品。</p>
+<p>2026 年。大家叫它"多智能体协作元年"。</p>
+<p>三年。Agent 从玩具变成了工具。</p>
+<h3 id="012">01.2 先给一个定义</h3>
+<blockquote>
+<p><strong>AI Agent 是一个基于大语言模型的系统。它会推理、会规划、借记忆、调工具、联同伴，自主替你把事办成。</strong></p>
+</blockquote>
+<p>关键词就两个：<strong>自主</strong>、<strong>执行</strong>。</p>
+<p>光会聊天的，那叫 chatbot。能动手办成的，才叫 Agent。</p>
+<h3 id="013">01.3 它和聊天机器人差在哪</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>聊天机器人</th>
+<th>AI Agent</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>交互</td>
+<td>一问一答</td>
+<td>给目标跑全程</td>
+<td>Agent 省你步骤</td>
+</tr>
+<tr>
+<td>能力</td>
+<td>只动嘴</td>
+<td>会调工具</td>
+<td>Agent 能发邮件</td>
+</tr>
+<tr>
+<td>记忆</td>
+<td>关了就忘</td>
+<td>长期记得你</td>
+<td>Agent 像老搭档</td>
+</tr>
+<tr>
+<td>纠错</td>
+<td>靠你判断</td>
+<td>自己反思重试</td>
+<td>Agent 更省心</td>
+</tr>
+<tr>
+<td>例子</td>
+<td>早期客服</td>
+<td>自动排行程写周报</td>
+<td>一个天上一个地下</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong>：别被"智能体"三个字吓到。它就是"会自己跑流程的 AI"。没那么玄。</p>
+</blockquote>
+<p><strong>示意图 1：聊天机器人 vs AI Agent</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  U[&quot;用户&quot;] --&gt;|&quot;一问一答&quot;| C[&quot;聊天机器人&lt;br/&gt;只动嘴·无记忆&quot;]
+  U --&gt;|&quot;给目标跑全程&quot;| A[&quot;AI Agent&lt;br/&gt;调工具·有记忆·会自纠&quot;]
+  A --&gt; T[&quot;发邮件 / 查数据 / 写周报&quot;]
+  style A fill:#e8f0fe,stroke:#2563eb
+  style C fill:#f1f5f9,stroke:#94a3b8
+</code></pre>
+<h3 id="014">01.4 自主性有阶梯</h3>
+<p>Agent 不是一夜全自主。行业画了条阶梯：</p>
+<ul>
+<li><strong>L0 辅助</strong>：你写它补全，像输入法。</li>
+<li><strong>L1 副驾驶</strong>：你下令它出方案，你拍板。</li>
+<li><strong>L2 受限自治</strong>：护栏内自己跑，关键处问你。</li>
+<li><strong>L3 半自动</strong>：多步它主导，高风险才问。</li>
+<li><strong>L4 闭环自治</strong>：几乎不用管，干完汇报。</li>
+</ul>
+<p>2025 年我们停在 L1-L2。2026 年往 L3 冲。
+<strong>示意图 2：自主性阶梯 L0–L4</strong></p>
+<pre><code class="language-mermaid">flowchart LR
+  L0[&quot;L0 辅助&lt;br/&gt;你写它补全&quot;] --&gt; L1[&quot;L1 副驾驶&lt;br/&gt;你下令它出方案&quot;]
+  L1 --&gt; L2[&quot;L2 受限自治&lt;br/&gt;护栏内自跑&quot;]
+  L2 --&gt; L3[&quot;L3 半自动&lt;br/&gt;多步主导·高风险才问&quot;]
+  L3 --&gt; L4[&quot;L4 闭环自治&lt;br/&gt;干完汇报&quot;]
+  style L4 fill:#0ea5a4,stroke:#0f766e,color:#fff
+</code></pre>
+<blockquote>
+<p><strong>核心建议</strong>：现在别追求"全自动"。要"可控自治"。自治是手段，可控才是目的。</p>
+</blockquote>
+<p>§01 讲完"是什么"。下一章讲"靠什么活"——大模型、提示词、智能体，三件不同的事。</p>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="part1.html">← Part 1: 起步认知</a>
+      <a class="pager-next" href="ch02.html">§02 大模型、提示词、智能体是三件不同的事 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

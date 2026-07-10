@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>附录 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">附录</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="_1">附录</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-3"><a href="#a">A. 大白话术语表</a></li><li class="lvl-3"><a href="#b-2026-07">B. 知识来源（公众号 / 行业，截至 2026-07）</a></li><li class="lvl-3"><a href="#c">C. 阅读指南</a></li><li class="lvl-3"><a href="#d">D. 一页纸总结</a></li><li class="lvl-3"><a href="#agent">agent是什么：</a></li></ul></details>
+<h3 id="a">A. 大白话术语表</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>人话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI Agent / 智能体</td>
+<td>能自主把事办成的 AI，不止会聊</td>
+</tr>
+<tr>
+<td>LLM 大模型</td>
+<td>Agent 的脑，会预测文字</td>
+</tr>
+<tr>
+<td>幻觉</td>
+<td>模型一本正经编错</td>
+</tr>
+<tr>
+<td>Function Calling</td>
+<td>Agent 伸手调工具</td>
+</tr>
+<tr>
+<td>MCP</td>
+<td>工具接入的 USB-C 标准</td>
+</tr>
+<tr>
+<td>A2A</td>
+<td>Agent 之间协作的协议</td>
+</tr>
+<tr>
+<td>RAG</td>
+<td>先查资料再答，少编</td>
+</tr>
+<tr>
+<td>ReAct</td>
+<td>想-做-看循环，Agent 骨架</td>
+</tr>
+<tr>
+<td>多智能体 MAS</td>
+<td>一群 Agent 分工协作</td>
+</tr>
+<tr>
+<td>Agentic Loop</td>
+<td>Agent 的内循环发动机</td>
+</tr>
+<tr>
+<td>元认知</td>
+<td>Agent 知道自己懂不懂</td>
+</tr>
+<tr>
+<td>Agentic Commerce</td>
+<td>Agent 在授权内替你花钱</td>
+</tr>
+<tr>
+<td>六大支柱</td>
+<td>模型机制/Loop/工具/上下文/多智能体/工程兜底</td>
+</tr>
+<tr>
+<td>Agent Loop</td>
+<td>while 循环：想-做-看反复跑</td>
+</tr>
+<tr>
+<td>Harness（马具）</td>
+<td>包在模型外的壳：工具/上下文/循环/权限/观测</td>
+</tr>
+<tr>
+<td>Context Engineering</td>
+<td>系统化地往上下文里"喂对料"</td>
+</tr>
+<tr>
+<td>Context Rot</td>
+<td>系统提示太长反而被模型忽略</td>
+</tr>
+<tr>
+<td>JIT Context</td>
+<td>即时上下文：用到才注入，不早塞</td>
+</tr>
+<tr>
+<td>Deferred Loading</td>
+<td>工具懒加载：用到才给模型</td>
+</tr>
+<tr>
+<td>Skills</td>
+<td>把某事的 know-how 打包成可插拔模块</td>
+</tr>
+<tr>
+<td>KV Cache</td>
+<td>推理底层复用计算结果，加速</td>
+</tr>
+<tr>
+<td>Prompt Cache</td>
+<td>厂商计费层：命中前缀价格低至 1/10</td>
+</tr>
+<tr>
+<td>Context Collapse</td>
+<td>上下文塞太满，模型反而更笨</td>
+</tr>
+<tr>
+<td>ACP</td>
+<td>宿主↔Agent 的控制接口，类比 LSP</td>
+</tr>
+<tr>
+<td>Agent Swarm</td>
+<td>去中心化多智能体协作（像蜂群）</td>
+</tr>
+<tr>
+<td>LangGraph</td>
+<td>用状态图表达 Agent Loop 的框架</td>
+</tr>
+<tr>
+<td>Unit of Work 工作单元</td>
+<td>给 Agent 边界/持久/可收尾的容器（聊天↔工单）</td>
+</tr>
+<tr>
+<td>Workflows 工作流</td>
+<td>把最佳实践编码成 Trigger→Context→Execute 的可复现流程</td>
+</tr>
+<tr>
+<td>Oversight 监督</td>
+<td>评测+透明+上报，让 Agent 可被托付</td>
+</tr>
+<tr>
+<td>Self-Learning Memory</td>
+<td>记忆从干过的活自动更新，无需手工维护</td>
+</tr>
+<tr>
+<td>Properly Scoped 有边界</td>
+<td>记忆按 个人/项目/组织/全局 划作用域</td>
+</tr>
+<tr>
+<td>Escalation 上报</td>
+<td>Agent 不确定时默认拉人，而非瞎猜</td>
+</tr>
+<tr>
+<td>Maturity Scale 成熟度标尺</td>
+<td>Missing→Ad hoc→Defined→Managed→Optimising</td>
+</tr>
+<tr>
+<td>Loop Engineering 循环工程</td>
+<td>第三门必修课：设计自主循环，而非写 prompt</td>
+</tr>
+<tr>
+<td>Worktree 并行隔离</td>
+<td>多 Agent 不同分支开工，互不踩文件</td>
+</tr>
+<tr>
+<td>Sub-agents 子智能体</td>
+<td>干活的与检查的分离，Maker≠Checker</td>
+</tr>
+<tr>
+<td>Maker≠Checker</td>
+<td>写代码的不该自己给自己打分</td>
+</tr>
+<tr>
+<td>Context Advantage 上下文优势</td>
+<td>人比 AI 更懂用户/环境，故 human-in-the-loop 刚需</td>
+</tr>
+<tr>
+<td>Automations 自动化</td>
+<td>定时触发，让循环自己发现/分诊任务</td>
+</tr>
+</tbody>
+</table>
+<h3 id="b-2026-07">B. 知识来源（公众号 / 行业，截至 2026-07）</h3>
+<p><strong>入门 11 章来源：</strong>
+- <strong>CB Insights</strong>《AI Agent 圣经》六大趋势（经 混沌大学公众号解读，2025-10）
+- <strong>麦肯锡</strong>《2026 企业级 AI 代理经济报告》（经 腾讯云开发者社区，2026-07）
+- <strong>清华大学</strong>清新团队《2026 智能体安全研究报告》（2026-06，经 搜狐/FreeBuf 解读）
+- <strong>Anthropic</strong>《Introducing the Model Context Protocol》（2024-11）
+- <strong>阿里云开发者</strong>《2026 企业 AI Agent 落地：从 Demo 到生产的四个关键跨越》（2026-05）
+- <strong>QubitTool</strong>《Agent Loop 是什么》（2026-07-04）
+- <strong>掘金</strong>《AI Agent 的认知架构革命》（2026-05）
+- <strong>谷歌</strong>《AI Agent trends 2026》（经 搜狐/九科信息解读，2026-02）
+- <strong>机智流 AI Insight</strong>《AI Agent 最新发展论文全面综述（2024-2026）》（2026-05）
+- <strong>Manning</strong>《AI Agents in Action, Second Edition》（目录骨架来源）</p>
+<p><strong>进阶篇（工程深潜）新增来源：</strong>
+- <strong>掘金</strong>《系统认知 Agent 六大支柱》（2026-05-09，底层骨架视角）
+- <strong>kamacoder</strong>《2026 最全 AI Agent 学习路线：六个阶段》（2026-06-16）
+- <strong>中科算网·算泥社区</strong>《大模型上下文工程 Context Engineering 指南 2026》（五大类上下文/范式跃迁）
+- <strong>斯坦福 ACE</strong> Agentic 上下文工程（生成-反思-策划-执行 闭环，2025）
+- <strong>掘金</strong>《从 Claude Code 看 Harness Engineering：2026 年 Agent 工程范式》（2026-05-20）
+- <strong>cnblogs</strong>《Agent Client Protocol 全景解析》（2026-03-29，类比 LSP）
+- <strong>51CTO</strong>《当 AI Agent 开始互相"打电话"：MCP/A2A/AG-UI/ACP》（2026-07，ACP 与 A2A 合并）
+- <strong>lonae</strong>《MCP 工程实战：跑进生产的五维度》（2026-06-11，传输/鉴权/膨胀/发现/可观测）
+- <strong>TianPan.co</strong>《工具过载：为什么工具越多大模型越笨》（2026-04-19，选准率低至 13%）
+- <strong>walterwang</strong>《工具太多塞不下：Agent 动态工具检索实战》（2026-06-03）
+- <strong>崔亮 cuiliang.ai</strong>《Prompt Cache：Agent 成本控制的核心约束》（2026-01-17）
+- <strong>人人都是PM</strong>《深入解析 KV Cache，让你的 Agent 更省钱》（2026-07）
+- <strong>golangstar</strong>《Agent 的记忆覆盖问题：三种故障模式》（2026-04-02）
+- <strong>ai-master.cc</strong>《Agent 记忆系统设计实战：六层持久化与遗忘机制》（2026-06-15）
+- <strong>阿里云开发者</strong>《AI Agent 记忆系统：短期到长期技术架构》（2026-02）
+- <strong>CSDN</strong>《2026 大模型 Agent 六大核心支柱》（2026-06-21）</p>
+<p><strong>进八（Six Essentials 架构评审框架）新增来源：</strong>
+- <strong>Six Essentials of Agentic AI</strong> 架构评审框架（用户提供补充资料，2026；与 Anthropic 长效 Agent / Harness Engineering 社区同源，核心洞见「模型不是 Agent，系统是」）
+- <strong>harness-engineering.ai</strong>《The Complete Guide to Agent Harness: six core components》（2026-03）
+- <strong>Anthropic</strong> 长效 AI 智能体设计蓝图：Agent Harness 架构解析（经 agents.ac.cn 解读，2026-03）
+- <strong>ai-boost / awesome-harness-engineering</strong>（GitHub，2026-06，Agent Harness 构成性定义）</p>
+<p><strong>进九（循环工程 Loop Engineering）新增来源：</strong>
+- <strong>用户提供公众号文章</strong>《别再给 Agent 写提示词了：三位大佬同时押注「循环工程」》（2026，综合报道）
+- <strong>Addy Osmani</strong>《Loop Engineering》（addyosmani.com/blog/loop-engineering，2026-06-07，循环六积木）
+- <strong>Andrew Ng</strong>《My 3 Key Loops for Building 0-to-1 Products》（The Batch 来信，2026-06，三环嵌套）
+- <strong>Boris Cherny</strong>（Claude Code 之父）「不再 prompt，写循环」+ AI 时代五类新角色（2026）
+- 交叉印证（公众号/行业）：51CTO《Loop Engineering 实战指南》、kamacoder《Claude Code 作者说"不写Prompt，写Loop"》（2026-06-15）、claudecn《先写刹车再写循环》（2026-07）、掘金/知乎/CSDN 多篇 Loop Engineering 解读</p>
+<h3 id="c">C. 阅读指南</h3>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>章节</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 1</td>
+<td>§01-§02</td>
+<td>搞清 Agent 是啥、靠啥活</td>
+</tr>
+<tr>
+<td>Day 2</td>
+<td>§03-§05</td>
+<td>懂工具、组队、推理</td>
+</tr>
+<tr>
+<td>Day 3</td>
+<td>§06-§08</td>
+<td>懂记忆、安全、上线</td>
+</tr>
+<tr>
+<td>Day 4</td>
+<td>§09-§11</td>
+<td>懂内核、认知、搭建</td>
+</tr>
+<tr>
+<td>Day 5</td>
+<td>进一-进二</td>
+<td>校准认知、搞懂 Loop 心脏</td>
+</tr>
+<tr>
+<td>Day 6</td>
+<td>进三-进四</td>
+<td>装手脚、攻上下文护城河</td>
+</tr>
+<tr>
+<td>Day 7</td>
+<td>进五-进七</td>
+<td>多智能体、Harness、框架与结课</td>
+</tr>
+<tr>
+<td>Day 8</td>
+<td>进八</td>
+<td>用 Six Essentials 评审框架查生产就绪</td>
+</tr>
+<tr>
+<td>Day 9</td>
+<td>进九</td>
+<td>循环工程：从写 Prompt 到写循环</td>
+</tr>
+<tr>
+<td>随时</td>
+<td>附录</td>
+<td>查术语、查来源</td>
+</tr>
+</tbody>
+</table>
+<h3 id="d">D. 一页纸总结</h3>
+<blockquote>
+<p>AI Agent = 会想（LLM）+ 会动手（工具/MCP）+ 记得住（记忆/RAG）+ 会规划（ReAct）+ 可托付（评估/安全）的 AI 办事员。
+2023 元年 → 2024 会推理 → 2025 长记忆长手脚 → 2026 多智能体协作元年。
+普通人用法：说目标、给工具、设边界。未来：从副驾驶到自主，从单兵到 AI 小队。
+工程视角（进阶篇）：Agent = 模型 + Harness；强不强看六大支柱（模型/Loop/工具/上下文/多智能体/工程兜底），不在追产品。护城河是 Context Engineering，生死线是工程兜底。</p>
+</blockquote>
+<hr />
+<p><em>知识更新至 2026 年 7 月。本书为通俗入门读物，技术细节以官方文档与一手论文为准。内容综合自上述公开资料与公众号解读。写作框架参考「标叔-bookwriter」。</em></p>
+<h3 id="agent">agent是什么：</h3>
+<p>https://waytoagi.feishu.cn/wiki/N1FiwAwOlitdtzktv1scVhiknPf
+https://mp.weixin.qq.com/s/05Cx3JmimJ6nFpzJshanGQ</p>
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="adv09.html">← 进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+      <a class="pager-next" href="index.html">返回首页 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

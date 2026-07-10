@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>进四 Context Engineering：真正的护城河（含 Memory） · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">进四 Context Engineering：真正的护城河（含 Memory）</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="context-engineering-memory">进四 Context Engineering：真正的护城河（含 Memory）</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-4"><a href="#041">04.1 全景：五个维度，一张地图</a></li><li class="lvl-4"><a href="#042-system-prompt-context-rot">04.2 System Prompt 工程化与 Context Rot</a></li><li class="lvl-4"><a href="#043">04.3 上下文快爆了？聊聊压缩</a></li><li class="lvl-4"><a href="#044-cache">04.4 Cache 全解与成本控制：别再弄混这几个概念</a></li><li class="lvl-4"><a href="#045-just-in-time-context">04.5 深入 Just-In-Time Context：不是越早塞越好</a></li><li class="lvl-4"><a href="#046-rag">04.6 RAG 全流程与检索优化</a></li><li class="lvl-4"><a href="#047-llm">04.7 LLM 编译知识库：让知识持续积累互联</a></li><li class="lvl-4"><a href="#048-vs">04.8 记忆系统：文件派 vs 数据库派，谁对</a></li><li class="lvl-4"><a href="#049">04.9 记忆会"坏"：五种失效模式</a></li></ul></details>
+<p>这一章是 2026 最重要的新认知。<strong>决定 Agent 强不强的，往往不是模型，是你往上下文里塞了什么、怎么塞。</strong></p>
+<h4 id="041">04.1 全景：五个维度，一张地图</h4>
+<p>中科算网《上下文工程指南》把上下文从"系统提示"扩成五大类（文本/环境/用户/系统/组织）。落地时，我把它压成<strong>五个工程动作</strong>：</p>
+<p><strong>示意图 19：Context Engineering 五维地图</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  W[&quot;① 写入 Write&lt;br/&gt;构造系统提示/初始上下文&quot;]
+  S[&quot;② 选择 Select&lt;br/&gt;检索·挑相关料&quot;]
+  C[&quot;③ 压缩 Compress&lt;br/&gt;摘要·裁剪保重点&quot;]
+  I[&quot;④ 隔离 Isolate&lt;br/&gt;分窗·防互相污染&quot;]
+  K[&quot;⑤ 缓存 Cache&lt;br/&gt;复用前缀省钱&quot;]
+  W --&gt; S --&gt; C --&gt; I --&gt; K
+  style S fill:#e8f0fe,stroke:#2563eb
+  style K fill:#0ea5a4,stroke:#0f766e,color:#fff
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>回答啥问题</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>写入</td>
+<td>一开始放啥</td>
+<td>行为控制系统（04.2）</td>
+</tr>
+<tr>
+<td>选择</td>
+<td>用啥料</td>
+<td>RAG/记忆（04.6）</td>
+</tr>
+<tr>
+<td>压缩</td>
+<td>放不下咋办</td>
+<td>摘要裁剪（04.3）</td>
+</tr>
+<tr>
+<td>隔离</td>
+<td>互相干扰咋办</td>
+<td>分上下文（进五）</td>
+</tr>
+<tr>
+<td>缓存</td>
+<td>怎么省钱</td>
+<td>见 04.4</td>
+</tr>
+</tbody>
+</table>
+<h4 id="042-system-prompt-context-rot">04.2 System Prompt 工程化与 Context Rot</h4>
+<p>从"写一段提示词"升级到"<strong>搭一个行为控制系统</strong>"：系统提示不再是文案，而是角色、边界、输出格式、工具说明、禁忌的集合体，要像代码一样版本管理。</p>
+<p>但坑来了——<strong>Context Rot（上下文腐烂）</strong>：系统提示越长，模型越容易"看不见"中间的规则，注意力被稀释。</p>
+<blockquote>
+<p><strong>核心建议</strong>：系统提示别写成长篇小说。能外置成 Skill/工具说明的，就别塞进系统提示。</p>
+</blockquote>
+<h4 id="043">04.3 上下文快爆了？聊聊压缩</h4>
+<p>呼应 §06.4 的分层摘要。工程上压缩三招：</p>
+<ul>
+<li><strong>摘要</strong>：旧对话压成要点（保留近期 N 轮原文）。</li>
+<li><strong>裁剪</strong>：丢掉与本任务无关的早轮。</li>
+<li><strong>压缩</strong>：用更小模型先提炼再喂大模型。</li>
+</ul>
+<h4 id="044-cache">04.4 Cache 全解与成本控制：别再弄混这几个概念</h4>
+<p>这是 2026 最容易被混淆的一组。一次讲清：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>它站在哪</th>
+<th>人话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>KV Cache</td>
+<td>推理引擎底层</td>
+<td>"这段算过，复用，加速"</td>
+</tr>
+<tr>
+<td>Prompt Cache</td>
+<td>厂商计费层</td>
+<td>"这段我处理过，命中价低至 1/10"</td>
+</tr>
+<tr>
+<td>Context Collapse</td>
+<td>现象/坑</td>
+<td>"塞太满，反而更笨"</td>
+</tr>
+</tbody>
+</table>
+<p>崔亮《Prompt Cache》点破关键：<strong>前缀要稳定</strong>。你每轮开头都变，缓存永远不命中。Agent 的 I/O 常是 100:1（读多写少），<strong>Cache-Safe 是客户端工程责任</strong>——把不变的系统提示/工具定义放最前，且别乱插变量。</p>
+<blockquote>
+<p><strong>经验</strong>：省成本第一招不是换便宜模型，是<strong>让前缀稳定、复用缓存</strong>。</p>
+</blockquote>
+<h4 id="045-just-in-time-context">04.5 深入 Just-In-Time Context：不是越早塞越好</h4>
+<p>直觉是"把料早早全塞进上下文"。错。<strong>JIT（即时）上下文</strong>主张：用到那一步，才注入那块料。</p>
+<p>例子：写代码 Agent，不必一上来把整个代码库塞进去；读到某文件时，才把该文件上下文注入。好处：窗口不爆、相关性强、缓存命中高。</p>
+<h4 id="046-rag">04.6 RAG 全流程与检索优化</h4>
+<p>呼应 §06.3。补"全流程"：文档 → 切分 → 嵌入 → 建索引 → 检索 → 重排 → 生成。</p>
+<p>关键坑：<strong>语义相似 ≠ 任务相关</strong>。检索回来"意思像"的，未必是"该用"的。所以要用 §06.3 的多路召回 + 重排，必要时让模型自己判断相关性。</p>
+<h4 id="047-llm">04.7 LLM 编译知识库：让知识持续积累互联</h4>
+<p>进阶玩法：别把知识库当静态档案。让 Agent <strong>跑完任务后，自动抽取新知识点、连成图谱、回写库</strong>。知识库越用越聪明，像人做笔记越记越通。</p>
+<h4 id="048-vs">04.8 记忆系统：文件派 vs 数据库派，谁对</h4>
+<table>
+<thead>
+<tr>
+<th>派别</th>
+<th>怎么存</th>
+<th>优点</th>
+<th>缺点</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文件派</td>
+<td>Markdown/文件</td>
+<td>人可读、好调试</td>
+<td>检索慢、难规模</td>
+<td>个人/小项目首选</td>
+</tr>
+<tr>
+<td>数据库派</td>
+<td>向量/图库</td>
+<td>快、可海量检索</td>
+<td>要维护、不直观</td>
+<td>企业/高并发首选</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>经验</strong>：没有标准答案。先看规模与可读性，再选。很多生产系统是"文件做源、库做索引"混合。</p>
+</blockquote>
+<h4 id="049">04.9 记忆会"坏"：五种失效模式</h4>
+<p>2026 年 4 月 golangstar 把"记忆覆盖"拆成三种故障；我合上行业经验，补成<strong>五种</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>失效</th>
+<th>表现</th>
+<th>解法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>覆盖丢失</td>
+<td>新记忆冲掉旧的</td>
+<td>版本化、不覆盖</td>
+</tr>
+<tr>
+<td>压缩失真</td>
+<td>摘要丢了关键细节</td>
+<td>关键字段原样留</td>
+</tr>
+<tr>
+<td>语义漂移</td>
+<td>记忆被悄悄篡改</td>
+<td>写时校验+签名</td>
+</tr>
+<tr>
+<td>过时 stale</td>
+<td>记的是旧事实</td>
+<td>加时间戳+过期</td>
+</tr>
+<tr>
+<td>检索不到</td>
+<td>存了但找不到</td>
+<td>多路索引+重排</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong>：记忆不是"写了就灵"。它和数据库一样，要防脏数据。</p>
+</blockquote>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="adv03.html">← 进三 Tool System：给 Agent 装手脚</a>
+      <a class="pager-next" href="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

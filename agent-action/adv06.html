@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>进六 Harness 进阶：编排、观测与部署 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">进六 Harness 进阶：编排、观测与部署</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="harness">进六 Harness 进阶：编排、观测与部署</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-4"><a href="#061-harness">06.1 Harness：模型外面那层壳到底是什么</a></li><li class="lvl-4"><a href="#062-hook-agent">06.2 Hook 与可观测性：怎么知道 Agent 在干啥</a></li><li class="lvl-4"><a href="#063">06.3 部署与调度：跑在哪、什么时候跑</a></li><li class="lvl-4"><a href="#064-acp-agent">06.4 ACP：标准化的 Agent 控制接口</a></li></ul></details>
+<h4 id="061-harness">06.1 Harness：模型外面那层壳到底是什么</h4>
+<p>2026 年 5 月，掘金《Harness Engineering》一句话点透：<strong>Claude Code 就是包在 Claude 外面的 agentic harness——它提供工具、上下文管理、执行环境，把语言模型变成能干活的程序员。</strong></p>
+<p><strong>示意图 20：Agent = Model + Harness</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  A[&quot;AI Agent&quot;] --&gt; M[&quot;Model 模型&lt;br/&gt;只会预测下一个 token&quot;]
+  A --&gt; H[&quot;Harness 马具/壳&quot;]
+  H --&gt; T[&quot;工具执行&quot;]
+  H --&gt; C[&quot;上下文管理&quot;]
+  H --&gt; L[&quot;循环控制 (Agent Loop)&quot;]
+  H --&gt; P[&quot;权限/沙箱&quot;]
+  H --&gt; O[&quot;可观测&quot;]
+  style H fill:#0ea5a4,stroke:#0f766e,color:#fff
+</code></pre>
+<blockquote>
+<p><strong>核心建议</strong>：模型会越来越强且趋同。决定你产品上限的，是那层把模型"套"好的 Harness。别只盯着换模型。</p>
+</blockquote>
+<h4 id="062-hook-agent">06.2 Hook 与可观测性：怎么知道 Agent 在干啥</h4>
+<p>呼应 §08.5。补 <strong>Hook（钩子）</strong>：在"工具调用前/后"插入拦截逻辑。例如：</p>
+<ul>
+<li>pre-tool：调危险命令前弹审批。</li>
+<li>post-tool：每次调用自动写日志、计费。</li>
+</ul>
+<p>Hook + 链路追踪，才让你"看得见"Agent。没这层，出事只能猜。</p>
+<h4 id="063">06.3 部署与调度：跑在哪、什么时候跑</h4>
+<p>呼应 §08。补一句：Agent 不是常驻进程。<strong>调度</strong>决定它何时被唤起（事件触发/定时/人工），<strong>部署</strong>决定跑在云函数还是容器。长任务用异步队列，别占着请求线程。</p>
+<h4 id="064-acp-agent">06.4 ACP：标准化的 Agent 控制接口</h4>
+<p>协议版图补全（§03.5 讲了 MCP、A2A）：</p>
+<p><strong>示意图 21：三大协议各管一段</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  A[&quot;Agent A&quot;] --&gt;|&quot;MCP 接工具/数据&quot;| T[&quot;工具·数据源&quot;]
+  A --&gt;|&quot;A2A 找同伴&quot;| B[&quot;Agent B&quot;]
+  H[&quot;宿主/编辑器&quot;] --&gt;|&quot;ACP 控 Agent&quot;| A[&quot;Agent A&quot;]
+  style A fill:#e8f0fe,stroke:#2563eb
+</code></pre>
+<ul>
+<li><strong>MCP</strong>：Agent ↔ 工具/数据（USB-C）。</li>
+<li><strong>A2A</strong>：Agent ↔ Agent（协作）。</li>
+<li><strong>ACP（Agent Client Protocol）</strong>：宿主/编辑器 ↔ Agent（控制接口），<strong>类比 LSP 当年统一语言服务器</strong>。2025 年 IBM 的 ACP 与 Google 的 A2A 走向合并，生态在收口。</li>
+</ul>
+<blockquote>
+<p><strong>经验</strong>：三个协议不打架，各管一段。选型时先问：我要接工具、连同伴、还是被宿主控制？</p>
+</blockquote>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="adv05.html">← 进五 Multi-Agent：一个 Agent 搞不定的事</a>
+      <a class="pager-next" href="adv07.html">进七 回到框架与结课 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

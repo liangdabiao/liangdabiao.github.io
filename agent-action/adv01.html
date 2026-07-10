@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>进一 认知校准：别追产品，学支柱 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">进一 认知校准：别追产品，学支柱</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="_1">进一 认知校准：别追产品，学支柱</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-4"><a href="#011-manus-openclaw">01.1 六大支柱：Manus 今天出，OpenClaw 明天出，你学什么</a></li><li class="lvl-4"><a href="#012-while">01.2 一个 while 循环：凭什么从"聊天"变"干活"</a></li><li class="lvl-4"><a href="#013">01.3 做大模型应用，这些底层机制你躲不掉</a></li><li class="lvl-4"><a href="#014-2026-langchain">01.4 2026 了，你的架构还停在 LangChain 时代吗</a></li></ul></details>
+<h4 id="011-manus-openclaw">01.1 六大支柱：Manus 今天出，OpenClaw 明天出，你学什么</h4>
+<p>2026 年 5 月，掘金一篇《Agent 六大支柱》说得很直白：当你对 Claude Code 说"帮我把这个 bug 修了"，底层就是 Agent Loop。看懂这个骨架，你会发现 Manus、OpenClaw、CrewAI、LangGraph 形态各异，<strong>底层全在解决同一件事</strong>。</p>
+<blockquote>
+<p><strong>核心建议</strong>：别把时间花在"试用每个新玩具"上。把六大支柱练透，新玩具你一天就能看懂。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>支柱</th>
+<th>它在解决啥</th>
+<th>学不会的后果</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型机制</td>
+<td>知道模型能/不能</td>
+<td>期望错配</td>
+<td>先懂工具再使</td>
+</tr>
+<tr>
+<td>Agent Loop</td>
+<td>自主跑流程</td>
+<td>只会调 API</td>
+<td>心脏先搞清</td>
+</tr>
+<tr>
+<td>工具系统</td>
+<td>动手办成事</td>
+<td>Agent 变嘴炮</td>
+<td>手脚要装好</td>
+</tr>
+<tr>
+<td>上下文工程</td>
+<td>喂对的信息</td>
+<td>越用越傻</td>
+<td>护城河在这</td>
+</tr>
+<tr>
+<td>多智能体</td>
+<td>复杂任务分工</td>
+<td>单体崩盘</td>
+<td>拆比堆重要</td>
+</tr>
+<tr>
+<td>工程兜底</td>
+<td>安全可上线</td>
+<td>Demo 翻车</td>
+<td>决定生死</td>
+</tr>
+</tbody>
+</table>
+<h4 id="012-while">01.2 一个 while 循环：凭什么从"聊天"变"干活"</h4>
+<p>这是最该刻进脑子的一句话：</p>
+<blockquote>
+<p><strong>ChatBot = 一次函数调用。Agent = 一个 while 循环。</strong></p>
+</blockquote>
+<pre><code class="language-python"># ChatBot：问一次，答一次，结束
+def chatbot(q): return llm(q)
+
+# Agent：给目标，循环到干完
+def agent(goal):
+    ctx = init(goal)
+    while not done(ctx):                 # ← 就多了这个循环
+        thought = llm(ctx)               # 想
+        action = pick_tool(thought)      # 动手
+        result = run(action)             # 看结果
+        ctx = update(ctx, result)        # 记下来
+    return ctx.answer
+</code></pre>
+<p>多出来的不是魔法，是<strong>"想→做→看→记"反复跑</strong>。"能干活"靠的不是模型变聪明，是它有了<strong>不终止、能改、能记</strong>的循环。这就是 §09 讲的 Agentic Loop 的雏形。</p>
+<h4 id="013">01.3 做大模型应用，这些底层机制你躲不掉</h4>
+<p>表个态：做 Agent 开发，下面几个词你必须真懂，不是背定义。</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>人话</th>
+<th>跟你有什么关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Token</td>
+<td>模型最小计价/计算单位</td>
+<td>成本、长度、限速都按它算</td>
+</tr>
+<tr>
+<td>上下文窗口</td>
+<td>模型一次能"看到"的最大字数</td>
+<td>超了就忘、就崩、就烧钱</td>
+</tr>
+<tr>
+<td>温度/Top-P</td>
+<td>控制"稳"还是"飘"</td>
+<td>写报告调低，头脑风暴调高</td>
+</tr>
+<tr>
+<td>注意力</td>
+<td>模型怎么抓重点</td>
+<td>窗口太长会"丢了中间"</td>
+</tr>
+<tr>
+<td>KV Cache</td>
+<td>重复计算的结果缓存</td>
+<td>省钱提速的关键（进四 04）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意</strong>：窗口越大≠越聪明。塞太满反而"注意力稀释"，这叫 Context Collapse（进四 04）。</p>
+</blockquote>
+<h4 id="014-2026-langchain">01.4 2026 了，你的架构还停在 LangChain 时代吗</h4>
+<p>2023 年，LangChain 用"链（Chain）"把步骤串起来，火得不行。但它的问题是：<strong>太重、太隐式、debug 像拆毛线团</strong>。</p>
+<p>2025–2026 的共识变了：</p>
+<ul>
+<li>从"链"到"图"：用显式状态图（LangGraph、小模型自研）表达流转。</li>
+<li>从"全包"到"Harness"：Claude Code 这类只做"壳"，模型能力交给底座（进六 01）。</li>
+<li>从"写死"到"协议"：工具接 MCP，Agent 连 A2A/ACP。</li>
+</ul>
+<blockquote>
+<p><strong>经验</strong>：新手可以先用框架跑通，但迟早要懂底层。框架是拐杖，不是腿。</p>
+</blockquote>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="adv-intro.html">← 进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+      <a class="pager-next" href="adv02.html">进二 Agent Loop：心脏手术 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

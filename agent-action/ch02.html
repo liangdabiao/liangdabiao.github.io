@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§02 大模型、提示词、智能体是三件不同的事 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">§02 大模型、提示词、智能体是三件不同的事</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="02">§02 大模型、提示词、智能体是三件不同的事</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-3"><a href="#021">02.1 我犯过的最蠢错误</a></li><li class="lvl-3"><a href="#022">02.2 大模型是大脑</a></li><li class="lvl-3"><a href="#023">02.3 提示词是嘴</a></li><li class="lvl-3"><a href="#024">02.4 智能体是"脑 + 手 + 记忆"</a></li><li class="lvl-3"><a href="#025">02.5 拆成五层看，最清楚</a></li></ul></details>
+<h3 id="021">02.1 我犯过的最蠢错误</h3>
+<p>刚接触 Agent 时，我以为"提示词写得好，Agent 就聪明"。</p>
+<p>错了。</p>
+<p>提示词只是"你怎么跟它说话"。它决定不了一个系统会不会动手。</p>
+<h3 id="022">02.2 大模型是大脑</h3>
+<p>大语言模型（LLM）是 Agent 的"脑"。</p>
+<p>它读过几乎整个互联网。你问它，它预测"下一个最可能的词"。</p>
+<p>但它不懂"事实"。它懂"模式"。</p>
+<p>所以它会<strong>一本正经地胡说</strong>。这叫幻觉（hallucination）。</p>
+<p>2024 年 o1、2025 年 DeepSeek-R1 之后，有了"推理模型"。它能在回答前多转几圈脑子（思维链）。数学逻辑稳了。</p>
+<blockquote>
+<p><strong>注意</strong>：永远别把 Agent 的回答当真理。涉及钱、法、医、上线，让它给来源、给核对方式。</p>
+</blockquote>
+<h3 id="023">02.3 提示词是嘴</h3>
+<p>提示词是你跟大脑"下指令"的话。</p>
+<p>好的提示词有结构：目标 + 范围 + 标准 + 约束。</p>
+<p>差的提示词："优化一下这个项目"。
+好的提示词："检查最近 3 篇博客的失效内链，修好，跑校验，别动无关文件"。</p>
+<p>后者 Agent 才跑得准。</p>
+<h3 id="024">02.4 智能体是"脑 + 手 + 记忆"</h3>
+<p>Agent = LLM（脑）+ 工具调用（手）+ 循环（心）+ 记忆（本）。</p>
+<p>光有脑，是 chatbot。加上手和循环，才是 Agent。</p>
+<p><strong>示意图 3：Agent = 脑 + 手 + 心 + 本（五大能力层）</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  subgraph Agent[&quot;AI Agent&quot;]
+    P[&quot;① 角色 Persona&lt;br/&gt;身份·语气·边界&quot;]
+    Ac[&quot;② 行动 Actions&lt;br/&gt;调工具·权限&quot;]
+    R[&quot;③ 推理 Reasoning&lt;br/&gt;拆目标·定步骤&quot;]
+    M[&quot;④ 记忆 Memory&lt;br/&gt;记你·记资料&quot;]
+    E[&quot;⑤ 评估 Eval&lt;br/&gt;自查·复盘&quot;]
+  end
+  P --&gt; Ac --&gt; R --&gt; M --&gt; E
+  style R fill:#e8f0fe,stroke:#2563eb
+</code></pre>
+<h3 id="025">02.5 拆成五层看，最清楚</h3>
+<p>我习惯把 Agent 拆成五层。这套框架来自《AI Agents in Action》，不绑任何厂商。</p>
+<table>
+<thead>
+<tr>
+<th>能力层</th>
+<th>负责啥</th>
+<th>生活类比</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>角色 Persona</td>
+<td>身份语气边界</td>
+<td>岗位说明书</td>
+<td>先定它是谁</td>
+</tr>
+<tr>
+<td>行动工具 Actions</td>
+<td>调啥工具</td>
+<td>员工权限</td>
+<td>没手办不成事</td>
+</tr>
+<tr>
+<td>推理规划 Reasoning</td>
+<td>拆目标定步骤</td>
+<td>脑子盘算</td>
+<td>决定聪不聪明</td>
+</tr>
+<tr>
+<td>知识记忆 Memory</td>
+<td>记你记资料</td>
+<td>笔记本</td>
+<td>越用越懂你</td>
+</tr>
+<tr>
+<td>评估反馈 Eval</td>
+<td>自查复盘</td>
+<td>质检会</td>
+<td>决定靠不靠谱</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>经验</strong>：Agent 哪里笨了，别瞎改提示词。先问：五层里哪层缺了？答非所问是角色没设清。老算错是工具没接。老忘事是记忆没建。</p>
+</blockquote>
+<p>§02 讲完"靠什么"。下一章讲"手"——怎么让 Agent 调工具，以及 MCP 这个关键协议。</p>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="ch01.html">← §01 AI Agent 已经不是聊天机器人了</a>
+      <a class="pager-next" href="ch03.html">§03 MCP 把"调工具"变成了插 USB-C →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§05 推理和规划决定 Agent 聪不聪明 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">§05 推理和规划决定 Agent 聪不聪明</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="05-agent">§05 推理和规划决定 Agent 聪不聪明</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-3"><a href="#051">05.1 一个最容易被忽视的循环</a></li><li class="lvl-3"><a href="#052">05.2 思维链：让它"想出声"</a></li><li class="lvl-3"><a href="#053-react">05.3 ReAct：想一步、做一步、看一眼</a></li><li class="lvl-3"><a href="#054">05.4 规划：先拆再干</a></li><li class="lvl-3"><a href="#055">05.5 一个旅行规划的例子</a></li></ul></details>
+<h3 id="051">05.1 一个最容易被忽视的循环</h3>
+<p>2022 年。Yao 等人提出 ReAct。</p>
+<p>它把"推理"和"行动"拧到一起。至今仍是 Agent 的骨架。</p>
+<h3 id="052">05.2 思维链：让它"想出声"</h3>
+<p>Chain-of-Thought（思维链），简称 CoT。</p>
+<p>你问"小明有 3 个苹果……"。模型不在心里憋答案，而是一步步写：</p>
+<p>"先算 A，再算 B，所以等于 C。"</p>
+<p>推理模型（o1、DeepSeek-R1）把这个玩到极致。想越久，越准。</p>
+<h3 id="053-react">05.3 ReAct：想一步、做一步、看一眼</h3>
+<p>ReAct = Reason（推理）+ Act（行动）。</p>
+<p>循环长这样：</p>
+<pre><code>思考：我得先查用户航班时间
+行动：调用查航班工具
+观察：拿到 14:30 的票
+思考：再查接机司机
+行动：……
+</code></pre>
+<p>三步一循环。Agent 能处理会中途变化的真实任务。</p>
+<blockquote>
+<p><strong>注意</strong>：ReAct 不是"自主意识"。它是受控的程序循环。别神话它。</p>
+</blockquote>
+<p><strong>示意图 8：ReAct 循环（想一步·做一步·看一眼）</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  T[&quot;思考 Reason&lt;br/&gt;下一步咋办&quot;] --&gt; A[&quot;行动 Act&lt;br/&gt;调工具&quot;]
+  A --&gt; O[&quot;观察 Observe&lt;br/&gt;看结果&quot;]
+  O --&gt;|&quot;未达标&quot;| T
+  O --&gt;|&quot;达标&quot;| S[&quot;停止 Stop&quot;]
+  style T fill:#e8f0fe,stroke:#2563eb
+  style S fill:#0ea5a4,stroke:#0f766e,color:#fff
+</code></pre>
+<h3 id="054">05.4 规划：先拆再干</h3>
+<p>复杂任务，Agent 先当项目经理，把活拆成清单（Plan），再逐步推进。</p>
+<p>卡壳了还会<strong>自我反思（Reflexion）</strong>："刚才那步错了，换法子。" Reflexion 是 2023 年 Shinn 等人提出的模式，让 Agent 跑完一遍，自己写"批评意见"，下次带着教训重来。它和 ReAct 是黄金搭档：ReAct 管"动手"，Reflexion 管"复盘学乖"。</p>
+<p>还有两种进阶规划法：</p>
+<ul>
+<li><strong>Tree-of-Thought（思维树）</strong>：多路试探，再选最优，适合分叉多的决策。</li>
+<li><strong>Sequential Thinking（有序思考）</strong>：把大问题硬拆成一步步小推理链，像做证明题，适合长链条、强依赖的任务。</li>
+</ul>
+<h3 id="055">05.5 一个旅行规划的例子</h3>
+<p>你说："帮我规划 3 天、预算 3000 的成都行。"</p>
+<p>Agent 会：</p>
+<ol>
+<li>规划出"交通/住宿/景点/美食"四块。</li>
+<li>查机票酒店价（行动）。</li>
+<li>发现超预算，反思后改住青旅、砍远景点（自我纠正）。</li>
+<li>产出可执行的日程表。</li>
+</ol>
+<p>全程你只说了那一句话。</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>干啥用</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CoT</td>
+<td>单步推理、算数</td>
+<td>模型自己想清楚</td>
+</tr>
+<tr>
+<td>ReAct</td>
+<td>多步带工具</td>
+<td>Agent 标配循环</td>
+</tr>
+<tr>
+<td>Plan</td>
+<td>复杂先拆解</td>
+<td>大任务先列清单</td>
+</tr>
+<tr>
+<td>Reflexion</td>
+<td>跑完复盘、带教训重来</td>
+<td>降低幻觉的关键</td>
+</tr>
+<tr>
+<td>ToT</td>
+<td>多路选优</td>
+<td>难决策才上</td>
+</tr>
+<tr>
+<td>Sequential Thinking</td>
+<td>长链强依赖推理</td>
+<td>像做证明题</td>
+</tr>
+<tr>
+<td><strong>示意图 9：六种推理规划模式</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-mermaid">flowchart LR
+  CoT[&quot;CoT&lt;br/&gt;单步推理&quot;]
+  ReAct[&quot;ReAct&lt;br/&gt;多步带工具&quot;]
+  Plan[&quot;Plan&lt;br/&gt;先拆解&quot;]
+  Reflexion[&quot;Reflexion&lt;br/&gt;复盘学乖&quot;]
+  ToT[&quot;ToT&lt;br/&gt;多路选优&quot;]
+  Seq[&quot;Sequential&lt;br/&gt;长链推理&quot;]
+  style ReAct fill:#e8f0fe,stroke:#2563eb
+</code></pre>
+<p>§05 讲完"脑子"。下一章讲"笔记本"——记忆与 RAG，让 Agent 记住你。</p>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="ch04.html">← §04 多智能体不是堆人，是分工</a>
+      <a class="pager-next" href="ch06.html">§06 记忆和 RAG 让 Agent 记住你 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

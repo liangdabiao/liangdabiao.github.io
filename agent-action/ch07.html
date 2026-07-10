@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>§07 评估与反馈是 Agent 的质检员 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">§07 评估与反馈是 Agent 的质检员</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="07-agent">§07 评估与反馈是 Agent 的质检员</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-3"><a href="#071-2026-6">07.1 2026 年 6 月的一份报告</a></li><li class="lvl-3"><a href="#072">07.2 怎么知道它干得好不好</a></li><li class="lvl-3"><a href="#073">07.3 安全公式</a></li><li class="lvl-3"><a href="#074">07.4 七层安全控制</a></li><li class="lvl-3"><a href="#075">07.5 给普通人的三条铁律</a></li></ul></details>
+<h3 id="071-2026-6">07.1 2026 年 6 月的一份报告</h3>
+<p>清华大学清新研究团队，发了《2026 智能体安全研究报告》。</p>
+<p>80 页。核心一句：<strong>Agent 安全，已从模型层，转到运行时系统安全。</strong></p>
+<h3 id="072">07.2 怎么知道它干得好不好</h3>
+<p>行业用基准打分：</p>
+<table>
+<thead>
+<tr>
+<th>基准</th>
+<th>考啥</th>
+<th>标叔的结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GAIA</td>
+<td>真实多步问题</td>
+<td>贴近日常任务</td>
+</tr>
+<tr>
+<td>SWE-bench</td>
+<td>修真实代码 bug</td>
+<td>程序员最关心</td>
+</tr>
+<tr>
+<td>OSWorld</td>
+<td>操作真实电脑界面</td>
+<td>能不能点按钮</td>
+</tr>
+</tbody>
+</table>
+<p>但测试不是一次性的。好系统有<strong>反馈环</strong>：</p>
+<p>跑完自查 → 你打分纠错 → 模型学习改进。</p>
+<p>像员工每月复盘。越干越稳。</p>
+<h3 id="073">07.3 安全公式</h3>
+<p>清华给了一个清醒公式：</p>
+<blockquote>
+<p><strong>Agent Safety = 身份 + 策略 + 工具 + 日志</strong></p>
+</blockquote>
+<p>Agent 不是聊天框。它会发邮件、会转账、会改库。</p>
+<p>它的安全边界，远大于"只会聊"的模型。</p>
+<p><strong>示意图 12：Agent 安全公式</strong></p>
+<pre><code class="language-mermaid">flowchart LR
+  S[&quot;Agent Safety&quot;] --&gt; I[&quot;身份&quot;]
+  S --&gt; P[&quot;策略&quot;]
+  S --&gt; T[&quot;工具&quot;]
+  S --&gt; L[&quot;日志&quot;]
+  style S fill:#d97706,stroke:#b45309,color:#fff
+</code></pre>
+<h3 id="074">07.4 七层安全控制</h3>
+<p>报告提了七层：</p>
+<ol>
+<li><strong>身份层</strong>：独立账号，不长期持你密码。</li>
+<li><strong>权限层</strong>：最小权限，短期可撤销。</li>
+<li><strong>工具层</strong>：工具打风险标签。</li>
+<li><strong>上下文层</strong>：防投毒。</li>
+<li><strong>记忆层</strong>：防记忆污染。</li>
+<li><strong>沙箱层</strong>：操作隔离。</li>
+<li><strong>审计层</strong>：全量日志 + 高风险人工审批。</li>
+</ol>
+<p><strong>示意图 13：七层安全控制栈</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+  1[&quot;① 身份层&quot;] --&gt; 2[&quot;② 权限层&quot;]
+  2 --&gt; 3[&quot;③ 工具层&quot;]
+  3 --&gt; 4[&quot;④ 上下文层&quot;]
+  4 --&gt; 5[&quot;⑤ 记忆层&quot;]
+  5 --&gt; 6[&quot;⑥ 沙箱层&quot;]
+  6 --&gt; 7[&quot;⑦ 审计层&quot;]
+  style 7 fill:#0ea5a4,stroke:#0f766e,color:#fff
+</code></pre>
+<h3 id="075">07.5 给普通人的三条铁律</h3>
+<blockquote>
+<p><strong>注意</strong>：这三条，我建议你截图保存。</p>
+</blockquote>
+<p>第一，别把银行密码、主账号给"全权限"Agent。宁可每步问你确认。</p>
+<p>第二，动真钱、发真邮件前，设一道"人工审批门"。</p>
+<p>第三，高风险动作（转账、删库、外发）必须留日志、可撤销。</p>
+<table>
+<thead>
+<tr>
+<th>风险等级</th>
+<th>例子</th>
+<th>标叔的建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>低风险</td>
+<td>写周报、查资料</td>
+<td>可先落地</td>
+</tr>
+<tr>
+<td>中风险</td>
+<td>外发通知</td>
+<td>草稿后确认</td>
+</tr>
+<tr>
+<td>高风险</td>
+<td>转账、删库</td>
+<td>人工审批必过</td>
+</tr>
+</tbody>
+</table>
+<p>§07 讲完"质检"。下一章讲"上线"——从 Demo 到生产，要跨四道坎。</p>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="ch06.html">← §06 记忆和 RAG 让 Agent 记住你</a>
+      <a class="pager-next" href="ch08.html">§08 从 Demo 到生产要跨四道坎 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>进二 Agent Loop：心脏手术 · 真·AI Agent 小蓝书</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-brand"><a href="index.html">真·AI Agent 小蓝书</a></div>
+    <nav class="toc">
+<div class="toc-group"><div class="toc-group-title">入门篇</div>
+<a href="preface.html" data-file="preface.html">序：我为什么要写这本小蓝书</a>
+<a href="part1.html" data-file="part1.html">Part 1: 起步认知</a>
+<a href="ch01.html" data-file="ch01.html">§01 AI Agent 已经不是聊天机器人了</a>
+<a href="ch02.html" data-file="ch02.html">§02 大模型、提示词、智能体是三件不同的事</a>
+<a href="ch03.html" data-file="ch03.html">§03 MCP 把"调工具"变成了插 USB-C</a>
+<a href="ch04.html" data-file="ch04.html">§04 多智能体不是堆人，是分工</a>
+<a href="ch05.html" data-file="ch05.html">§05 推理和规划决定 Agent 聪不聪明</a>
+<a href="ch06.html" data-file="ch06.html">§06 记忆和 RAG 让 Agent 记住你</a>
+<a href="ch07.html" data-file="ch07.html">§07 评估与反馈是 Agent 的质检员</a>
+<a href="ch08.html" data-file="ch08.html">§08 从 Demo 到生产要跨四道坎</a>
+<a href="ch09.html" data-file="ch09.html">§09 Agentic 循环是 Agent 的发动机</a>
+<a href="ch10.html" data-file="ch10.html">§10 认知型 Agent 会监控自己、会进化</a>
+<a href="ch11.html" data-file="ch11.html">§11 搭智能体系统的 7 条实战建议</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">进阶篇</div>
+<a href="adv-intro.html" data-file="adv-intro.html">进阶篇：Agent 工程深潜（用"六大支柱"重新透视）</a>
+<a href="adv01.html" data-file="adv01.html">进一 认知校准：别追产品，学支柱</a>
+<a href="adv02.html" data-file="adv02.html">进二 Agent Loop：心脏手术</a>
+<a href="adv03.html" data-file="adv03.html">进三 Tool System：给 Agent 装手脚</a>
+<a href="adv04.html" data-file="adv04.html">进四 Context Engineering：真正的护城河（含 Memory）</a>
+<a href="adv05.html" data-file="adv05.html">进五 Multi-Agent：一个 Agent 搞不定的事</a>
+<a href="adv06.html" data-file="adv06.html">进六 Harness 进阶：编排、观测与部署</a>
+<a href="adv07.html" data-file="adv07.html">进七 回到框架与结课</a>
+<a href="adv08.html" data-file="adv08.html">进八 Agentic AI 六大支柱：一套能落地的架构评审框架</a>
+<a href="adv09.html" data-file="adv09.html">进九 循环工程（Loop Engineering）：继提示词、上下文之后的第三门必修课</a>
+</div>
+<div class="toc-group"><div class="toc-group-title">附录</div>
+<a href="appendix.html" data-file="appendix.html">附录</a>
+</div>
+    </nav>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="目录">☰</button>
+      <span class="topbar-title">进二 Agent Loop：心脏手术</span>
+    </header>
+    <article class="chapter">
+
+<h1 class="chapter-title" id="agent-loop">进二 Agent Loop：心脏手术</h1>
+<details class="mini-toc" open><summary>本章目录</summary><ul><li class="lvl-4"><a href="#021-agent">02.1 你的 Agent 为什么"卡"半天才吐字</a></li><li class="lvl-4"><a href="#022-api-try-catch">02.2 模型 API 挂了怎么办？容错不是加个 try-catch</a></li><li class="lvl-4"><a href="#023-token">02.3 死循环、重复犯错、Token 烧穿：三个保险丝</a></li></ul></details>
+<h4 id="021-agent">02.1 你的 Agent 为什么"卡"半天才吐字</h4>
+<p>你问一句，它三五秒才冒第一个字。不是模型慢，是<strong>流式响应</strong>的工程真相：</p>
+<p>模型是<strong>一个 token 一个 token 往外吐</strong>的。首字延迟（TTFT）取决于：系统提示有多长、检索了几轮、工具跑了几秒。后面的字是边生成边推（SSE / WebSocket）。</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>占用时间</th>
+<th>你能做的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>拼上下文</td>
+<td>常最大头</td>
+<td>压缩系统提示、上缓存（进四 04）</td>
+</tr>
+<tr>
+<td>首轮推理</td>
+<td>中</td>
+<td>用快模型打初稿</td>
+</tr>
+<tr>
+<td>工具往返</td>
+<td>看外部</td>
+<td>设超时、并行调用</td>
+</tr>
+<tr>
+<td>流式输出</td>
+<td>用户可见</td>
+<td>已是最优，别优化</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>核心建议</strong>：用户觉得"卡"，多半是首包太慢。先砍系统提示和检索轮数，比换模型管用。</p>
+</blockquote>
+<h4 id="022-api-try-catch">02.2 模型 API 挂了怎么办？容错不是加个 try-catch</h4>
+<p>生产环境，API 一定会挂。新手写：</p>
+<pre><code class="language-python">try:
+    r = call_model(prompt)
+except:
+    r = &quot;出错了&quot;   # ← 这等于把锅甩给用户
+</code></pre>
+<p>生产级要做四件事：</p>
+<ol>
+<li><strong>重试 + 退避</strong>：失败隔 1s、2s、4s 再试，别瞬间狂轰。</li>
+<li><strong>熔断</strong>：某模型连挂，先停用，别拖垮全链路。</li>
+<li><strong>降级</strong>：主模型挂，切备用模型（弱一点但活着）。</li>
+<li><strong>幂等</strong>：重试不能让"发两次邮件"。</li>
+</ol>
+<blockquote>
+<p><strong>经验</strong>：容错的目标不是"不报错"，是"用户无感"。</p>
+</blockquote>
+<h4 id="023-token">02.3 死循环、重复犯错、Token 烧穿：三个保险丝</h4>
+<p>呼应 §09.4 的停止条件，我把它们叫 <strong>Loop 的三道保险丝</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>保险丝</th>
+<th>干什么</th>
+<th>不装的后果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>步骤上限</td>
+<td>跑 N 步强制停</td>
+<td>原地空转一整晚</td>
+</tr>
+<tr>
+<td>Token/成本预算</td>
+<td>超预算即停</td>
+<td>账单爆炸</td>
+</tr>
+<tr>
+<td>连续失败即停</td>
+<td>工具连错 K 次停</td>
+<td>同一个错反复犯</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">for step in range(MAX_STEPS):            # 保险丝① 步骤
+    if ctx.cost &gt; BUDGET: break          # 保险丝② 成本
+    if ctx.tool_fail_streak &gt;= 3: break  # 保险丝③ 失败
+    ...
+</code></pre>
+<blockquote>
+<p><strong>注意</strong>：模型越强，越要紧边界。不是换更强模型，是装更牢的保险丝。</p>
+</blockquote>
+<hr />
+    </article>
+    <footer class="pager">
+      <a class="pager-prev" href="adv01.html">← 进一 认知校准：别追产品，学支柱</a>
+      <a class="pager-next" href="adv03.html">进三 Tool System：给 Agent 装手脚 →</a>
+    </footer>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<script src="assets/mermaid.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
