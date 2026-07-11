@@ -19,7 +19,7 @@
 
 <p>前几章我们造的是一个一个能用的 Skill。但 2026 年最让我兴奋的变化是另一类工具——它们不做"单个技能"，而是把"原料"整锅<strong>蒸馏</strong>成一个 Skill 包。</p>
 <p>一本书、一个人的数字痕迹、一位名人的公开表达，进去，出来的是一个可安装、可版本化、可回滚的 AgentSkills 标准目录。我把它叫"蒸馏 Skill"（distillation skill）。</p>
-<p>这条线上现在有四个值得记住的仓库：人→Skill 的 <code>dot-skill</code>，书→Skill 的 <code>book-to-skill</code>，名人/主题→Skill 的 <code>nuwa-skill</code>，以及逆向"写书"这件事的 <code>huashu-bookwriter</code>。</p>
+<p>这条线上现在有五个值得记住的仓库：人→Skill 的 <code>dot-skill</code>，书→Skill 的 <code>book-to-skill</code>，书/视频/播客→方法论 Skill 集的 <code>cangjie-skill</code>，名人/主题→Skill 的 <code>nuwa-skill</code>，以及逆向"写书"这件事的 <code>huashu-bookwriter</code>。</p>
 
 <h3 class='sub'>10.1 dot-skill：把一个人蒸馏成 Skill</h3>
 <p>仓库：<code>titanwings/colleague-skill</code>。</p>
@@ -39,7 +39,30 @@
 <p>两者只通过临时目录里的 <code>full_text.txt</code> + <code>metadata.json</code> 两个文件通信。Python 不依赖 AI API，AI 也不用操心 PDF 怎么解析。</p>
 <p>生成的 Skill 包用 <strong>progressive disclosure</strong>（渐进式揭露）压 token：平时只载 <code>SKILL.md</code>（~4000 token），你问 <code>ch05</code> 才载 <code>chapters/ch05</code>（~1000 token），问术语才翻 glossary，要决策规则才看 cheatsheet。一本 400 页的书编译一次约 $1（Claude Sonnet 4.5）。</p>
 
-<h3 class='sub'>10.3 nuwa-skill：把名人的"思维底座"装进 Agent</h3>
+<h3 class='sub'>10.3 cangjie-skill：把方法论蒸馏成可调用的 Skill 集</h3>
+<p>仓库：<code>kangarooking/cangjie-skill</code>，作者袋鼠帝。</p>
+<p>如果说 book-to-skill 是"编译一本 PDF"，cangjie-skill 走得更远——它要蒸馏的不只是"书"，还有长视频、播客、访谈、课程，所有"系统性表达过的高价值内容"。</p>
+<p>它的核心流水线叫 <strong>RIA-TV++</strong>，分七阶段：</p>
+<ol class='bullets'>
+<li><strong>整体内容理解（Adler 分析）</strong>——借鉴 Adler《如何阅读一本书》的分析阅读法，对整份内容做结构、解释、批判、应用四步拆解，产出 <code>BOOK_OVERVIEW.md</code>。</li>
+<li><strong>并行提取</strong>——同时派 5 个专项提取器（框架、原则、案例、反例、术语），从原文中提取候选方法论单元。</li>
+<li><strong>三重验证</strong>——每个候选必须通过：原内容中 ≥2 处独立佐证（跨域）、能回答内容里未明说的新问题（预测力）、不是常识（独特性）。通过率通常只有 25-50%。</li>
+<li><strong>RIA++ 构造</strong>——按 R（原文引用）/ I（用自己的话重写）/ A1（书中案例）/ A2（未来触发场景）/ E（可执行步骤）/ B（边界与盲点）六个维度结构化。</li>
+<li><strong>Zettelkasten 链接</strong>——找出 skill 之间的依赖、对比、组合关系，生成 <code>INDEX.md</code> 和引用图。</li>
+<li><strong>压力测试</strong>——为每个 skill 设计含诱饵题的测试用例（含跨 skill 混淆测试），未通过的回炉重做。</li>
+<li><strong>交付</strong>——生成面向读者的 <code>DIGEST.md</code> 精华长文，并把通过测试的 skill 安装到 Claude Code / Cursor 的 skills 目录。</li>
+</ol>
+<p>这个流水线名字拆开看：</p>
+<ul class='bullets'>
+<li><strong>RIA</strong>：来自赵周《这样读书就够了》的便签拆书法（Reading / Interpretation / Appropriation）。</li>
+<li><strong>TV</strong>：Triple Verification，三重验证。</li>
+<li><strong>++</strong>：面向 Agent 执行的扩展——E（Execution 可执行步骤）+ B（Boundary 边界）。</li>
+</ul>
+<p>它最狠的地方是第三步三重验证——和 nuwa-skill 那套过滤如出一辙。任何一个候选观点想升级成"可调用的 skill"，必须同时跨域、有预测力、有独特性。常见内容（人尽皆知的常识、只有一处的偶发表达）会被直接筛掉。这种"宁可漏杀、不可错放"的态度，是它能保证输出质量的关键。</p>
+<p>作者已经用这套流水线蒸馏了 20+ 个 skill 仓库：巴菲特致股东信 20 个、《认知红利》15 个、段永平投资问答录 15 个、《爆款文案》14 个、《穷查理宝典》12 个、《毛泽东选集》25 个……光书就覆盖投资、认知、文案、传播、个人品牌、中医、经典古籍。</p>
+<blockquote><p><strong>标叔的结论</strong>：cangjie-skill 跟 book-to-skill 不是替代关系，是升级关系。</p><p>book-to-skill 把"一本书的知识体系"编译成可渐进揭露的 Skill；cangjie-skill 把"一本书/视频/播客的方法论"严格筛选成可调用的 Skill 集。前者面向"想把这本书整体交付给 Agent"的人，后者面向"想在真实决策中用得上"的人。</p></blockquote>
+
+<h3 class='sub'>10.4 nuwa-skill：把名人的"思维底座"装进 Agent</h3>
 <p>仓库：<code>alchaincyf/nuwa-skill</code>，作者花叔。</p>
 <p>作者自己给的定位很犀利——"<code>colleague-skill</code> 蒸馏人做什么，女娲蒸馏人怎么想"。所以它不是角色扮演，而是把乔布斯、芒格、马斯克、费曼这些人的<strong>认知操作系统</strong>抽成可运行 Skill。</p>
 <p>普通角色扮演只抄语气皮毛，女娲要的是思维底座。两者差异：</p>
@@ -52,27 +75,28 @@
 
 <h3 class='sub'>10.4 huashu-bookwriter：逆向"写书"这件事</h3>
 <p>仓库：<code>ZeroxZhang/huashu-bookwriter</code>。</p>
-<p>前三个都是"把某个对象变成 Skill"，huashu-bookwriter 是倒过来的——它从一个人的书和仓库里<strong>逆推出"他怎么写书"</strong>，再把这个方法论装回去生成新书。ZeroxZhang 逆向花叔的 4 本橙皮书 + 开源仓库，还原度 95%+。</p>
+<p>前四个都是"把某个对象变成 Skill"，huashu-bookwriter 是倒过来的——它从一个人的书和仓库里<strong>逆推出"他怎么写书"</strong>，再把这个方法论装回去生成新书。ZeroxZhang 逆向花叔的 4 本橙皮书 + 开源仓库，还原度 95%+。</p>
 <p>它不是写作 Prompt，是<strong>写作操作系统</strong>——管的是从选题→大纲→调研→撰写→QC→PDF 导出的全生命周期。逆向出来的核心是 5 层精密结构：</p>
 <div class="table-wrap"><table><thead><tr><th>层级</th><th>核心规则</th><th>解决什么问题</th></tr></thead><tbody><tr><td><strong>渐进式信任建立</strong></td><td>每章前 2-3 段必须有时间线锚点；没体验就诚实标注</td><td>让读者相信你真做过</td></tr><tr><td><strong>结构化知识路径</strong></td><td>Part1 从零跑通 → Part2 核心能力 → Part3 多场景实战</td><td>避免「读完还是不会」</td></tr><tr><td><strong>风格 DNA</strong></td><td>单句 ≤25 字、第一人称高频、具体数字、禁用词表</td><td>让不同 Agent 写出来像同一个人</td></tr><tr><td><strong>TDD 式质量铁律</strong></td><td>每章 12 项 QC + 全书 10 项 QC，不通过就重写</td><td>自动化关卡，违反即删除重写</td></tr><tr><td><strong>Agent Protocol</strong></td><td>写作前必须先调研确认事实，不准凭训练数据编造</td><td>治 AI 幻觉</td></tr></tbody></table></div>
 <p>第三层"风格 DNA"最狠——它不光规定"该用什么"，更规定"绝对不能用什么"：「接下来我们将进行」→「我们来」、「进行操作」→「点击」、「综上所述」「值得注意的是」「强大的」「革命性的」全在禁用词表里。禁用词的本质不是词不好，而是这个词意味着你在逃避某种表达责任。</p>
-<blockquote><p><strong>标叔的结论</strong>：风格一致性不是靠天赋，是靠规则。</p><p>这四类 Skill 把"人怎么想、书怎么写、流程怎么跑"全蒸馏成了可分发工件，本质上它们在做同一件事——把软资产硬化成硬组件。</p></blockquote>
+<blockquote><p><strong>标叔的结论</strong>：风格一致性不是靠天赋，是靠规则。</p><p>这五类 Skill 把"人怎么想、书怎么写、流程怎么跑"全蒸馏成了可分发工件，本质上它们在做同一件事——把软资产硬化成硬组件。</p></blockquote>
 
-<h3 class='sub'>10.5 怎么串起来用</h3>
-<p>四条线不是互斥的，可以并存、可以组合。比如让：</p>
+<h3 class='sub'>10.6 怎么串起来用</h3>
+<p>五条线不是互斥的，可以并存、可以组合。比如让：</p>
 <ul class='bullets'>
 <li><code>nuwa-skill/芒格</code> 管投资判断的认知视角</li>
+<li><code>cangjie-skill/穷查理宝典</code> 管芒格同款思维方法的可调用 Skill 集</li>
 <li><code>book-to-skill/DDIA</code> 管技术框架的知识体系</li>
 <li><code>colleague-skill/你同事</code> 管 Code Review 的表达口味</li>
 <li><code>huashu-bookwriter</code> 管从大纲到 PDF 的写作流程</li>
 </ul>
 <p>同场协作，一个负责"怎么想"、一个负责"用什么框架"、一个负责"怎么说"、一个负责"怎么交付"——那就是真正意义上的"智囊团 + 写作流水线"了。</p>
 
-<h3 class='sub'>10.6 三个必须知道的边界</h3>
+<h3 class='sub'>10.7 三个必须知道的边界</h3>
 <p>这些工具的作者自己反复强调几个"不"，我抄过来给你：</p>
 <ul class='bullets'>
 <li><strong>不复制人</strong>。nuwa 提的是认知框架，不是把这个人"复活"；colleague 提的是有用的判断力，不是数字永生。</li>
-<li><strong>不 ship 任何书的内容</strong>。book-to-skill 只生成结构化衍生笔记（框架名、定义、takeaway），不复制原文。</li>
+<li><strong>不 ship 任何书的内容</strong>。book-to-skill / cangjie-skill 只生成结构化衍生笔记（框架名、定义、takeaway），不复制原文。</li>
 <li><strong>不解决海量跨库检索</strong>。50+ 本书跨库是 RAG / NotebookLM 的地盘；单本深挖、反复用才是 Skill 的地盘。</li>
 </ul>
 <p>版权要自己扛——第三方书生成的 Skill 别 redistribution，内部文档、自有写作、开源许可材料没问题。信源决定上限——一手材料（本人书/长访谈）远胜二手解读，批评视角必须保留。</p>
