@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数据分析助手-最佳实践</title>
+<style>
+:root{
+  --bg:#ffffff; --fg:#1f2328; --muted:#57606a; --line:#e3e6ea;
+  --accent:#0a6b6b; --accent2:#e8622c; --code-bg:#f6f8fa; --quote-bg:#f3f8f8;
+  --card:#fbfcfd;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Noto Sans CJK SC",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-size:17px; line-height:1.85;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex; align-items:flex-start; max-width:1280px; margin:0 auto}
+.sidebar{
+  position:sticky; top:0; align-self:flex-start;
+  flex:0 0 270px; height:100vh; overflow-y:auto;
+  padding:24px 18px 40px; border-right:1px solid var(--line);
+  background:#fcfdfe;
+}
+.sidebar h2{
+  font-size:15px; margin:0 0 12px; color:var(--accent);
+  font-weight:700; letter-spacing:.5px;
+}
+.toc-list{list-style:none; margin:0; padding:0; font-size:14px}
+.toc-list li{margin:2px 0; line-height:1.5}
+.toc-list a{color:var(--muted); display:block; padding:3px 8px; border-radius:6px; border-left:2px solid transparent}
+.toc-list a:hover{background:#eef3f3; color:var(--fg); text-decoration:none}
+.toc-list a.active{color:var(--accent); background:#e9f3f3; border-left:2px solid var(--accent); font-weight:600}
+.content{
+  flex:1; min-width:0; max-width:860px; margin:0 auto;
+  padding:40px 48px 120px;
+}
+.content h1{font-size:30px; line-height:1.35; margin:0 0 8px; color:#0c2b2b}
+.content h2{font-size:24px; margin:42px 0 14px; padding-bottom:8px; border-bottom:2px solid var(--line); color:#0c2b2b}
+.content h3{font-size:19px; margin:28px 0 10px; color:var(--accent)}
+.content p{margin:14px 0}
+.content img{max-width:100%; height:auto; display:block; margin:20px auto; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.content blockquote{
+  margin:18px 0; padding:12px 18px; background:var(--quote-bg);
+  border-left:4px solid var(--accent); border-radius:0 8px 8px 0; color:#26403f;
+}
+.content blockquote p{margin:8px 0}
+.content code{
+  background:var(--code-bg); padding:.15em .4em; border-radius:5px;
+  font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; font-size:.9em;
+  border:1px solid var(--line);
+}
+.content pre{
+  background:var(--code-bg); border:1px solid var(--line); border-radius:10px;
+  padding:16px 18px; overflow-x:auto; margin:18px 0;
+}
+.content pre code{background:none; border:none; padding:0; font-size:13.5px; line-height:1.6}
+.content table{
+  border-collapse:collapse; width:100%; margin:18px 0; font-size:15px;
+  display:block; overflow-x:auto;
+}
+.content th,.content td{border:1px solid var(--line); padding:8px 12px; text-align:left}
+.content th{background:#eef3f3; font-weight:700; color:#0c2b2b}
+.content tr:nth-child(even) td{background:#fafcfc}
+.mermaid{
+  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  padding:18px; margin:22px 0; overflow-x:auto; text-align:center;
+}
+.mermaid pre{text-align:left; white-space:pre; font-size:13px; color:var(--muted)}
+.cover-note{color:var(--muted); font-size:14px; margin:4px 0 30px}
+.footnote{margin-top:60px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:13px}
+.totop{
+  position:fixed; right:24px; bottom:24px; width:44px; height:44px; border-radius:50%;
+  background:var(--accent); color:#fff; border:none; font-size:20px; cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.18); display:none;
+}
+.totop:hover{background:#085656}
+@media (max-width:980px){
+  .layout{flex-direction:column}
+  .sidebar{position:static; height:auto; width:100%; border-right:none; border-bottom:1px solid var(--line); max-height:42vh}
+  .content{padding:24px 18px 90px}
+  .content h1{font-size:25px}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js" defer></script>
+<script>window.addEventListener('DOMContentLoaded',function(){ if(window.mermaid){ mermaid.initialize({startOnLoad:true, theme:'base', themeVariables:{primaryColor:'#e9f3f3',lineColor:'#0a6b6b',fontSize:'15px'}}); } });</script>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <h2>数据分析助手-最佳实践</h2>
+    <ul class="toc-list"><li style="margin-left:0px"><a href="#sec-3">阅读指南</a></li><li style="margin-left:0px"><a href="#sec-4">Part 1: 起步</a></li><li style="margin-left:0px"><a href="#sec-5">§01 为什么你需要一个"会写代码的智能体"</a></li><li style="margin-left:18px"><a href="#sec-6">01.1 时间线锚点</a></li><li style="margin-left:18px"><a href="#sec-7">01.2 它到底比传统工具调用强在哪</a></li><li style="margin-left:18px"><a href="#sec-8">01.3 这本书要带你走到哪</a></li><li style="margin-left:18px"><a href="#sec-9">01.4 适合谁</a></li><li style="margin-left:0px"><a href="#sec-10">§02 手搓一个 CodeAct：20 行核心循环</a></li><li style="margin-left:18px"><a href="#sec-11">02.1 先看全貌</a></li><li style="margin-left:18px"><a href="#sec-12">02.2 这循环里最关键的三个点</a></li><li style="margin-left:18px"><a href="#sec-13">02.3 它会自己改错</a></li><li style="margin-left:18px"><a href="#sec-14">02.4 终端美化是顺带的</a></li><li style="margin-left:0px"><a href="#sec-15">§03 让它分析一只股票：akshare + exec</a></li><li style="margin-left:18px"><a href="#sec-16">03.1 我们要做成什么</a></li><li style="margin-left:18px"><a href="#sec-17">03.2 把数据丢给智能体</a></li><li style="margin-left:18px"><a href="#sec-18">03.3 踩坑记录</a></li><li style="margin-left:0px"><a href="#sec-19">Part 2: 核心能力</a></li><li style="margin-left:0px"><a href="#sec-20">§04 换个轮子：smolagents 的 CodeAgent</a></li><li style="margin-left:18px"><a href="#sec-21">04.1 为什么要换</a></li><li style="margin-left:18px"><a href="#sec-22">04.2 最简形态：一行跑代码</a></li><li style="margin-left:18px"><a href="#sec-23">04.3 CodeAgent vs ToolCallingAgent</a></li><li style="margin-left:18px"><a href="#sec-24">04.4 OpenAIModel 接的是国产模型</a></li><li style="margin-left:0px"><a href="#sec-25">§05 自定义工具：读 CSV、写 MD</a></li><li style="margin-left:18px"><a href="#sec-26">05.1 为什么不直接让它写代码读文件</a></li><li style="margin-left:18px"><a href="#sec-27">05.2 smolagents 的 Tool 怎么写</a></li><li style="margin-left:18px"><a href="#sec-28">05.3 挂上去</a></li><li style="margin-left:18px"><a href="#sec-29">05.4 工具和代码可以共存</a></li><li style="margin-left:0px"><a href="#sec-30">§06 接上 MCP：工具变成独立服务</a></li><li style="margin-left:18px"><a href="#sec-31">06.1 这一步想解决什么</a></li><li style="margin-left:18px"><a href="#sec-32">06.2 项目里怎么做的</a></li><li style="margin-left:18px"><a href="#sec-33">06.3 agent 怎么连</a></li><li style="margin-left:0px"><a href="#sec-34">§07 ToolCallingAgent：不写代码，只调工具</a></li><li style="margin-left:18px"><a href="#sec-35">07.1 为什么需要它</a></li><li style="margin-left:18px"><a href="#sec-36">07.2 项目里的联网子智能体</a></li><li style="margin-left:18px"><a href="#sec-37">07.3 max_steps 是保险</a></li><li style="margin-left:0px"><a href="#sec-38">Part 3: 进阶实战</a></li><li style="margin-left:0px"><a href="#sec-39">§08 多智能体编排：经理 + 联网子智能体</a></li><li style="margin-left:18px"><a href="#sec-40">08.1 这一章是全书的高潮</a></li><li style="margin-left:18px"><a href="#sec-41">08.2 它怎么协作</a></li><li style="margin-left:18px"><a href="#sec-42">08.3 managed_agents 的本质</a></li><li style="margin-left:18px"><a href="#sec-43">08.4 这就是数据分析助手</a></li><li style="margin-left:0px"><a href="#sec-44">§09 复盘：从单兵到团队，那条分界线在哪</a></li><li style="margin-left:18px"><a href="#sec-45">09.1 五个测试是一条进化线</a></li><li style="margin-left:18px"><a href="#sec-46">09.2 什么时候该加层</a></li><li style="margin-left:18px"><a href="#sec-47">09.3 单兵的上限</a></li><li style="margin-left:0px"><a href="#sec-48">§10 思维转变：不要教模型答案，要给它手脚</a></li><li style="margin-left:18px"><a href="#sec-49">10.1 这本书真正的转折点</a></li><li style="margin-left:18px"><a href="#sec-50">10.2 三个转变</a></li><li style="margin-left:18px"><a href="#sec-51">10.3 真正省的不是时间，是注意力</a></li><li style="margin-left:0px"><a href="#sec-52">附录</a></li><li style="margin-left:18px"><a href="#sec-53">A 核心 API 速查</a></li><li style="margin-left:18px"><a href="#sec-54">B 这本书没讲但你应该继续看的</a></li><li style="margin-left:0px"><a href="#sec-55">附录 C：DeepWiki 官方架构图 / 流程图 / 设计图（深度解读补充）</a></li><li style="margin-left:18px"><a href="#sec-56">C.1 [全局] Core Agent Framework Mapping</a></li><li style="margin-left:18px"><a href="#sec-57">C.2 [全局] Shared Infrastructure &amp;amp; Tooling</a></li><li style="margin-left:18px"><a href="#sec-58">C.3 [全局] The CodeAct Execution Pattern</a></li><li style="margin-left:18px"><a href="#sec-59">C.4 [全局] Model Configuration Mapping</a></li><li style="margin-left:18px"><a href="#sec-60">C.5 System Evolution Diagram</a></li><li style="margin-left:18px"><a href="#sec-61">C.6 Data Flow: Natural Language to Code Execution</a></li><li style="margin-left:18px"><a href="#sec-62">C.7 Core Components and Data Flow</a></li><li style="margin-left:18px"><a href="#sec-63">C.8 Visualization and Outputs</a></li><li style="margin-left:18px"><a href="#sec-64">C.9 Entity Mapping: Natural Language to Code</a></li><li style="margin-left:18px"><a href="#sec-65">C.10 Multi-Agent Data Flow</a></li></ul>
+  </nav>
+  <main class="content">
+    <h1 id="sec-1">数据分析助手-最佳实践</h1>
+<h1 id="sec-2">Data Analysis Assistant: From Zero to Hero</h1>
+<p><img alt="封面" src="cover.png" /></p>
+<p><strong>创建者</strong>: 标叔
+<strong>为谁创建</strong>: 想让 AI 自己写代码、调工具、上网查，却卡在"怎么搭"的开发者
+<strong>基于</strong>: Geek04 项目 1 · CodeAct + Smolagents · 2026
+<strong>最后更新</strong>: 2026-08-07
+<strong>适用场景</strong>: 从零搭一个"会写代码"的智能体，一路进阶到多智能体编排
+<strong>特别感谢</strong>: https://time.geekbang.org/column/intro/101170001
+</p>
+<hr />
+<h2 id="sec-3">阅读指南</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>章节</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 1</td>
+<td>§01-§03</td>
+<td>手搓一个能跑的 CodeAct</td>
+</tr>
+<tr>
+<td>Day 2</td>
+<td>§04-§07</td>
+<td>用 smolagents 把能力分层</td>
+</tr>
+<tr>
+<td>Day 3</td>
+<td>§08-§10</td>
+<td>走到多智能体编排</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sec-4">Part 1: 起步</h2>
+<p>从零到一。读完你能让模型自己写代码、自己跑、自己改错。</p>
+<h2 id="sec-5">§01 为什么你需要一个"会写代码的智能体"</h2>
+<h3 id="sec-6">01.1 时间线锚点</h3>
+<p>我用过很多"智能体"。最难受的是一类：它能说，不能做。</p>
+<p>你问它"帮我分析这只股票"。它给你一段话。数据呢？没有。它算了吗？没算。它只是"猜"。</p>
+<p>2026 年我拆 Geek04 项目 1 的时候，看到 <code>02 codeact/agent.py</code>。3845 字节。就这么点东西，干了一件关键的事——<strong>让模型自己写 Python，自己执行，自己看结果</strong>。</p>
+<p>这一步跨过去，性质就变了。它从"嘴"变成"手"。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：CodeAct 不是某个框架</p>
+<p>我最早以为 CodeAct 是 smolagents 的功能。错。CodeAct 是一种范式：智能体用"生成并执行代码"来和世界交互。<code>02 codeact</code> 用 OpenAI SDK 手搓了一个。这告诉我——范式比框架值钱。</p>
+</blockquote>
+<h3 id="sec-7">01.2 它到底比传统工具调用强在哪</h3>
+<p>传统 tool-calling：你预先定义 N 个工具。模型只能在 N 个里选。遇到没定义的需求，它卡住。</p>
+<p>CodeAct：模型自己写代码。理论上能干任何 Python 能干的事。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>纯 tool-calling</th>
+<th>CodeAct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>能力边界</td>
+<td>你定义多少，它做多少</td>
+<td>Python 能做的，它都能试</td>
+</tr>
+<tr>
+<td>灵活性</td>
+<td>低，工具是固定的</td>
+<td>高，临时写代码</td>
+</tr>
+<tr>
+<td>安全控制</td>
+<td>强，白名单工具</td>
+<td>弱，要管 exec</td>
+</tr>
+<tr>
+<td>实现成本</td>
+<td>要逐个写工具</td>
+<td>一个 execute_python 搞定</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>稳定场景用它</td>
+<td>探索性任务用它</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>重点看</strong>：最后一列。没有谁更好。是分工。</p>
+</blockquote>
+<h3 id="sec-8">01.3 这本书要带你走到哪</h3>
+<p>读完，你能回答三个问题：</p>
+<ol>
+<li>一个"自己写代码并执行"的智能体，核心循环长什么样？</li>
+<li>拿现成框架 smolagents 重做，要分几层？</li>
+<li>什么时候该单兵，什么时候该上多智能体？</li>
+</ol>
+<h3 id="sec-9">01.4 适合谁</h3>
+<ul>
+<li>写过 Python，没碰过 Agent 的人</li>
+<li>用过 LangChain，没自己搓过循环的人</li>
+<li>想搞数据分析自动化、又嫌工具不够用的人</li>
+</ul>
+<p>不适合谁：只想要一个聊天机器人的人。这本书全是"动手"。</p>
+<p>装好了认知，下一章我们动手搓循环。</p>
+<hr />
+<h2 id="sec-10">§02 手搓一个 CodeAct：20 行核心循环</h2>
+<h3 id="sec-11">02.1 先看全貌</h3>
+<p><code>02 codeact/agent.py</code> 的骨架，我剥到最简：</p>
+<pre><code class="language-python">from openai import OpenAI
+
+client = OpenAI(api_key=..., base_url=&quot;https://api.minimaxi.com/v1&quot;)
+
+TOOLS = [{&quot;type&quot;: &quot;function&quot;, &quot;function&quot;: {
+    &quot;name&quot;: &quot;execute_python&quot;,
+    &quot;description&quot;: &quot;使用该工具执行Python代码&quot;,
+    &quot;parameters&quot;: {&quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {&quot;code&quot;: {&quot;type&quot;: &quot;string&quot;}},
+        &quot;required&quot;: [&quot;code&quot;]}}}]
+
+def execute_python(code: str) -&gt; str:
+    local_vars = {}
+    exec(code, {}, local_vars)          # 关键：动态执行
+    return str(local_vars.get('result', '执行成功'))
+
+def agent_loop(messages):
+    while True:
+        resp = client.chat.completions.create(
+            model=&quot;MiniMax-M2.7&quot;, messages=messages,
+            tools=TOOLS, tool_choice=&quot;auto&quot;)
+        msg = resp.choices[0].message
+        if msg.tool_calls:              # 关键：模型要调工具
+            messages.append(msg)
+            for tc in msg.tool_calls:
+                r = execute_python(json.loads(tc.function.arguments)[&quot;code&quot;])
+                messages.append({&quot;role&quot;: &quot;tool&quot;, &quot;content&quot;: r,
+                                 &quot;tool_call_id&quot;: tc.id})
+        else:
+            break                       # 不再调工具，结束
+</code></pre>
+<p>就这些。一个能"写代码→执行→回看→再改"的循环。</p>
+<h3 id="sec-12">02.2 这循环里最关键的三个点</h3>
+<p><strong>第一，exec。</strong> <code>exec(code, {}, local_vars)</code> 把模型生成的字符串当代码跑。这是 CodeAct 的心脏。也是它最危险的地方。</p>
+<p><strong>第二，result 约定。</strong> 系统提示里要求模型把最终答案存进 <code>result</code> 变量。<code>execute_python</code> 读 <code>local_vars['result']</code>。这是个弱约定，但够用。</p>
+<pre><code class="language-python">result = local_vars.get('result', '执行成功')   # 关键：取结果
+</code></pre>
+<p><strong>第三，回灌。</strong> 工具结果以 <code>role: tool</code> 塞回 messages。下一轮模型能看到自己代码跑出了什么。没这一步，它就是瞎写。</p>
+<h3 id="sec-13">02.3 它会自己改错</h3>
+<p>这是最让我意外的地方。</p>
+<p>模型写了代码，exec 报错。<code>execute_python</code> 把异常字符串返回去。下一轮，模型看到报错，自己改代码再跑。</p>
+<p><code>agent_loop</code> 里 <code>max_rounds = 20</code>。给它 20 次机会试错。我实测，多数任务 3-5 轮就收敛。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：把错误也喂回去</p>
+<p>我最早把异常吞了，只返回"执行失败"。结果模型疯狂重试一样的代码。后来把完整 traceback 返回，它立刻知道自己错在哪。<strong>错误信息是它最好的老师。</strong></p>
+</blockquote>
+<h3 id="sec-14">02.4 终端美化是顺带的</h3>
+<p><code>utils.py</code> 里 <code>framed_print</code> 给思考过程和答案画了个框，带 ANSI 颜色。用 <code>wcwidth</code> 处理中文字宽。</p>
+<p>这跟智能体逻辑没关系。但它让调试体验好太多。你看得见它在想什么。</p>
+<pre><code class="language-python">if msg.reasoning_details[0]['text'] != &quot;&quot;:
+    framed_print(&quot;Thinking&quot;, msg.reasoning_details[0]['text'], &quot;info&quot;)
+</code></pre>
+<blockquote>
+<p><strong>核心建议</strong>：开发期把思考过程打出来</p>
+<p>调试智能体最痛苦的是"它为什么这么干"。把 reasoning 显式打印，你能少花一半排查时间。</p>
+</blockquote>
+<p>循环跑通了。下一章，给它一个真实任务。</p>
+<hr />
+<h2 id="sec-15">§03 让它分析一只股票：akshare + exec</h2>
+<h3 id="sec-16">03.1 我们要做成什么</h3>
+<p>给它燕京啤酒（000729）的日 K 线数据，让它算均线、画图、出结论。</p>
+<p>数据从哪来？<code>stock_yanjing.py</code> 用 akshare 拉：</p>
+<pre><code class="language-python">import akshare as ak
+df = ak.stock_zh_a_hist(symbol=&quot;000729&quot;, period=&quot;daily&quot;,
+    start_date=start_date, end_date=end_date, adjust=&quot;qfq&quot;)  # 前复权
+df.to_csv(csv_filename, index=False, encoding=&quot;utf-8-sig&quot;)
+</code></pre>
+<p>拉下来存成 CSV。这步是"喂数据"。</p>
+<h3 id="sec-17">03.2 把数据丢给智能体</h3>
+<p>启动 <code>agent.py</code>，在 <code>user &gt;&gt;</code> 里输入：</p>
+<blockquote>
+<p>读取 yanjing_beer_daily_k_*.csv，算 5/10/20/60 日均线，画一张带均线的 K 线图存成 PNG，再告诉我当前价相对均线偏离多少。</p>
+</blockquote>
+<p>模型会自己写一段 pandas 代码，调 <code>execute_python</code> 跑，看到结果，再写画图代码，再跑。</p>
+<p>我在项目里看到三个产物，全是它跑出来的：</p>
+<table>
+<thead>
+<tr>
+<th>产物</th>
+<th>大小</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>yanjing_ma.png</td>
+<td>229 KB</td>
+<td>均线图</td>
+</tr>
+<tr>
+<td>yanjing_beer_ma.html</td>
+<td>4.9 MB</td>
+<td>交互式均线图</td>
+</tr>
+<tr>
+<td>yanjing_beer_kline_with_ma.html</td>
+<td>4.9 MB</td>
+<td>交互式 K 线+均线</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>标叔的结论</strong>：一个 execute_python，换回三件交付物。这就是 CodeAct 的杠杆。</p>
+</blockquote>
+<h3 id="sec-18">03.3 踩坑记录</h3>
+<p><strong>坑一：路径。</strong> 系统提示里写死了 <code>你是一个在 {os.getcwd()} 目录下的</code>。它是个 f-string？不，它没被 f-string 化——<code>{os.getcwd()}</code> 原样进了字符串。这是个 bug。模型不知道真实工作目录。</p>
+<p>修法：</p>
+<pre><code class="language-python">SYSTEM_MESSAGE = f&quot;&quot;&quot;你是一个在 {os.getcwd()} 目录下...&quot;&quot;&quot;   # 关键：加 f
+</code></pre>
+<p><strong>坑二：exec 的作用域。</strong> <code>exec(code, {}, local_vars)</code> 传了空 globals。意味着标准库能 import，但跨轮的状态不保留。每轮都是干净的。这其实是对的——状态隔离。但你要让多步共享变量，得自己加状态层。</p>
+<p><strong>坑三：安全。</strong> exec 跑任意代码。模型要写 <code>os.system("rm -rf /")</code> 也拦不住。本地玩没事。上生产必须上沙箱。</p>
+<blockquote>
+<p><strong>注意</strong>：exec 是把刀</p>
+<p>这章的代码只能在你自己机器、自己信任的输入上跑。给别人用前，换成 Docker 或受限解释器。<code>02 codeact</code> 没做任何沙箱——它就是个教学样本。</p>
+</blockquote>
+<p>手搓的循环，能跑了。下一章，换个轮子。</p>
+<hr />
+<h2 id="sec-19">Part 2: 核心能力</h2>
+<p>深入 smolagents。把"写代码"和"调工具"分层。</p>
+<h2 id="sec-20">§04 换个轮子：smolagents 的 CodeAgent</h2>
+<h3 id="sec-21">04.1 为什么要换</h3>
+<p>手搓的循环有个上限：状态管理、错误恢复、多步规划，全得自己写。</p>
+<p>HuggingFace 的 smolagents 把这些封装好了。Geek04 的 <code>03-04 Smolagents</code> 就是用它重做。</p>
+<h3 id="sec-22">04.2 最简形态：一行跑代码</h3>
+<p><code>test1/agent.py</code>：</p>
+<pre><code class="language-python">from smolagents import CodeAgent, OpenAIModel
+
+model = OpenAIModel(model_id=&quot;qwen3.7-max&quot;, api_key=..., api_base=...)
+agent = CodeAgent(tools=[], model=model, stream_outputs=False)
+agent.run(&quot;计算1+2+3...+100的和&quot;)     # 关键：CodeAgent 直接写代码算
+</code></pre>
+<p>注意 <code>tools=[]</code>。一个工具都不给。它照样能算——因为 CodeAgent 自带 Python 解释器，模型直接写代码跑。</p>
+<p>这跟 <code>02 codeact</code> 的本质一样：<strong>模型生成代码并执行</strong>。区别是 smolagents 替你管了执行环境、错误重试、状态。</p>
+<h3 id="sec-23">04.3 CodeAgent vs ToolCallingAgent</h3>
+<p>smolagents 给了两种 agent：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>CodeAgent</th>
+<th>ToolCallingAgent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>怎么干</td>
+<td>写 Python 代码跑</td>
+<td>调预定义工具</td>
+</tr>
+<tr>
+<td>灵活度</td>
+<td>高</td>
+<td>受限于工具集</td>
+</tr>
+<tr>
+<td>适合</td>
+<td>探索、计算、数据处理</td>
+<td>明确动作、外部调用</td>
+</tr>
+<tr>
+<td>项目里谁在用</td>
+<td>主智能体（test1/2/3/5）</td>
+<td>联网子智能体（test4/5）</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>当"大脑"</td>
+<td>当"手脚"</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>标叔的经验</strong>：分工要按能力分</p>
+<p>我一开始让 CodeAgent 自己联网搜索。它能写 requests 代码，但不稳。换成"CodeAgent 当经理，ToolCallingAgent 当联网专员"后，成功率明显上去。<strong>让代码型干计算，让工具型干调用。</strong></p>
+</blockquote>
+<h3 id="sec-24">04.4 OpenAIModel 接的是国产模型</h3>
+<pre><code class="language-python">model = OpenAIModel(
+    model_id=&quot;qwen3.7-max&quot;,
+    api_base=&quot;https://dashscope.aliyuncs.com/compatible-mode/v1&quot;)
+</code></pre>
+<p>通义千问。<code>enable_thinking=False</code> 在 ToolCallingAgent 上关掉思考，省钱提速。</p>
+<blockquote>
+<p><strong>核心建议</strong>：先关 thinking 跑通</p>
+<p>调试阶段开思考会慢、会贵。先关掉把流程跑通，最后再开。test4 里就是这么干的。</p>
+</blockquote>
+<p>CodeAgent 会跑代码了。但它还没有"手"。下一章给它工具。</p>
+<hr />
+<h2 id="sec-25">§05 自定义工具：读 CSV、写 MD</h2>
+<h3 id="sec-26">05.1 为什么不直接让它写代码读文件</h3>
+<p>能。但每次都重写一遍 pandas 读 CSV 的样板，浪费且不稳。</p>
+<p>工具化的好处：把"读 CSV"变成一个稳定、可复用的能力。模型一调就行。</p>
+<h3 id="sec-27">05.2 smolagents 的 Tool 怎么写</h3>
+<p><code>test5/tools.py</code> 里 <code>ReadCSVTool</code>：</p>
+<pre><code class="language-python">from smolagents import Tool
+
+class ReadCSVTool(Tool):
+    name = &quot;read_csv&quot;
+    description = &quot;用于读取指定的 csv 文件&quot;
+    inputs = {&quot;file_path&quot;: {&quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;csv 文件的路径&quot;}}
+    output_type = &quot;any&quot;
+
+    def forward(self, file_path: str):           # 关键：执行逻辑在这
+        path = Path(file_path)
+        with path.open(&quot;r&quot;, encoding=&quot;utf-8-sig&quot;, newline=&quot;&quot;) as f:
+            return [row for row in csv.DictReader(f)]
+</code></pre>
+<p>四个要素：name、description、inputs、output_type，加一个 forward。模型靠 description 决定调不调。</p>
+<p><code>WriteMDTool</code> 同理，多了个 content 参数，还自动建父目录。</p>
+<h3 id="sec-28">05.3 挂上去</h3>
+<pre><code class="language-python">agent = CodeAgent(tools=[ReadCSVTool(), WriteMDTool()], model=model)
+</code></pre>
+<p><code>test2</code> 就这么干：让它分析 CSV、写 report.md。它先用 read_csv 拿数据，再写 pandas 代码算指标，最后用 write_md 落盘。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：description 决定一切</p>
+<p>工具写成什么样，模型不一定用。description 写清楚，它才用对。我把"读取 csv"写成"用于读取指定的 csv 文件"，它每次都对路。<strong>模型读的是说明书，不是代码。</strong></p>
+</blockquote>
+<h3 id="sec-29">05.4 工具和代码可以共存</h3>
+<p>这是 smolagents 的妙处：CodeAgent 既有预定义工具，又能临时写代码。</p>
+<p>它可能先 <code>read_csv</code> 拿数据，再写一段 matplotlib 代码画图。工具负责稳的，代码负责活的。</p>
+<blockquote>
+<p><strong>核心建议</strong>：稳的做工具，活的交代码</p>
+<p>读文件、写文件、调 API——封装成工具。算指标、画图、临时统计——交给它的代码本能。别把所有事都塞进工具，也别全靠 exec。</p>
+</blockquote>
+<p>工具挂上了。下一章，把工具搬出进程。</p>
+<hr />
+<h2 id="sec-30">§06 接上 MCP：工具变成独立服务</h2>
+<h3 id="sec-31">06.1 这一步想解决什么</h3>
+<p>工具写死在 agent 进程里，有个问题：换一个 agent，得重写一遍工具。</p>
+<p>MCP（Model Context Protocol）把工具变成一个<strong>独立服务</strong>。任何 agent 连上就能用。</p>
+<h3 id="sec-32">06.2 项目里怎么做的</h3>
+<p><code>test3/tools.py</code> 是个 MCP server：</p>
+<pre><code class="language-python">from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP(&quot;mcp common server&quot;, host=&quot;0.0.0.0&quot;, port=38000)
+
+@mcp.tool()
+def read_csv(file_path: str) -&gt; list[dict]:
+    &quot;&quot;&quot;读取指定CSV文件的内容，返回包含字典的列表。&quot;&quot;&quot;
+    ...
+
+if __name__ == &quot;__main__&quot;:
+    mcp.run(transport=&quot;streamable-http&quot;)       # 关键：HTTP 起 服务
+</code></pre>
+<p>注意：函数还是那个函数。只是用 <code>@mcp.tool()</code> 暴露成网络工具。跑起来是个 38000 端口的 HTTP 服务。</p>
+<h3 id="sec-33">06.3 agent 怎么连</h3>
+<p><code>test3/agent.py</code>：</p>
+<pre><code class="language-python">from smolagents import MCPClient
+
+with MCPClient({&quot;url&quot;: &quot;http://127.0.0.1:38000/mcp&quot;,
+                &quot;transport&quot;: &quot;streamable-http&quot;}) as tools:
+    agent = CodeAgent(tools=tools, model=model)   # 关键：远程工具当本地用
+    agent.run(&quot;分析 CSV，写 report.md&quot;)
+</code></pre>
+<p>对 agent 来说，远程工具和本地工具没区别。<code>tools=tools</code> 一塞就完事。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>本地工具（test2）</th>
+<th>MCP 工具（test3）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>部署</td>
+<td>同进程</td>
+<td>独立服务</td>
+</tr>
+<tr>
+<td>复用</td>
+<td>换 agent 要重写</td>
+<td>多 agent 共用</td>
+</tr>
+<tr>
+<td>通信</td>
+<td>函数调用</td>
+<td>HTTP</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>原型快</td>
+<td>要共享就上 MCP</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>标叔的经验</strong>：MCP 的杠杆在复用</p>
+<p>我给三个不同 agent 都要"读 CSV"。本地写三遍。改成 MCP server 后，三个 agent 连同一个。<strong>工具从"私产"变成"公共服务"。</strong></p>
+</blockquote>
+<p>MCP 把工具搬出去了。下一章，给 agent 一种"不写代码"的能力。</p>
+<hr />
+<h2 id="sec-34">§07 ToolCallingAgent：不写代码，只调工具</h2>
+<h3 id="sec-35">07.1 为什么需要它</h3>
+<p>有些任务，写代码是杀鸡用牛刀。</p>
+<p>比如"联网搜索燕京啤酒的新闻"。你不需要它算什么。你需要它调一个搜索 API，把结果拿回来。</p>
+<p>这种场景，ToolCallingAgent 更合适——它不 exec 代码，只调工具。安全、快、省 token。</p>
+<h3 id="sec-36">07.2 项目里的联网子智能体</h3>
+<p><code>test5/subAgent.py</code>：</p>
+<pre><code class="language-python">web_search_agent = ToolCallingAgent(
+    name=&quot;web_search_agent&quot;,
+    description=&quot;可以根据用户的问题，进行联网搜索，返回搜索结果&quot;,
+    tools=[BoChaWebSearch()],
+    model=model,
+    max_steps=10)                              # 关键：最多 10 步
+</code></pre>
+<p>它只有一个工具：<code>BoChaWebSearch</code>，调博查搜索 API：</p>
+<pre><code class="language-python">class BoChaWebSearch(Tool):
+    def forward(self, query: str) -&gt; str:
+        data = {&quot;query&quot;: query, &quot;summary&quot;: True, &quot;count&quot;: 10, &quot;page&quot;: 1}
+        resp = requests.post(&quot;https://api.bochaai.com/v1/web-search&quot;,
+            headers={&quot;Authorization&quot;: f&quot;Bearer {API_KEY}&quot;}, ...)
+        return [{&quot;title&quot;:..., &quot;summary&quot;:..., &quot;url&quot;:...} for ...]
+</code></pre>
+<p>返回标题、摘要、链接的列表。</p>
+<h3 id="sec-37">07.3 max_steps 是保险</h3>
+<p><code>max_steps=10</code>。防止它绕圈调工具烧钱。CodeAgent 那边 <code>max_rounds=20</code> 是同理——都要设上限。</p>
+<blockquote>
+<p><strong>注意</strong>：一定要设步数上限</p>
+<p>没上限的 agent，遇到死循环会把 API 额度跑光。我吃过亏。10 步够干大多数事了。</p>
+</blockquote>
+<p>手脚齐了。下一章，让大脑指挥手脚。</p>
+<hr />
+<h2 id="sec-38">Part 3: 进阶实战</h2>
+<p>从单兵走向团队。这是质的跳跃。</p>
+<h2 id="sec-39">§08 多智能体编排：经理 + 联网子智能体</h2>
+<h3 id="sec-40">08.1 这一章是全书的高潮</h3>
+<p><code>test5/agent.py</code> 把前面所有东西拼到了一起：</p>
+<pre><code class="language-python">agent = CodeAgent(
+    tools=[ReadCSVTool(), WriteMDTool()],     # 自己的手：读写文件
+    model=model,
+    managed_agents=[web_search_agent]          # 关键：管一个子智能体
+)
+
+agent.run(prompt)   # 分析燕京啤酒，出 Markdown 报告
+</code></pre>
+<p>一个 CodeAgent，当经理。它管一个 ToolCallingAgent——联网专员。</p>
+<h3 id="sec-41">08.2 它怎么协作</h3>
+<p>prompt 要求：读本地 K 线 → 搜最新资讯 → 结合 → 出报告。</p>
+<p>我推断的流程：</p>
+<ol>
+<li>经理用 <code>read_csv</code> 读燕京 K 线。</li>
+<li>经理写 pandas 代码算均线、涨跌、波动。</li>
+<li>经理把"搜燕京啤酒近期新闻"这个子任务，<strong>委派</strong>给 <code>web_search_agent</code>。</li>
+<li>子智能体调博查搜索，返回新闻摘要。</li>
+<li>经理把技术面数据 + 基本面资讯结合，写报告。</li>
+<li>经理用 <code>write_md</code> 落盘成 report.md。</li>
+</ol>
+<p>产物就是 <code>03-04 Smolagents/report.md</code>。一份结构完整的燕京啤酒投资分析——基本面、技术面、机构评级、风险提示，全有。</p>
+<p><img alt="多智能体编排" src="images/multiagent-orch.png" /></p>
+<h3 id="sec-42">08.3 managed_agents 的本质</h3>
+<p><code>managed_agents</code> 不是"再开一个 agent 窗口"。是<strong>委派</strong>。</p>
+<p>经理把活分下去，子智能体干完，结果回到经理手里。经理决定怎么用。子智能体不直接面对用户。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：委派比并行更稳</p>
+<p>我试过让两个 agent 同时跑再合并。结果对不上。改成"经理委派→回收→统一"后，报告一致性立刻上来。<strong>多智能体的关键不是多，是有一个主。</strong></p>
+</blockquote>
+<h3 id="sec-43">08.4 这就是数据分析助手</h3>
+<p>到这一步，"数据分析助手"成型了：</p>
+<ul>
+<li>会读数据（工具）</li>
+<li>会算会画（代码本能）</li>
+<li>会联网（子智能体）</li>
+<li>会统筹出报告（经理）</li>
+</ul>
+<p>从 <code>02 codeact</code> 的 3845 字节，到 <code>test5</code> 的多智能体，这条路走完了。</p>
+<blockquote>
+<p><strong>一句话总结</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>干什么</th>
+<th>谁干</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>手搓</td>
+<td>exec 跑代码</td>
+<td>一个循环</td>
+</tr>
+<tr>
+<td>单兵</td>
+<td>工具+代码</td>
+<td>一个 CodeAgent</td>
+</tr>
+<tr>
+<td>联网</td>
+<td>子智能体</td>
+<td>ToolCallingAgent</td>
+</tr>
+<tr>
+<td>团队</td>
+<td>经理统筹</td>
+<td>managed_agents</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<p>下一章复盘这条线。</p>
+<hr />
+<h2 id="sec-44">§09 复盘：从单兵到团队，那条分界线在哪</h2>
+<h3 id="sec-45">09.1 五个测试是一条进化线</h3>
+<table>
+<thead>
+<tr>
+<th>测试</th>
+<th>形态</th>
+<th>关键代码</th>
+<th>学到啥</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>test1</td>
+<td>CodeAgent 空工具</td>
+<td><code>agent.run("算1..100")</code></td>
+<td>CodeAgent 自带解释器</td>
+</tr>
+<tr>
+<td>test2</td>
+<td>+自定义工具</td>
+<td><code>tools=[ReadCSVTool, WriteMDTool]</code></td>
+<td>稳的封装成工具</td>
+</tr>
+<tr>
+<td>test3</td>
+<td>+MCP</td>
+<td><code>MCPClient({url})</code></td>
+<td>工具变服务可复用</td>
+</tr>
+<tr>
+<td>test4</td>
+<td>ToolCallingAgent</td>
+<td><code>tools=[]</code> 跑搜索</td>
+<td>不写代码更安全</td>
+</tr>
+<tr>
+<td>test5</td>
+<td>+managed_agents</td>
+<td><code>managed_agents=[web_search_agent]</code></td>
+<td>经理委派子智能体</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>重点看</strong>：每一格只多一个能力。这就是好的教学顺序。</p>
+</blockquote>
+<h3 id="sec-46">09.2 什么时候该加层</h3>
+<p>我的判断标准：</p>
+<ul>
+<li>需要稳定复用 → 封装成工具</li>
+<li>需要多 agent 共用 → 上 MCP</li>
+<li>需要隔离风险 → 换 ToolCallingAgent</li>
+<li>需要统筹多源 → 上 managed_agents</li>
+</ul>
+<p>不要一上来就上全套。test1 能跑通的，别急着 test5。</p>
+<h3 id="sec-47">09.3 单兵的上限</h3>
+<p>单兵 CodeAgent 能干很多事。但有两个天花板：</p>
+<ol>
+<li><strong>上下文爆炸。</strong> 数据、搜索结果、代码全堆在一个 agent 的记忆里，撑不住。</li>
+<li><strong>职责混乱。</strong> 又算数又搜索又写报告，容易顾此失彼。</li>
+</ol>
+<p>到了这两点，就该分家。</p>
+<blockquote>
+<p><strong>核心建议</strong>：先单兵跑通，再拆团队</p>
+<p>别一上来就多智能体。先让一个 agent 把全流程跑通，哪怕糙。跑通了，你才知道哪里该拆、怎么拆。</p>
+</blockquote>
+<p>分界线讲清了。最后一章，换个脑子。</p>
+<hr />
+<h2 id="sec-48">§10 思维转变：不要教模型答案，要给它手脚</h2>
+<p><img alt="不要教模型答案，要给它手脚" src="images/core-01-hands-feet.png" /></p>
+<p><img alt="最高级的自动化是分工" src="images/core-02-division.png" /></p>
+<h3 id="sec-49">10.1 这本书真正的转折点</h3>
+<p>很多人用 AI 的方式是"教它答案"：把资料喂进去，让它复述。</p>
+<p>CodeAct 这套，思路反过来——<strong>不给答案，给手脚</strong>。</p>
+<p>你不告诉它均线怎么算。你给它一个能跑代码的环境。它自己会。</p>
+<h3 id="sec-50">10.2 三个转变</h3>
+<p><strong>转变一：从"提示词"到"环境"。</strong>
+与其打磨一句话，不如搭好工具和沙箱。环境对了，模型自然对。</p>
+<p><strong>转变二：从"我写"到"它写"。</strong>
+你不再写业务代码。你写工具。模型写胶水代码。</p>
+<p><strong>转变三：从"一个能干的"到"一群各司其职的"。</strong>
+单兵有上限。学会拆——大脑一个，手脚若干。</p>
+<h3 id="sec-51">10.3 真正省的不是时间，是注意力</h3>
+<p>用这套之后，我省掉的不是写代码的时间。是"记着所有细节"的注意力。</p>
+<p>模型记数据。子智能体记新闻。我记方向。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：最高级的自动化是分工</p>
+<p>我以为自动化是"让机器替我干活"。其实更准的说法是"让机器各自干活、我居中调度"。项目 1 这五个测试，把这层窗户纸捅破了。</p>
+</blockquote>
+<p>思维变了，剩下的就是练。</p>
+<hr />
+<h2 id="sec-52">附录</h2>
+<h3 id="sec-53">A 核心 API 速查</h3>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>类/函数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>openai</td>
+<td><code>client.chat.completions.create(tools=, tool_choice=)</code></td>
+<td>带工具的对话</td>
+</tr>
+<tr>
+<td>openai</td>
+<td><code>exec(code, {}, local_vars)</code></td>
+<td>动态执行代码</td>
+</tr>
+<tr>
+<td>smolagents</td>
+<td><code>CodeAgent(tools=, model=, managed_agents=)</code></td>
+<td>代码型智能体</td>
+</tr>
+<tr>
+<td>smolagents</td>
+<td><code>ToolCallingAgent(tools=, model=, max_steps=)</code></td>
+<td>工具型智能体</td>
+</tr>
+<tr>
+<td>smolagents</td>
+<td><code>Tool</code> 子类（name/description/inputs/forward）</td>
+<td>自定义工具</td>
+</tr>
+<tr>
+<td>smolagents</td>
+<td><code>MCPClient({url, transport})</code></td>
+<td>连 MCP 服务</td>
+</tr>
+<tr>
+<td>FastMCP</td>
+<td><code>@mcp.tool()</code> + <code>mcp.run(transport=)</code></td>
+<td>起 MCP 服务</td>
+</tr>
+<tr>
+<td>akshare</td>
+<td><code>ak.stock_zh_a_hist(symbol, period, adjust)</code></td>
+<td>拉 A 股 K 线</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-54">B 这本书没讲但你应该继续看的</h3>
+<ul>
+<li>smolagents 的 <code>planning_step</code>：让 agent 先列计划再执行。</li>
+<li>沙箱执行：用 Docker 或 E2B 替换裸 exec。</li>
+<li>记忆与状态：跨会话怎么保留上下文。</li>
+</ul>
+<blockquote>
+<p>⚠️ 免责声明：本书基于 Geek04 开源代码解读，代码样本仅作教学。投资分析示例不构成任何投资建议。</p>
+</blockquote>
+<hr />
+<h2 id="sec-55">附录 C：DeepWiki 官方架构图 / 流程图 / 设计图（深度解读补充）</h2>
+<blockquote>
+<p>以下内容来自 DeepWiki 对 <code>xingyunyang01/Geek04</code> 的自动深度解读（Mermaid 源码），作为本书架构与流程的权威参考补充。在支持 Mermaid 的 Markdown 阅读器（GitHub / Obsidian / VS Code + Mermaid 插件）中会自动渲染为图。</p>
+</blockquote>
+<h3 id="sec-56">C.1 [全局] Core Agent Framework Mapping</h3>
+<div class="mermaid">
+graph TD
+    subgraph "Natural Language Space"
+        A["Data Analysis Agent"]
+        B["Financial Report Orchestrator"]
+        C["Wiki Maintenance Agent"]
+        D["Contract Reviewer"]
+    end
+
+    subgraph "Code Entity Space"
+        A --> E["Smolagents: CodeAgent"]
+        E -.-> E1["03-04 Smolagents/test5.py"]
+
+        B --> F["ClaudeSDKClient"]
+        F -.-> F1["06-07/main.py"]
+
+        C --> G["DeepAgent"]
+        G -.-> G1["12-14deepagents/agent.py"]
+
+        D --> H["createAgentSession"]
+        H -.-> H1["15/minimal.ts"]
+    end
+
+</div>
+
+<h3 id="sec-57">C.2 [全局] Shared Infrastructure &amp; Tooling</h3>
+<div class="mermaid">
+graph LR
+    subgraph "Shared Services"
+        ENV[".env Configuration"]
+        MCP["Bocha AI Search (MCP)"]
+        FIN["akshare Data Provider"]
+    end
+
+    subgraph "Project Integrations"
+        P1["Project 1: Smolagents"]
+        P2["Project 2: Claude SDK"]
+        P3["Project 3: SubAgents"]
+    end
+
+    ENV --> P1
+    ENV --> P2
+    ENV --> P3
+
+    MCP --> P2
+    MCP --> P3
+
+    FIN --> P2
+    FIN --> P3
+
+</div>
+
+<h3 id="sec-58">C.3 [全局] The CodeAct Execution Pattern</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant U as "User"
+    participant A as "agent_loop [agent.py]"
+    participant M as "MiniMax-M2.7 [LLM]"
+    participant E as "execute_python [agent.py]"
+
+    U->>A: Input Query
+    loop until Answer or Max Rounds
+        A->>M: send_messages(history + tools)
+        M-->>A: tool_calls (execute_python)
+        A->>E: execute_python(code)
+        Note over E: exec(code, {}, local_vars)
+        E-->>A: return local_vars.get('result')
+        A->>A: append result to history
+    end
+    A->>U: Final Answer
+
+</div>
+
+<h3 id="sec-59">C.4 [全局] Model Configuration Mapping</h3>
+<div class="mermaid">
+graph TD
+    subgraph "Client Initialization"
+        OpenAIClient["OpenAI() Client"]
+        OpenAIModel["OpenAIModel() Wrapper"]
+    end
+
+    subgraph "Code Entities"
+        M27["MiniMax-M2.7"]
+        Qwen["qwen3.7-max"]
+    end
+
+    subgraph "Files"
+        F1["02 codeact/agent.py"]
+        F2["03-04 Smolagents/test1/agent.py"]
+    end
+
+    F1 -->|uses| OpenAIClient
+    OpenAIClient -->|targets| M27
+    F2 -->|uses| OpenAIModel
+    OpenAIModel -->|targets| Qwen
+
+    M27 ---|endpoint| URL1["https://api.minimaxi.com/v1"]
+    Qwen ---|endpoint| URL2["https://dashscope.aliyuncs.com/compatible-mode/v1"]
+
+</div>
+
+<h3 id="sec-60">C.5 System Evolution Diagram</h3>
+<div class="mermaid">
+graph TD
+    subgraph "02 codeact (Manual Implementation)"
+        A["User Query"] --> B["agent_loop"]
+        B --> C["MiniMax-M2.7 LLM"]
+        C -- "tool_calls" --> D["execute_python()"]
+        D -- "exec(code)" --> E["Local Environment"]
+        E -- "result variable" --> B
+    end
+
+    subgraph "03-04 Smolagents (Framework-based)"
+        F["User Query"] --> G["CodeAgent"]
+        G --> H["Managed Tools"]
+        H --> I["ReadCSVTool"]
+        H --> J["WriteMDTool"]
+        G -- "Delegation" --> K["Managed Sub-Agent"]
+        K --> L["WebSearchTool"]
+    end
+
+</div>
+
+<h3 id="sec-61">C.6 Data Flow: Natural Language to Code Execution</h3>
+<div class="mermaid">
+graph LR
+    subgraph "Natural Language Space"
+        UserQuery["'Analyze Yanjing Beer stock'"]
+    end
+
+    subgraph "Code Entity Space"
+        UserQuery --> Agent["CodeAgent (smolagents)"]
+        Agent -- "generates" --> Code["Python Script (string)"]
+        Code -- "accesses" --> Data["CSV Files (akshare/local)"]
+        Agent -- "calls" --> Tool1["ReadCSVTool"]
+        Agent -- "calls" --> Tool2["WriteMDTool"]
+        Tool2 -- "outputs" --> Report["investment_report.md"]
+    end
+
+</div>
+
+<h3 id="sec-62">C.7 Core Components and Data Flow</h3>
+<div class="mermaid">
+graph TD
+    subgraph "Natural Language Space"
+        UserQuery["User Input (Query)"]
+        Reasoning["LLM Reasoning (Thinking)"]
+        Observation["Analysis of Execution Result"]
+    end
+
+    subgraph "Code Entity Space (02 codeact/agent.py)"
+        AgentLoop["agent_loop(messages)"]
+        SendMessage["send_messages(messages)"]
+        ExecutePython["execute_python(code)"]
+        ToolsDef["TOOLS definition"]
+    end
+
+    UserQuery --> AgentLoop
+    AgentLoop --> SendMessage
+    SendMessage --> Reasoning
+    Reasoning -- "Tool Call (execute_python)" --> ExecutePython
+    ExecutePython -- "exec(code)" --> Observation
+    Observation -- "Feedback Loop" --> AgentLoop
+
+</div>
+
+<h3 id="sec-63">C.8 Visualization and Outputs</h3>
+<div class="mermaid">
+graph LR
+    subgraph "Data Source"
+        AKShare["akshare.stock_zh_a_hist"]
+    end
+
+    subgraph "Storage"
+        CSV["yanjing_beer_daily_k_*.csv"]
+    end
+
+    subgraph "Agent Processing"
+        Agent["agent.py (CodeAct)"]
+        Exec["execute_python"]
+    end
+
+    subgraph "Artifacts"
+        HTML["yanjing_beer_ma.html (Plotly)"]
+        PNG["yanjing_ma.png (Matplotlib)"]
+    end
+
+    AKShare --> CSV
+    CSV --> Agent
+    Agent -- "Pandas/Plotly code" --> Exec
+    Exec --> HTML
+    Exec --> PNG
+
+</div>
+
+<h3 id="sec-64">C.9 Entity Mapping: Natural Language to Code</h3>
+<div class="mermaid">
+graph TD
+    subgraph "Natural Language Space"
+        A["'Analyze local stock data'"]
+        B["'Search latest news'"]
+        C["'Write investment report'"]
+    end
+
+    subgraph "Code Entity Space"
+        direction LR
+        A --> D["ReadCSVTool.forward()"]
+        B --> E["web_search_agent (ToolCallingAgent)"]
+        C --> F["WriteMDTool.forward()"]
+
+        E --> G["BoChaWebSearch.forward()"]
+
+        D --- H["03-04 Smolagents/test5/tools.py"]
+        G --- H
+        F --- H
+        E --- I["03-04 Smolagents/test5/subAgent.py"]
+    end
+
+</div>
+
+<h3 id="sec-65">C.10 Multi-Agent Data Flow</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant User
+    participant Orchestrator as "CodeAgent (Main)"
+    participant SubAgent as "web_search_agent"
+    participant CSV as "ReadCSVTool"
+    participant Web as "BoChaWebSearch"
+    participant File as "WriteMDTool"
+
+    User->>Orchestrator: Analysis Prompt
+    Orchestrator->>CSV: forward(file_path)
+    CSV-->>Orchestrator: List[Dict] (K-Line Data)
+    Orchestrator->>SubAgent: "Search news for Yanjing Beer"
+    SubAgent->>Web: forward(query)
+    Web-->>SubAgent: List[Dict] (News results)
+    SubAgent-->>Orchestrator: Summarized News
+    Orchestrator->>Orchestrator: Synthesize Analysis
+    Orchestrator->>File: forward(file_path, content)
+    File-->>Orchestrator: "Success"
+    Orchestrator-->>User: Final Report Generated
+
+</div>
+    <div class="footnote">
+      本文由 Geek04 项目图书自动排版生成。正文离线可读；
+      含 <code>graph/sequence/class</code> 的「DeepWiki 架构图」需联网由 Mermaid 渲染，
+      离线时显示原始源码，不影响阅读。
+    </div>
+  </main>
+</div>
+<button class="totop" id="totop" title="回到顶部">↑</button>
+<script>
+// 目录高亮（scroll-spy）
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc-list a'));
+  var map = {};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var targets = links.map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = map[e.target.id]; if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-10% 0px -75% 0px', threshold:0});
+  targets.forEach(function(t){ obs.observe(t); });
+  // 回到顶部
+  var btn = document.getElementById('totop');
+  window.addEventListener('scroll', function(){ btn.style.display = window.scrollY>600 ? 'block':'none'; });
+  btn.addEventListener('click', function(){ window.scrollTo({top:0,behavior:'smooth'}); });
+})();
+</script>
+</body>
+</html>

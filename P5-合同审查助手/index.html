@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>合同审查助手-最佳实践</title>
+<style>
+:root{
+  --bg:#ffffff; --fg:#1f2328; --muted:#57606a; --line:#e3e6ea;
+  --accent:#0a6b6b; --accent2:#e8622c; --code-bg:#f6f8fa; --quote-bg:#f3f8f8;
+  --card:#fbfcfd;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Noto Sans CJK SC",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-size:17px; line-height:1.85;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex; align-items:flex-start; max-width:1280px; margin:0 auto}
+.sidebar{
+  position:sticky; top:0; align-self:flex-start;
+  flex:0 0 270px; height:100vh; overflow-y:auto;
+  padding:24px 18px 40px; border-right:1px solid var(--line);
+  background:#fcfdfe;
+}
+.sidebar h2{
+  font-size:15px; margin:0 0 12px; color:var(--accent);
+  font-weight:700; letter-spacing:.5px;
+}
+.toc-list{list-style:none; margin:0; padding:0; font-size:14px}
+.toc-list li{margin:2px 0; line-height:1.5}
+.toc-list a{color:var(--muted); display:block; padding:3px 8px; border-radius:6px; border-left:2px solid transparent}
+.toc-list a:hover{background:#eef3f3; color:var(--fg); text-decoration:none}
+.toc-list a.active{color:var(--accent); background:#e9f3f3; border-left:2px solid var(--accent); font-weight:600}
+.content{
+  flex:1; min-width:0; max-width:860px; margin:0 auto;
+  padding:40px 48px 120px;
+}
+.content h1{font-size:30px; line-height:1.35; margin:0 0 8px; color:#0c2b2b}
+.content h2{font-size:24px; margin:42px 0 14px; padding-bottom:8px; border-bottom:2px solid var(--line); color:#0c2b2b}
+.content h3{font-size:19px; margin:28px 0 10px; color:var(--accent)}
+.content p{margin:14px 0}
+.content img{max-width:100%; height:auto; display:block; margin:20px auto; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.content blockquote{
+  margin:18px 0; padding:12px 18px; background:var(--quote-bg);
+  border-left:4px solid var(--accent); border-radius:0 8px 8px 0; color:#26403f;
+}
+.content blockquote p{margin:8px 0}
+.content code{
+  background:var(--code-bg); padding:.15em .4em; border-radius:5px;
+  font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; font-size:.9em;
+  border:1px solid var(--line);
+}
+.content pre{
+  background:var(--code-bg); border:1px solid var(--line); border-radius:10px;
+  padding:16px 18px; overflow-x:auto; margin:18px 0;
+}
+.content pre code{background:none; border:none; padding:0; font-size:13.5px; line-height:1.6}
+.content table{
+  border-collapse:collapse; width:100%; margin:18px 0; font-size:15px;
+  display:block; overflow-x:auto;
+}
+.content th,.content td{border:1px solid var(--line); padding:8px 12px; text-align:left}
+.content th{background:#eef3f3; font-weight:700; color:#0c2b2b}
+.content tr:nth-child(even) td{background:#fafcfc}
+.mermaid{
+  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  padding:18px; margin:22px 0; overflow-x:auto; text-align:center;
+}
+.mermaid pre{text-align:left; white-space:pre; font-size:13px; color:var(--muted)}
+.cover-note{color:var(--muted); font-size:14px; margin:4px 0 30px}
+.footnote{margin-top:60px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:13px}
+.totop{
+  position:fixed; right:24px; bottom:24px; width:44px; height:44px; border-radius:50%;
+  background:var(--accent); color:#fff; border:none; font-size:20px; cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.18); display:none;
+}
+.totop:hover{background:#085656}
+@media (max-width:980px){
+  .layout{flex-direction:column}
+  .sidebar{position:static; height:auto; width:100%; border-right:none; border-bottom:1px solid var(--line); max-height:42vh}
+  .content{padding:24px 18px 90px}
+  .content h1{font-size:25px}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js" defer></script>
+<script>window.addEventListener('DOMContentLoaded',function(){ if(window.mermaid){ mermaid.initialize({startOnLoad:true, theme:'base', themeVariables:{primaryColor:'#e9f3f3',lineColor:'#0a6b6b',fontSize:'15px'}}); } });</script>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <h2>合同审查助手-最佳实践</h2>
+    <ul class="toc-list"><li style="margin-left:0px"><a href="#sec-3">阅读指南</a></li><li style="margin-left:0px"><a href="#sec-4">Part 1: 起步</a></li><li style="margin-left:0px"><a href="#sec-5">§01 为什么合同审查要交给 AI，又不能全交</a></li><li style="margin-left:18px"><a href="#sec-6">01.1 时间线锚点</a></li><li style="margin-left:18px"><a href="#sec-7">01.2 这本书带你走到哪</a></li><li style="margin-left:0px"><a href="#sec-8">§02 Pi-Mono 最小运行时：一个会话，一次审查</a></li><li style="margin-left:18px"><a href="#sec-9">02.1 最简形态</a></li><li style="margin-left:18px"><a href="#sec-10">02.2 三个关键点</a></li><li style="margin-left:18px"><a href="#sec-11">02.3 它能审，但很糙</a></li><li style="margin-left:0px"><a href="#sec-12">§03 显式指定模型：把 MiniMax 接进来</a></li><li style="margin-left:18px"><a href="#sec-13">03.1 默认模型不够时要显式</a></li><li style="margin-left:18px"><a href="#sec-14">03.2 模型配置的五要素</a></li><li style="margin-left:18px"><a href="#sec-15">03.3 modelFallbackMessage 的善意</a></li><li style="margin-left:0px"><a href="#sec-16">Part 2: 核心能力</a></li><li style="margin-left:0px"><a href="#sec-17">§04 自定义工具：parse_contract + classify_contract</a></li><li style="margin-left:18px"><a href="#sec-18">04.1 这一层解决什么</a></li><li style="margin-left:18px"><a href="#sec-19">04.2 工具怎么定义</a></li><li style="margin-left:18px"><a href="#sec-20">04.3 parse_contract 干什么</a></li><li style="margin-left:18px"><a href="#sec-21">04.4 classify_contract 干什么</a></li><li style="margin-left:18px"><a href="#sec-22">04.5 挂上去</a></li><li style="margin-left:0px"><a href="#sec-23">§05 合同分块：长合同怎么塞进模型</a></li><li style="margin-left:18px"><a href="#sec-24">05.1 这一层解决什么</a></li><li style="margin-left:18px"><a href="#sec-25">05.2 分块器</a></li><li style="margin-left:18px"><a href="#sec-26">05.3 为什么是 6000 字</a></li><li style="margin-left:18px"><a href="#sec-27">05.4 数据结构</a></li><li style="margin-left:0px"><a href="#sec-28">§06 风险分级与评分：A/B/C/D 怎么来</a></li><li style="margin-left:18px"><a href="#sec-29">06.1 评分器</a></li><li style="margin-left:18px"><a href="#sec-30">06.2 评分规则</a></li><li style="margin-left:18px"><a href="#sec-31">06.3 风险怎么来</a></li><li style="margin-left:0px"><a href="#sec-32">§07 skill 驱动审查：/skill:contract-risk-review-claw</a></li><li style="margin-left:18px"><a href="#sec-33">07.1 这一层解决什么</a></li><li style="margin-left:18px"><a href="#sec-34">07.2 审查 skill 的六步流程</a></li><li style="margin-left:18px"><a href="#sec-35">07.3 六类风险</a></li><li style="margin-left:18px"><a href="#sec-36">07.4 怎么调 skill</a></li><li style="margin-left:18px"><a href="#sec-37">07.5 抠 JSON 的容错</a></li><li style="margin-left:0px"><a href="#sec-38">Part 3: 进阶实战</a></li><li style="margin-left:0px"><a href="#sec-39">§08 安全守卫：四道闸门拦住危险</a></li><li style="margin-left:18px"><a href="#sec-40">08.1 这一层解决什么</a></li><li style="margin-left:18px"><a href="#sec-41">08.2 守卫的抽象</a></li><li style="margin-left:18px"><a href="#sec-42">08.3 四道闸门</a></li><li style="margin-left:18px"><a href="#sec-43">08.4 跟项目 3 的对比</a></li><li style="margin-left:0px"><a href="#sec-44">§09 PII 检测与审计日志：敏感信息不留痕、不留外</a></li><li style="margin-left:18px"><a href="#sec-45">09.1 PII 检测器</a></li><li style="margin-left:18px"><a href="#sec-46">09.2 怎么用</a></li><li style="margin-left:18px"><a href="#sec-47">09.3 审计日志</a></li><li style="margin-left:18px"><a href="#sec-48">09.4 守卫怎么接进会话</a></li><li style="margin-left:0px"><a href="#sec-49">§10 思维转变：AI 审合同，人定红线</a></li><li style="margin-left:18px"><a href="#sec-50">10.1 四层补丁的内在逻辑</a></li><li style="margin-left:18px"><a href="#sec-51">10.2 三个转变</a></li><li style="margin-left:18px"><a href="#sec-52">10.3 合同审查助手的本质</a></li><li style="margin-left:0px"><a href="#sec-53">附录</a></li><li style="margin-left:18px"><a href="#sec-54">A 核心 API 速查</a></li><li style="margin-left:18px"><a href="#sec-55">B 四道守卫速查</a></li><li style="margin-left:18px"><a href="#sec-56">C 这本书没讲但你应该继续看的</a></li><li style="margin-left:0px"><a href="#sec-57">附录 C：DeepWiki 官方架构图 / 流程图 / 设计图（深度解读补充）</a></li><li style="margin-left:18px"><a href="#sec-58">C.1 System Architecture: Code to Concept Mapping</a></li><li style="margin-left:18px"><a href="#sec-59">C.2 Diagram: Session Event Lifecycle</a></li><li style="margin-left:18px"><a href="#sec-60">C.3 Diagram: Code Execution to File Interaction</a></li><li style="margin-left:18px"><a href="#sec-61">C.4 2. Risk Classifier (classify_contract)</a></li><li style="margin-left:18px"><a href="#sec-62">C.5 Analysis Workflow</a></li><li style="margin-left:18px"><a href="#sec-63">C.6 Natural Language to Code Mapping</a></li><li style="margin-left:18px"><a href="#sec-64">C.7 Orchestration Data Flow</a></li><li style="margin-left:18px"><a href="#sec-65">C.8 Guard Pipeline Data Flow</a></li></ul>
+  </nav>
+  <main class="content">
+    <h1 id="sec-1">合同审查助手-最佳实践</h1>
+<h1 id="sec-2">Contract Review Assistant: From Zero to Hero</h1>
+<p><img alt="封面" src="cover.png" /></p>
+<p><strong>创建者</strong>: 标叔
+<strong>为谁创建</strong>: 想用 AI 帮忙审合同、又怕它乱来或看不全的法务/开发同学
+<strong>基于</strong>: Geek04 项目 5 · Pi-Mono + Skills · 2026
+<strong>最后更新</strong>: 2026-08-07
+<strong>适用场景</strong>: 从一个会话，搭到带分块、带 skill、带安全守卫的合同审查系统
+<strong>特别感谢</strong>: https://time.geekbang.org/column/intro/101170001
+</p>
+<hr />
+<h2 id="sec-3">阅读指南</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>章节</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 1</td>
+<td>§01-§03</td>
+<td>跑通 Pi-Mono 最小会话</td>
+</tr>
+<tr>
+<td>Day 2</td>
+<td>§04-§07</td>
+<td>加工具、分块、评分、上 skill</td>
+</tr>
+<tr>
+<td>Day 3</td>
+<td>§08-§10</td>
+<td>上安全守卫与审计，系统成型</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sec-4">Part 1: 起步</h2>
+<p>从一个能对话的会话，到能审合同。</p>
+<h2 id="sec-5">§01 为什么合同审查要交给 AI，又不能全交</h2>
+<h3 id="sec-6">01.1 时间线锚点</h3>
+<p>我审过合同。最痛的两件事：</p>
+<p>第一，长。一份合同几万字，逐条看，眼花。漏一个附件里的"乙方承担所有税费"，就是坑。</p>
+<p>第二，重复。技术服务、采购、租赁……每类的高风险点不一样。人审，靠经验。经验不够，看不出门道。</p>
+<p>2026 年我拆 Geek04 项目 5。四个文件夹（15-18），正好是"让 AI 帮忙，又不让它乱来"的四级台阶：</p>
+<table>
+<thead>
+<tr>
+<th>文件夹</th>
+<th>加的能力</th>
+<th>一句话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15</td>
+<td>最小运行时</td>
+<td>能对话、能审</td>
+</tr>
+<tr>
+<td>16</td>
+<td>自定义工具</td>
+<td>会解析、会分类</td>
+</tr>
+<tr>
+<td>17</td>
+<td>技能分块审查</td>
+<td>长合同能审、有标准</td>
+</tr>
+<tr>
+<td>18</td>
+<td>安全守卫与审计</td>
+<td>不泄密、能追溯</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>标叔的经验</strong>：AI 审合同，管比用重要</p>
+<p>AI 看合同比人快。但它会漏、会乱调工具、会把敏感信息带出去。项目 5 的精华不在"让它审"，在"17 分块+18 守卫"这两层管束。<strong>给能力，更要给边界。</strong></p>
+</blockquote>
+<h3 id="sec-7">01.2 这本书带你走到哪</h3>
+<p>读完你能回答：</p>
+<ol>
+<li>Pi-Mono 的会话怎么起、怎么订阅事件？</li>
+<li>怎么给 agent 加自定义工具？</li>
+<li>长合同怎么分块、怎么评分、怎么用 skill 审？</li>
+<li>安全守卫四道闸门怎么拦危险、怎么留审计？</li>
+</ol>
+<p>认知装好。下一章，跑通最小会话。</p>
+<hr />
+<h2 id="sec-8">§02 Pi-Mono 最小运行时：一个会话，一次审查</h2>
+<h3 id="sec-9">02.1 最简形态</h3>
+<p><code>15/src/runtime/minimal.ts</code>，剥到骨架：</p>
+<pre><code class="language-typescript">import { createAgentSession } from &quot;@earendil-works/pi-coding-agent&quot;;
+import &quot;dotenv/config&quot;;
+
+async function main() {
+  const { session } = await createAgentSession({ cwd: process.cwd() });
+
+  session.subscribe((event) =&gt; {
+    if (event.type === &quot;message_update&quot;
+        &amp;&amp; event.assistantMessageEvent.type === &quot;text_delta&quot;) {
+      process.stdout.write(event.assistantMessageEvent.delta);     // 关键：流式输出
+    }
+    if (event.type === &quot;tool_execution_start&quot;) console.log(`\n[Tool Start] ${event.toolName}`);
+    if (event.type === &quot;tool_execution_end&quot;)   console.log(`[Tool End] ${event.toolName} ${event.isError ? &quot;failed&quot; : &quot;ok&quot;}`);
+    if (event.type === &quot;turn_end&quot;) { /* 错误处理 */ }
+  });
+
+  await session.prompt(
+    &quot;请审查当前目录下的 sample-contract.txt，识别不平等条款、违约责任失衡和知识产权陷阱。&quot;
+  );
+}
+main().catch(console.error);
+</code></pre>
+<p>就这些。一个能审合同的会话。</p>
+<h3 id="sec-10">02.2 三个关键点</h3>
+<p><strong>第一，createAgentSession。</strong> 起 会话。<code>{ cwd }</code> 指定工作目录。session 是你跟 agent 的通道。</p>
+<p><strong>第二，subscribe 事件流。</strong> Pi-Mono 是事件驱动的。你订阅四类事件：
+- <code>message_update</code>（text_delta）：模型流式吐字，你边收边打印。
+- <code>tool_execution_start</code> / <code>end</code>：工具开始/结束，带 isError。
+- <code>turn_end</code>：一轮结束，可查错误。</p>
+<p><strong>第三，session.prompt。</strong> 发一句话给 agent。它自己决定调啥工具、怎么回。</p>
+<h3 id="sec-11">02.3 它能审，但很糙</h3>
+<p>这版 agent 没有自定义工具，没有 skill。它靠内置的 <code>read</code> 工具读文件，靠模型自己理解。</p>
+<p>短合同能审。长合同？上下文塞不下。特殊格式？docx/pdf 它未必能读好。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：最小形态用来探路</p>
+<p>minimal.ts 的价值是"验证模型+框架能跑通"。真审合同要加工具、加 skill。<strong>先跑通骨架，再长肉。</strong></p>
+</blockquote>
+<p>最小会话跑通了。下一章，指定模型。</p>
+<hr />
+<h2 id="sec-12">§03 显式指定模型：把 MiniMax 接进来</h2>
+<h3 id="sec-13">03.1 默认模型不够时要显式</h3>
+<p><code>15/src/runtime/explicit-model.ts</code>：</p>
+<pre><code class="language-typescript">import type { Model } from &quot;@earendil-works/pi-ai&quot;;
+
+const minimaxiModel = {
+  id: &quot;MiniMax-M3&quot;,
+  name: &quot;MiniMax-M3&quot;,
+  api: &quot;openai-responses&quot;,
+  provider: &quot;openai&quot;,
+  baseUrl: &quot;https://api.minimaxi.com/v1&quot;,
+  reasoning: false,
+  input: [&quot;text&quot;],
+  contextWindow: 128000,
+  maxTokens: 8192,
+} satisfies Model&lt;&quot;openai-responses&quot;&gt;;
+
+const { session, modelFallbackMessage } = await createAgentSession({
+  cwd: process.cwd(),
+  model: minimaxiModel,              // 关键：显式塞模型
+  thinkingLevel: &quot;medium&quot;,
+});
+</code></pre>
+<h3 id="sec-14">03.2 模型配置的五要素</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>api</td>
+<td>协议，"openai-responses" 走 OpenAI 兼容</td>
+</tr>
+<tr>
+<td>provider + baseUrl</td>
+<td>谁家、哪个端点</td>
+</tr>
+<tr>
+<td>contextWindow / maxTokens</td>
+<td>上下文与输出上限</td>
+</tr>
+<tr>
+<td>reasoning</td>
+<td>要不要推理模式</td>
+</tr>
+<tr>
+<td>thinkingLevel</td>
+<td>思考强度 low/medium/high</td>
+</tr>
+</tbody>
+</table>
+<p>MiniMax 走 OpenAI 兼容协议接进来。说明 Pi-Mono 不绑死某家模型。</p>
+<h3 id="sec-15">03.3 modelFallbackMessage 的善意</h3>
+<p><code>createAgentSession</code> 返回 <code>{ session, modelFallbackMessage }</code>。如果模型不可用回退了，<code>modelFallbackMessage</code> 会告诉你。</p>
+<pre><code class="language-typescript">console.log(&quot;当前模型:&quot;, session.model ? `${session.model.provider}/${session.model.id}` : &quot;undefined&quot;);
+if (modelFallbackMessage) console.log(&quot;模型回退提示:&quot;, modelFallbackMessage);
+</code></pre>
+<blockquote>
+<p><strong>核心建议</strong>：上线前查模型有没有回退</p>
+<p>生产环境模型可能因配额、网络回退到别的。不查，你以为在用 A，其实在用 B，成本和质量都飘。<strong>回退提示是给运维的报警。</strong></p>
+</blockquote>
+<p>模型接进来了。下一章，加工具。</p>
+<hr />
+<h2 id="sec-16">Part 2: 核心能力</h2>
+<p>给会话加手脚、加标准、加 skill。</p>
+<h2 id="sec-17">§04 自定义工具：parse_contract + classify_contract</h2>
+<h3 id="sec-18">04.1 这一层解决什么</h3>
+<p>minimal 那版，agent 靠内置 read 读文件。docx/pdf 读不好，也不懂"这是哪类合同"。</p>
+<p>16 文件夹加两个自定义工具，把这两件事做稳。</p>
+<h3 id="sec-19">04.2 工具怎么定义</h3>
+<p>Pi-Mono 用 <code>defineTool</code> + typebox schema：</p>
+<pre><code class="language-typescript">import { defineTool } from &quot;@earendil-works/pi-coding-agent&quot;;
+import { Type } from &quot;typebox&quot;;
+
+export const parseContractTool = defineTool({
+  name: &quot;parse_contract&quot;,
+  label: &quot;解析合同&quot;,
+  description: &quot;解析 Word/PDF/文本合同，提取纯文本和基础元数据。&quot;,
+  parameters: Type.Object({
+    filePath: Type.String({ description: &quot;合同文件路径，支持 .docx/.pdf/.txt&quot; }),
+  }),
+  async execute(_toolCallId, { filePath }) {
+    // ... 解析逻辑
+  },
+});
+</code></pre>
+<p>name + description + parameters（typebox）+ execute。跟项目 1 的 smolagents Tool、项目 2 的 @tool 一个套路。框架不同，结构相通。</p>
+<h3 id="sec-20">04.3 parse_contract 干什么</h3>
+<p>按扩展名分流：</p>
+<pre><code class="language-typescript">if (ext === &quot;.docx&quot;) {
+  const result = await mammoth.extractRawText({ buffer });   // 关键：mammoth 解析 Word
+  text = result.value;
+} else if (ext === &quot;.pdf&quot;) {
+  const result = await pdfParse(buffer);                       // 关键：pdf-parse 解析 PDF
+  text = result.text;
+} else if (ext === &quot;.txt&quot;) {
+  text = await fs.readFile(filePath, &quot;utf-8&quot;);
+}
+</code></pre>
+<p>返回：格式、字符数、正文（超 10000 字截断预览）。还把完整 text 放进 details，供后续用。</p>
+<h3 id="sec-21">04.4 classify_contract 干什么</h3>
+<p>按关键词判断 8 类合同，每类给审查重点：</p>
+<pre><code class="language-typescript">function getFocusAreas(type: string): string[] {
+  const map = {
+    技术服务: [&quot;知识产权归属&quot;, &quot;交付标准&quot;, &quot;验收条款&quot;, &quot;违约责任&quot;],
+    采购供货: [&quot;付款条件&quot;, &quot;交货期限&quot;, &quot;质量标准&quot;, &quot;退换货条款&quot;],
+    股权投资: [&quot;估值调整&quot;, &quot;对赌条款&quot;, &quot;股东权利&quot;, &quot;退出机制&quot;],
+    // ... 共 8 类
+  };
+}
+</code></pre>
+<p>技术服务看知识产权，采购看付款，股权看对赌。<strong>先分类，再按类审重点</strong>。这是审查的导航。</p>
+<h3 id="sec-22">04.5 挂上去</h3>
+<pre><code class="language-typescript">const { session } = await createAgentSession({
+  model: minimaxiModel,
+  customTools: [parseContractTool, classifyContractTool],
+  tools: [&quot;read&quot;, &quot;parse_contract&quot;, &quot;classify_contract&quot;],     // 关键：工具白名单
+});
+
+await session.prompt(
+  &quot;请按以下步骤审查 sample-contract.docx\n&quot; +
+  &quot;1. 使用 parse_contract 解析合同文件；\n&quot; +
+  &quot;2. 使用 classify_contract 对合同进行分类；\n&quot; +
+  &quot;3. 基于分类结果，识别该类型合同的高风险条款并给出修改建议。&quot;
+);
+</code></pre>
+<p><code>customTools</code> 注册，<code>tools</code> 白名单放行。prompt 给步骤，引导 agent 用工具。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：分类决定审查方向</p>
+<p>一份合同不分类直接审，agent 一视同仁地看。分了类，它知道技术服务重点盯知识产权。<strong>先定位，再深挖。</strong></p>
+</blockquote>
+<p>工具加上了。下一章，长合同怎么塞。</p>
+<hr />
+<h2 id="sec-23">§05 合同分块：长合同怎么塞进模型</h2>
+<h3 id="sec-24">05.1 这一层解决什么</h3>
+<p>一份合同 6 万字。模型上下文 128k token，看着够。但塞满上下文，模型注意力会散，漏看风险。</p>
+<p>17 文件夹的解法：<strong>按条款切分块，逐块审</strong>。</p>
+<h3 id="sec-25">05.2 分块器</h3>
+<p><code>17/src/core/chunker.ts</code>：</p>
+<pre><code class="language-typescript">export function chunkContract(text: string, maxChars = 6000): ContractChunk[] {
+  // 按条款边界切：第X章 / N. / 第N条
+  const clauses = text.split(/\n(?=第[一二三四五六七八九十]+章|\d+\.\s|第\d+条)/);
+  const chunks: string[] = [];
+  let current = &quot;&quot;;
+  for (const clause of clauses) {
+    if (current.length + clause.length &gt; maxChars &amp;&amp; current.length &gt; 0) {
+      chunks.push(current.trim());      // 关键：超 6000 字就切
+      current = &quot;&quot;;
+    }
+    current += clause + &quot;\n&quot;;
+  }
+  if (current.trim()) chunks.push(current.trim());
+  return chunks.map((content, index) =&gt; ({
+    index, content, estimatedTokens: Math.ceil(content.length / 2.5),
+  }));
+}
+</code></pre>
+<p>关键设计：</p>
+<ul>
+<li><strong>按条款切</strong>，不在词中间断。用正则识别"第X章""N.""第N条"做边界。</li>
+<li><strong>打包到 maxChars=6000</strong>。一个块塞多条条款，到上限就切。</li>
+<li><strong>估算 token</strong>：长度/2.5（中文约 2.5 字/token）。</li>
+</ul>
+<blockquote>
+<p><strong>标叔的经验</strong>：分块要尊重结构</p>
+<p>别按固定字数硬切。按"章/条"切，每块是完整的语义单元。<strong>切在词中间，模型读到残句，必漏。</strong></p>
+</blockquote>
+<h3 id="sec-26">05.3 为什么是 6000 字</h3>
+<p>留余量。模型上下文 128k，但一块 6000 字（约 2400 token）能让模型专注，也给 prompt + 输出留空间。</p>
+<h3 id="sec-27">05.4 数据结构</h3>
+<p><code>17/src/core/types/contract.ts</code>：</p>
+<pre><code class="language-typescript">export type RiskLevel = &quot;high&quot; | &quot;medium&quot; | &quot;low&quot;;
+export type RiskType =
+  | &quot;不平等条款&quot; | &quot;违约责任失衡&quot; | &quot;知识产权陷阱&quot;
+  | &quot;管辖权不利&quot; | &quot;表述模糊&quot; | &quot;隐藏义务&quot;;
+
+export interface RiskItem {
+  level: RiskLevel; type: RiskType; clause: string;
+  originalText: string; suggestion: string; replacement?: string;
+}
+</code></pre>
+<p>六类风险，三级严重度，每条带原文、建议、可选替代文本。这是审查的"通用语言"。</p>
+<p>分块讲清了。下一章，评分。</p>
+<hr />
+<h2 id="sec-28">§06 风险分级与评分：A/B/C/D 怎么来</h2>
+<h3 id="sec-29">06.1 评分器</h3>
+<p><code>17/src/core/risk-scorer.ts</code>：</p>
+<pre><code class="language-typescript">export function calculateOverallScore(risks: RiskItem[]): &quot;A&quot;|&quot;B&quot;|&quot;C&quot;|&quot;D&quot; {
+  const high = risks.filter((r) =&gt; r.level === &quot;high&quot;).length;
+  const medium = risks.filter((r) =&gt; r.level === &quot;medium&quot;).length;
+  if (high &gt;= 3 || high + medium &gt;= 8) return &quot;D&quot;;
+  if (high &gt;= 1 || medium &gt;= 4) return &quot;C&quot;;
+  if (medium &gt;= 1) return &quot;B&quot;;
+  return &quot;A&quot;;
+}
+</code></pre>
+<h3 id="sec-30">06.2 评分规则</h3>
+<table>
+<thead>
+<tr>
+<th>评分</th>
+<th>条件</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>无高无中</td>
+<td>低风险，可签</td>
+</tr>
+<tr>
+<td>B</td>
+<td>有中风险</td>
+<td>有顾虑，谈完再签</td>
+</tr>
+<tr>
+<td>C</td>
+<td>有高风险，或中风险≥4</td>
+<td>有坑，改了再签</td>
+</tr>
+<tr>
+<td>D</td>
+<td>高风险≥3，或高+中≥8</td>
+<td>高风险，不建议签</td>
+</tr>
+</tbody>
+</table>
+<p>这个规则把"几处风险"翻译成"能不能签"的决策。不是列清单就完，要给结论。</p>
+<h3 id="sec-31">06.3 风险怎么来</h3>
+<p>风险是上一章 reviewWithSkill 从模型回答里 extract 的。模型对每块合同输出 JSON 风险数组，汇总后喂给评分器。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：评分要给决策，不只给清单</p>
+<p>法务要的不是"有 5 处风险"。是"这份能不能签"。A/B/C/D 直接对应决策。<strong>清单是过程，评分是结论。</strong></p>
+</blockquote>
+<p>评分讲清了。下一章，skill 驱动。</p>
+<hr />
+<h2 id="sec-32">§07 skill 驱动审查：/skill:contract-risk-review-claw</h2>
+<h3 id="sec-33">07.1 这一层解决什么</h3>
+<p>光有工具和分块，agent 还是"自由发挥"。每块怎么审、审哪些点、输出啥格式，不统一。</p>
+<p>17 用一个 skill 统一标准。<code>skill/contract-risk-review-claw-1.0.0/SKILL.md</code> 定义审查规范。</p>
+<h3 id="sec-34">07.2 审查 skill 的六步流程</h3>
+<pre><code class="language-text">1. 文本提取 — 解析 PDF/Word/文本
+2. 结构解析 — 识别标题/章节/条款/甲乙方/附件
+3. 语义风险识别 — 逐条分析，识别 6 类风险
+4. 风险分级 — 🔴高 / 🟠中 / 🟡低
+5. 生成修订建议 — 风险说明+修改建议+替代文本
+6. 输出审查报告 — 风险概览+清单+修订+对比版
+</code></pre>
+<h3 id="sec-35">07.3 六类风险</h3>
+<table>
+<thead>
+<tr>
+<th>风险类型</th>
+<th>识别要点</th>
+<th>典型案例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>不平等条款</td>
+<td>权利义务失衡</td>
+<td>"乙方无条件接受甲方单方变更价格"</td>
+</tr>
+<tr>
+<td>违约责任失衡</td>
+<td>一方过重或过轻</td>
+<td>"甲方违约赔1%，乙方赔30%"</td>
+</tr>
+<tr>
+<td>知识产权陷阱</td>
+<td>归属/权限不明</td>
+<td>"成果归甲方，乙方不得使用"</td>
+</tr>
+<tr>
+<td>管辖权不利</td>
+<td>约定对方所在地</td>
+<td>"争议由甲方所在地法院管辖"</td>
+</tr>
+<tr>
+<td>表述模糊</td>
+<td>用词不明确</td>
+<td>"尽快交付""合理费用"</td>
+</tr>
+<tr>
+<td>隐藏义务</td>
+<td>附件/从句额外义务</td>
+<td>附件"乙方承担所有税费"</td>
+</tr>
+</tbody>
+</table>
+<p>这跟 §04 的 RiskType 一致。skill 定义概念，代码实现类型，两边对齐。</p>
+<h3 id="sec-36">07.4 怎么调 skill</h3>
+<p><code>17/src/review/skill-chunked-review.ts</code>：</p>
+<pre><code class="language-typescript">export async function reviewWithSkill(session, contractText) {
+  const chunks = chunkContract(contractText);
+  const allRisks: RiskItem[] = [];
+
+  for (const chunk of chunks) {
+    const prompt =
+      `/skill:contract-risk-review-claw 请使用 JSON 输出模式审查第 ${chunk.index+1}/${chunks.length} 部分。\n` +
+      `只返回 JSON 数组，不要 markdown 报告。\n` +      // 关键：约束输出格式
+      `每个元素含 level、type、clause、originalText、suggestion。\n` +
+      `无风险返回 []。\n\n` + chunk.content;
+
+    await session.prompt(prompt);
+    const last = session.messages.at(-1);
+    // 关键：从回答里抠 JSON
+    const risks = extractRisksFromJson(text);
+    allRisks.push(...risks);
+  }
+  return { score: calculateOverallScore(allRisks), risks: allRisks, summary: ... };
+}
+</code></pre>
+<p>三个关键：</p>
+<ol>
+<li><strong><code>/skill:contract-risk-review-claw</code></strong> 前缀触发 skill。agent 读 SKILL.md 按规范审。</li>
+<li><strong>JSON 输出约束</strong>。要求模型只返 JSON 数组，不要报告。后面好解析。</li>
+<li><strong>逐块循环</strong>。分了 N 块，调 N 次，汇总所有风险，再评分。</li>
+</ol>
+<h3 id="sec-37">07.5 抠 JSON 的容错</h3>
+<pre><code class="language-typescript">function extractRisksFromJson(text: string): RiskItem[] {
+  try {
+    const match = text.match(/\[[\s\S]*\]/);   // 关键：正则抓第一个 JSON 数组
+    if (!match) return [];
+    return JSON.parse(match[0]);
+  } catch { return []; }
+}
+</code></pre>
+<p>模型偶尔不听话，输出带 markdown 包裹。用正则抓 <code>[...]</code> 部分。抓不到返回空，不让一块解析失败毁了整体。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：skill + JSON 约束 = 可解析</p>
+<p>不约束输出，模型一会儿给报告一会儿给散文，没法聚合。skill 定标准，JSON 定格式，正则做兜底。<strong>三者合力，agent 的输出才能当数据用。</strong></p>
+</blockquote>
+<p>skill 审查讲清了。下一章，安全守卫。</p>
+<hr />
+<h2 id="sec-38">Part 3: 进阶实战</h2>
+<p>给审查系统上锁、留痕、能追溯。</p>
+<h2 id="sec-39">§08 安全守卫：四道闸门拦住危险</h2>
+<h3 id="sec-40">08.1 这一层解决什么</h3>
+<p>agent 能调 bash、能联网、能读文件。万一它 <code>rm -rf /</code>、把合同传到外网、读你的 .ssh？</p>
+<p>18 文件夹加四道守卫，在工具执行前拦。</p>
+<h3 id="sec-41">08.2 守卫的抽象</h3>
+<p><code>18/src/guard/guards.ts</code>：</p>
+<pre><code class="language-typescript">export type GuardResult =
+  | { action: &quot;pass&quot; }
+  | { action: &quot;block&quot;; reason: string }
+  | { action: &quot;rewrite&quot;; input: Record&lt;string, unknown&gt; };   // 关键：还能改写输入
+
+export type GuardRule = (event, ctx) =&gt; Promise&lt;GuardResult&gt;;
+</code></pre>
+<p>守卫返回三种：放行、阻断（带原因）、改写输入。改写是亮点——不拦死，改成安全的再放。</p>
+<h3 id="sec-42">08.3 四道闸门</h3>
+<pre><code class="language-typescript">export const ALL_GUARDS: GuardRule[] = [
+  dangerousCommandGuard,    // 1. 危险命令
+  webFetchWhitelistGuard,   // 2. 联网白名单
+  sensitiveContentGuard,    // 3. 敏感信息
+  fileAccessGuard,          // 4. 文件访问
+];
+</code></pre>
+<p><img alt="四道守卫" src="images/guards.png" /></p>
+<p><strong>闸门一：危险命令。</strong></p>
+<pre><code class="language-typescript">const DANGEROUS_BASH_PATTERNS = [/rm\s+-rf\s+\//, /curl.*\|.*sh/, /sudo\s/, /mkfs/, /dd\s+if=/];
+</code></pre>
+<p>拦 rm -rf /、curl|sh、sudo、mkfs、dd。比项目 3 的字符串匹配更进一步——用正则，能挡变体。</p>
+<p><strong>闸门二：联网白名单。</strong></p>
+<pre><code class="language-typescript">const WEB_FETCH_WHITELIST = [&quot;gov.cn&quot;, &quot;court.gov.cn&quot;, &quot;gsxt.gov.cn&quot;, &quot;tianyancha.com&quot;, &quot;qcc.com&quot;];
+</code></pre>
+<p>只许访问政府、法院、企查查、天眼查。合同审查需要的法律/企业信息来源。别的域名，block。</p>
+<p><strong>闸门三：敏感信息。</strong>（见下一章 PII 检测）</p>
+<p><strong>闸门四：文件访问。</strong></p>
+<pre><code class="language-typescript">const FORBIDDEN_PATHS = [&quot;.ssh&quot;, &quot;.env&quot;, &quot;.aws/credentials&quot;, &quot;.git/config&quot;];
+// 还挡项目目录外
+if (!absolute.startsWith(ctx.cwd)) return { action: &quot;block&quot;, reason: &quot;禁止访问项目目录外&quot; };
+</code></pre>
+<p>.ssh、.env、aws 凭证、git 配置，全挡。还挡越界访问——只能在 cwd 内读。</p>
+<h3 id="sec-43">08.4 跟项目 3 的对比</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>项目 3 hook</th>
+<th>项目 18 guard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>语言</td>
+<td>Python</td>
+<td>TypeScript</td>
+</tr>
+<tr>
+<td>匹配</td>
+<td>字符串</td>
+<td>正则</td>
+</tr>
+<tr>
+<td>联网</td>
+<td>无白名单</td>
+<td>有白名单</td>
+</tr>
+<tr>
+<td>文件</td>
+<td>.env+/etc</td>
+<td>.ssh/.env/.aws/.git+越界</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>allow/deny</td>
+<td>pass/block/<strong>rewrite</strong></td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>教学范</td>
+<td>更工程化</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>标叔的经验</strong>：白名单比黑名单安全</p>
+<p>联网用白名单——只许访问可信域名。文件用边界——只许在项目内。<strong>黑名单挡已知的坏，白名单只放已知的好。后者安全得多。</strong></p>
+</blockquote>
+<p>守卫讲清了。下一章，PII 与审计。</p>
+<hr />
+<h2 id="sec-44">§09 PII 检测与审计日志：敏感信息不留痕、不留外</h2>
+<h3 id="sec-45">09.1 PII 检测器</h3>
+<p><code>18/src/guard/pii-detector.ts</code>：</p>
+<pre><code class="language-typescript">export const SENSITIVE_PATTERNS = [
+  { name: &quot;身份证号&quot;, regex: /\d{6}(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]/g },
+  { name: &quot;手机号&quot;,   regex: /1[3-9]\d{9}/g },
+  { name: &quot;银行卡号&quot;, regex: /\d{16,19}/g },
+  { name: &quot;邮箱&quot;,     regex: /[\w.+-]+@[\w-]+\.[\w.-]+/g },
+];
+
+export function detectByRegex(text: string): string[] { ... }
+</code></pre>
+<p>四类敏感信息：身份证、手机、银行卡、邮箱。正则匹配。</p>
+<h3 id="sec-46">09.2 怎么用</h3>
+<p>sensitiveContentGuard 把 input 的 JSON 拿来扫：</p>
+<pre><code class="language-typescript">export const sensitiveContentGuard: GuardRule = async (event, ctx) =&gt; {
+  const inputText = JSON.stringify(event.input);     // 关键：扫工具入参
+  const hits = detectByRegex(inputText);
+  if (hits.length === 0) return { action: &quot;pass&quot; };
+  ctx.ui?.notify(`正则命中敏感信息: ${hits.join(&quot;; &quot;)}`, &quot;warning&quot;);
+  return { action: &quot;block&quot;, reason: `检测到敏感信息: ${hits.join(&quot;; &quot;)}` };
+};
+</code></pre>
+<p>工具要传的参数里含身份证号？拦。防止 agent 把合同里的个人信息带出去。</p>
+<blockquote>
+<p><strong>注意</strong>：正则有局限</p>
+<p>银行卡号正则 <code>\d{16,19}</code> 会误伤普通长数字。身份证正则相对准。生产要加校验位算法（身份证末位校验、Luhn 校验银行卡）。<strong>正则挡大流，算法挡边角。</strong></p>
+</blockquote>
+<h3 id="sec-47">09.3 审计日志</h3>
+<p><code>18/src/guard/audit-logger.ts</code>：</p>
+<pre><code class="language-typescript">export async function logToolCall(event) {
+  const entry = {
+    timestamp: new Date().toISOString(),
+    toolName: event.toolName,
+    toolCallId: event.toolCallId,
+    args: event.input,
+  };
+  await fs.appendFile(&quot;audit.log&quot;, JSON.stringify(entry) + &quot;\n&quot;);   // 关键：JSONL 追加
+}
+</code></pre>
+<p>每次工具调用，写一行 JSONL。跟项目 3 的 audit_logger 一个思路——增量、可流式、崩了不丢。</p>
+<h3 id="sec-48">09.4 守卫怎么接进会话</h3>
+<p><code>18/src/extensions/security-guard.ts</code>：</p>
+<pre><code class="language-typescript">export default function securityGuardExtension(pi: ExtensionAPI) {
+  pi.on(&quot;tool_call&quot;, async (event, ctx) =&gt; {
+    await logToolCall({ toolName: event.toolName, toolCallId: event.toolCallId, input: event.input });
+    return await runSecurityGuards(event, ctx);     // 关键：先记，再守
+  });
+}
+</code></pre>
+<p>这是个 Extension。Pi-Mono 的扩展机制：<code>pi.on("tool_call", ...)</code>。每次工具调用，先记审计，再跑守卫。</p>
+<p><code>18/src/runtime/secured-review.ts</code> 把它接进会话：</p>
+<pre><code class="language-typescript">const { session } = await createAgentSession({
+  model: minimaxiModel,
+  thinkingLevel: &quot;medium&quot;,
+  extensions: [securityGuardExtension],            // 关键：挂扩展
+});
+
+session.subscribe(async (event) =&gt; {
+  if (event.type === &quot;tool_execution_start&quot;) {
+    const guardResult = await runSecurityGuards(...);
+    if (guardResult?.block) console.log(`\n[护栏阻断] ${event.toolName}: ${guardResult.reason}`);
+  }
+});
+
+const result = await reviewWithSkill(session, text);   // 17 的审查逻辑 + 18 的守卫
+</code></pre>
+<p>17 的审查 + 18 的守卫，合一。一份合同审完，所有工具调用有审计、危险被拦、敏感信息不外泄。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：扩展机制是 Pi-Mono 的钩子</p>
+<p><code>pi.on("tool_call")</code> 跟项目 3 的 PreToolUse hook 是一回事。框架不同，机制相通。<strong>横切关注点（安全/审计/监控）都该走钩子，不该混进业务。</strong></p>
+</blockquote>
+<p>PII 与审计讲清了。最后一章，换脑子。</p>
+<hr />
+<h2 id="sec-49">§10 思维转变：AI 审合同，人定红线</h2>
+<p><img alt="从让它审到教它怎么审" src="images/core-01-teach-review.png" /></p>
+<p><img alt="能干不如守得住" src="images/core-02-hold-line.png" /></p>
+<h3 id="sec-50">10.1 四层补丁的内在逻辑</h3>
+<p>回看 15-18，四层对应合同审查系统的四个维度：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>问题</th>
+<th>解法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>能力</td>
+<td>不会解析/分类</td>
+<td>自定义工具</td>
+</tr>
+<tr>
+<td>完整</td>
+<td>长合同审不全</td>
+<td>分块+评分</td>
+</tr>
+<tr>
+<td>标准</td>
+<td>自由发挥不统一</td>
+<td>skill 驱动</td>
+</tr>
+<tr>
+<td>安全</td>
+<td>能乱来、会泄密</td>
+<td>守卫+审计</td>
+</tr>
+</tbody>
+</table>
+<p>缺一层，都不算可靠的审查系统。</p>
+<h3 id="sec-51">10.2 三个转变</h3>
+<p><strong>转变一：从"让它审"到"教它怎么审"。</strong>
+给工具、给分块、给 skill、给评分规则。你的产出从 prompt 变成审查规范。</p>
+<p><strong>转变二：从"信任模型"到"约束模型"。</strong>
+四道守卫 + PII 检测 + 审计日志。你不假设它安全，你设计让它不安全都难。</p>
+<p><strong>转变三：从"一份份过"到"标准化流水线"。</strong>
+分块循环、JSON 输出、汇总评分。一份 6 万字的合同，自动出 A/B/C/D 评分和风险清单。</p>
+<h3 id="sec-52">10.3 合同审查助手的本质</h3>
+<p>它不是"一个会看合同的 AI"。是"一套审查流水线，配一个守规矩的 agent"。</p>
+<p>skill 定标准，分块保完整，评分给结论，守卫守红线。agent 是执行器，红线是你定的。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：法律场景，红线比能力重要</p>
+<p>合同涉及权利义务、敏感信息。AI 漏一条是风险，泄一份是事故。项目 5 花一半篇幅在"守卫+审计"，不是浪费。<strong>法律场景，能干不如守得住。</strong></p>
+</blockquote>
+<p>思维变了。剩下的，是把这套用到你自己的合同库。</p>
+<hr />
+<h2 id="sec-53">附录</h2>
+<h3 id="sec-54">A 核心 API 速查</h3>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>类/函数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pi-coding-agent</td>
+<td><code>createAgentSession({cwd, model, customTools, tools, thinkingLevel, extensions})</code></td>
+<td>起会话</td>
+</tr>
+<tr>
+<td>pi-coding-agent</td>
+<td><code>session.subscribe(event =&gt; ...)</code></td>
+<td>订阅事件</td>
+</tr>
+<tr>
+<td>pi-coding-agent</td>
+<td><code>session.prompt(...)</code> / <code>session.messages.at(-1)</code></td>
+<td>发问/读回复</td>
+</tr>
+<tr>
+<td>pi-coding-agent</td>
+<td><code>defineTool({name, parameters, execute})</code></td>
+<td>定义工具</td>
+</tr>
+<tr>
+<td>pi-coding-agent</td>
+<td><code>pi.on("tool_call", ...)</code> Extension</td>
+<td>挂守卫</td>
+</tr>
+<tr>
+<td>pi-ai</td>
+<td><code>Model</code> (api/provider/baseUrl/contextWindow)</td>
+<td>模型配置</td>
+</tr>
+<tr>
+<td>typebox</td>
+<td><code>Type.Object(...)</code></td>
+<td>工具参数 schema</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-55">B 四道守卫速查</h3>
+<table>
+<thead>
+<tr>
+<th>守卫</th>
+<th>拦什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dangerousCommandGuard</td>
+<td>rm -rf /、curl</td>
+</tr>
+<tr>
+<td>webFetchWhitelistGuard</td>
+<td>非白名单域名</td>
+</tr>
+<tr>
+<td>sensitiveContentGuard</td>
+<td>身份证/手机/银行卡/邮箱</td>
+</tr>
+<tr>
+<td>fileAccessGuard</td>
+<td>.ssh/.env/.aws/.git + 越界</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-56">C 这本书没讲但你应该继续看的</h3>
+<ul>
+<li>GuardResult 的 <code>rewrite</code>：怎么把危险输入改成安全的再放行。</li>
+<li>skill 的 references（risk-clauses / legal-regulations）：怎么让审查更精准。</li>
+<li>批量审查：历史合同库怎么扫，出高风险清单。</li>
+</ul>
+<blockquote>
+<p>⚠️ 免责声明：本书基于 Geek04 开源代码解读。合同审查示例仅作技术演示，不构成法律意见。法律风险请咨询专业律师。</p>
+</blockquote>
+<hr />
+<h2 id="sec-57">附录 C：DeepWiki 官方架构图 / 流程图 / 设计图（深度解读补充）</h2>
+<blockquote>
+<p>以下内容来自 DeepWiki 对 <code>xingyunyang01/Geek04</code> 的自动深度解读（Mermaid 源码），作为本书架构与流程的权威参考补充。在支持 Mermaid 的 Markdown 阅读器（GitHub / Obsidian / VS Code + Mermaid 插件）中会自动渲染为图。</p>
+</blockquote>
+<h3 id="sec-58">C.1 System Architecture: Code to Concept Mapping</h3>
+<div class="mermaid">
+graph TD
+    subgraph "Natural Language Space (Input)"
+        ContractFile["Contract (.docx/.pdf/.txt)"]
+        ReviewPrompt["Review Prompt"]
+    end
+
+    subgraph "Code Entity Space (Logic)"
+        Session["createAgentSession()"]
+        Parser["parse_contract Tool"]
+        Chunker["chunkContract()"]
+        Skill["SKILL: contract-risk-review-claw"]
+        Guards["runSecurityGuards()"]
+    end
+
+    subgraph "Output Space"
+        ReviewResult["ReviewResult Object"]
+        AuditLog["audit.jsonl"]
+    end
+
+    ContractFile --> Parser
+    Parser --> Chunker
+    Chunker --> Session
+    ReviewPrompt --> Session
+    Session -- "tool_call" --> Guards
+    Guards -- "Approved" --> Skill
+    Skill --> ReviewResult
+    Guards -- "Logged" --> AuditLog
+
+</div>
+
+<h3 id="sec-59">C.2 Diagram: Session Event Lifecycle</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant User as "User (session.prompt)"
+    participant Session as "AgentSession (session)"
+    participant Sub as "Subscription Callback"
+
+    User->>Session: call .prompt("审查合同...")
+    Session->>Sub: emit { type: "agent_start" }
+
+    loop Assistant Generation
+        Session->>Sub: emit { type: "message_update", assistantMessageEvent: { type: "text_delta", delta: "..." } }
+    end
+
+    opt Tool Usage
+        Session->>Sub: emit { type: "tool_execution_start", toolName: "read_file" }
+        Note right of Session: Internal Tool Logic
+        Session->>Sub: emit { type: "tool_execution_end", toolName: "read_file", isError: false }
+    end
+
+    Session->>Sub: emit { type: "turn_end", message: { stopReason: "end_turn" } }
+    Session->>Sub: emit { type: "agent_end", messages: [...] }
+
+</div>
+
+<h3 id="sec-60">C.3 Diagram: Code Execution to File Interaction</h3>
+<div class="mermaid">
+graph TD
+    subgraph "Node.js Runtime"
+        Main["main() function"]
+        Sess["AgentSession Object"]
+        Sub["Event Subscriber"]
+    end
+
+    subgraph "File System (cwd)"
+        Contract["sample-contract.txt"]
+        Env[".env File"]
+    end
+
+    Main -->|"1. load"| Env
+    Main -->|"2. createAgentSession({cwd})"| Sess
+    Main -->|"3. subscribe()"| Sub
+    Main -->|"4. prompt('审查...')"| Sess
+    Sess -.->|"5. Internal tool: read_file"| Contract
+    Sub -->|"6. process.stdout.write"| Console["Terminal Output"]
+
+</div>
+
+<h3 id="sec-61">C.4 2. Risk Classifier (<code>classify_contract</code>)</h3>
+<div class="mermaid">
+graph TD
+    subgraph "Natural Language Space"
+        UserPrompt["'Review sample-contract.docx'"]
+    end
+
+    subgraph "Code Entity Space"
+        Runtime["with-tools.ts: main()"]
+        Parser["contract-parser.ts: parseContractTool"]
+        Classifier["risk-classifier.ts: classifyContractTool"]
+        Mammoth["mammoth library"]
+        PDFParse["pdf-parse library"]
+    end
+
+    UserPrompt --> Runtime
+    Runtime -- "calls" --> Parser
+    Parser -- "ext: .docx" --> Mammoth
+    Parser -- "ext: .pdf" --> PDFParse
+    Parser -- "returns text" --> Runtime
+    Runtime -- "calls" --> Classifier
+    Classifier -- "detectType()" --> Result["Contract Type + Focus Areas"]
+
+</div>
+
+<h3 id="sec-62">C.5 Analysis Workflow</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant U as User (Prompt)
+    participant A as Agent Session
+    participant P as parse_contract
+    participant C as classify_contract
+
+    U->>A: "Review sample-contract.docx"
+    A->>P: execute(filePath: "sample-contract.docx")
+    P-->>A: { text, charCount, format }
+    A->>C: execute(text: "...")
+    C-->>A: { type: "技术服务", focusAreas: [...] }
+    A->>U: Final Analysis & Suggestions
+
+</div>
+
+<h3 id="sec-63">C.6 Natural Language to Code Mapping</h3>
+<div class="mermaid">
+graph TD
+    subgraph "Natural Language Space (SKILL.md)"
+        A["'6 Risk Types'"]
+        B["'A-D Scoring'"]
+        C["'Revision Suggestions'"]
+    end
+
+    subgraph "Code Entity Space (src/core/)"
+        A1["RiskType (type)"]
+        A2["RiskItem (interface)"]
+        B1["calculateOverallScore()"]
+        C1["RiskItem.suggestion"]
+    end
+
+    A --> A1
+    A1 --> A2
+    B --> B1
+    C --> C1
+
+    style A1 stroke-dasharray: 5 5
+    style A2 stroke-dasharray: 5 5
+
+</div>
+
+<h3 id="sec-64">C.7 Orchestration Data Flow</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant O as skill-chunked-review.ts
+    participant C as chunker.ts
+    participant S as AgentSession (Pi-Mono)
+    participant R as risk-scorer.ts
+
+    O->>C: chunkContract(text, 6000)
+    C-->>O: ContractChunk[]
+
+    loop For Each Chunk
+        O->>S: session.prompt("/skill:contract-risk-review-claw ...")
+        S-->>O: JSON Risk Array
+        O->>O: extractRisksFromJson()
+    end
+
+    O->>R: calculateOverallScore(allRisks)
+    R-->>O: Score (A/B/C/D)
+    O->>O: Return Final Report
+
+</div>
+
+<h3 id="sec-65">C.8 Guard Pipeline Data Flow</h3>
+<div class="mermaid">
+graph TD
+    subgraph "Natural Language Space"
+        User["User Prompt"]
+        LLM["LLM (Claude/MiniMax)"]
+    end
+
+    subgraph "Code Entity Space: src/guard/guards.ts"
+        Extension["securityGuardExtension"]
+        Logger["logToolCall"]
+        Pipeline["runSecurityGuards()"]
+
+        G1["dangerousCommandGuard"]
+        G2["webFetchWhitelistGuard"]
+        G3["sensitiveContentGuard"]
+        G4["fileAccessGuard"]
+    end
+
+    subgraph "Execution Layer"
+        Tool["Actual Tool Execution"]
+    end
+
+    User --> LLM
+    LLM -- "tool_call event" --> Extension
+    Extension -- "Step 1: Audit" --> Logger
+    Extension -- "Step 2: Validate" --> Pipeline
+
+    Pipeline --> G1
+    Pipeline --> G2
+    Pipeline --> G3
+    Pipeline --> G4
+
+    G1 & G2 & G3 & G4 -- "Allow/Deny" --> Pipeline
+    Pipeline -- "If Valid" --> Tool
+
+</div>
+    <div class="footnote">
+      本文由 Geek04 项目图书自动排版生成。正文离线可读；
+      含 <code>graph/sequence/class</code> 的「DeepWiki 架构图」需联网由 Mermaid 渲染，
+      离线时显示原始源码，不影响阅读。
+    </div>
+  </main>
+</div>
+<button class="totop" id="totop" title="回到顶部">↑</button>
+<script>
+// 目录高亮（scroll-spy）
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc-list a'));
+  var map = {};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var targets = links.map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = map[e.target.id]; if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-10% 0px -75% 0px', threshold:0});
+  targets.forEach(function(t){ obs.observe(t); });
+  // 回到顶部
+  var btn = document.getElementById('totop');
+  window.addEventListener('scroll', function(){ btn.style.display = window.scrollY>600 ? 'block':'none'; });
+  btn.addEventListener('click', function(){ window.scrollTo({top:0,behavior:'smooth'}); });
+})();
+</script>
+</body>
+</html>

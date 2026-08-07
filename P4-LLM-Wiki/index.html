@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLM-Wiki -最佳实践</title>
+<style>
+:root{
+  --bg:#ffffff; --fg:#1f2328; --muted:#57606a; --line:#e3e6ea;
+  --accent:#0a6b6b; --accent2:#e8622c; --code-bg:#f6f8fa; --quote-bg:#f3f8f8;
+  --card:#fbfcfd;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Noto Sans CJK SC",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-size:17px; line-height:1.85;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex; align-items:flex-start; max-width:1280px; margin:0 auto}
+.sidebar{
+  position:sticky; top:0; align-self:flex-start;
+  flex:0 0 270px; height:100vh; overflow-y:auto;
+  padding:24px 18px 40px; border-right:1px solid var(--line);
+  background:#fcfdfe;
+}
+.sidebar h2{
+  font-size:15px; margin:0 0 12px; color:var(--accent);
+  font-weight:700; letter-spacing:.5px;
+}
+.toc-list{list-style:none; margin:0; padding:0; font-size:14px}
+.toc-list li{margin:2px 0; line-height:1.5}
+.toc-list a{color:var(--muted); display:block; padding:3px 8px; border-radius:6px; border-left:2px solid transparent}
+.toc-list a:hover{background:#eef3f3; color:var(--fg); text-decoration:none}
+.toc-list a.active{color:var(--accent); background:#e9f3f3; border-left:2px solid var(--accent); font-weight:600}
+.content{
+  flex:1; min-width:0; max-width:860px; margin:0 auto;
+  padding:40px 48px 120px;
+}
+.content h1{font-size:30px; line-height:1.35; margin:0 0 8px; color:#0c2b2b}
+.content h2{font-size:24px; margin:42px 0 14px; padding-bottom:8px; border-bottom:2px solid var(--line); color:#0c2b2b}
+.content h3{font-size:19px; margin:28px 0 10px; color:var(--accent)}
+.content p{margin:14px 0}
+.content img{max-width:100%; height:auto; display:block; margin:20px auto; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.content blockquote{
+  margin:18px 0; padding:12px 18px; background:var(--quote-bg);
+  border-left:4px solid var(--accent); border-radius:0 8px 8px 0; color:#26403f;
+}
+.content blockquote p{margin:8px 0}
+.content code{
+  background:var(--code-bg); padding:.15em .4em; border-radius:5px;
+  font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; font-size:.9em;
+  border:1px solid var(--line);
+}
+.content pre{
+  background:var(--code-bg); border:1px solid var(--line); border-radius:10px;
+  padding:16px 18px; overflow-x:auto; margin:18px 0;
+}
+.content pre code{background:none; border:none; padding:0; font-size:13.5px; line-height:1.6}
+.content table{
+  border-collapse:collapse; width:100%; margin:18px 0; font-size:15px;
+  display:block; overflow-x:auto;
+}
+.content th,.content td{border:1px solid var(--line); padding:8px 12px; text-align:left}
+.content th{background:#eef3f3; font-weight:700; color:#0c2b2b}
+.content tr:nth-child(even) td{background:#fafcfc}
+.mermaid{
+  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  padding:18px; margin:22px 0; overflow-x:auto; text-align:center;
+}
+.mermaid pre{text-align:left; white-space:pre; font-size:13px; color:var(--muted)}
+.cover-note{color:var(--muted); font-size:14px; margin:4px 0 30px}
+.footnote{margin-top:60px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:13px}
+.totop{
+  position:fixed; right:24px; bottom:24px; width:44px; height:44px; border-radius:50%;
+  background:var(--accent); color:#fff; border:none; font-size:20px; cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.18); display:none;
+}
+.totop:hover{background:#085656}
+@media (max-width:980px){
+  .layout{flex-direction:column}
+  .sidebar{position:static; height:auto; width:100%; border-right:none; border-bottom:1px solid var(--line); max-height:42vh}
+  .content{padding:24px 18px 90px}
+  .content h1{font-size:25px}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js" defer></script>
+<script>window.addEventListener('DOMContentLoaded',function(){ if(window.mermaid){ mermaid.initialize({startOnLoad:true, theme:'base', themeVariables:{primaryColor:'#e9f3f3',lineColor:'#0a6b6b',fontSize:'15px'}}); } });</script>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <h2>LLM-Wiki -最佳实践</h2>
+    <ul class="toc-list"><li style="margin-left:0px"><a href="#sec-3">阅读指南</a></li><li style="margin-left:0px"><a href="#sec-4">Part 1: 起步</a></li><li style="margin-left:0px"><a href="#sec-5">§01 为什么你的投研需要一座"Wiki"，而不是 RAG</a></li><li style="margin-left:18px"><a href="#sec-6">01.1 时间线锚点</a></li><li style="margin-left:18px"><a href="#sec-7">01.2 它跟前三本书的区别</a></li><li style="margin-left:18px"><a href="#sec-8">01.3 这本书带你走到哪</a></li><li style="margin-left:0px"><a href="#sec-9">§02 deepagents 框架：模型 + 后端 + skill</a></li><li style="margin-left:18px"><a href="#sec-10">02.1 最小形态就三行核心</a></li><li style="margin-left:18px"><a href="#sec-11">02.2 三个关键点</a></li><li style="margin-left:18px"><a href="#sec-12">02.3 跟 claude_agent_sdk 的对比</a></li><li style="margin-left:18px"><a href="#sec-13">02.4 REPL 循环</a></li><li style="margin-left:0px"><a href="#sec-14">§03 跑通第一次对话：deepagents REPL</a></li><li style="margin-left:18px"><a href="#sec-15">03.1 你需要什么</a></li><li style="margin-left:18px"><a href="#sec-16">03.2 我们最终做成什么</a></li><li style="margin-left:18px"><a href="#sec-17">03.3 后端怎么给它"手脚"</a></li><li style="margin-left:18px"><a href="#sec-18">03.4 踩坑记录</a></li><li style="margin-left:0px"><a href="#sec-19">Part 2: 核心能力</a></li><li style="margin-left:0px"><a href="#sec-20">§04 三层架构：Raw / Wiki / Schema</a></li><li style="margin-left:18px"><a href="#sec-21">04.1 一张图</a></li><li style="margin-left:18px"><a href="#sec-22">04.2 三层各干啥</a></li><li style="margin-left:18px"><a href="#sec-23">04.3 两个关键文件</a></li><li style="margin-left:18px"><a href="#sec-24">04.4 为什么 Raw 不可变</a></li><li style="margin-left:0px"><a href="#sec-25">§05 Ingest：导入一份研报，编译进知识库</a></li><li style="margin-left:18px"><a href="#sec-26">05.1 Ingest 是什么</a></li><li style="margin-left:18px"><a href="#sec-27">05.2 七步流程</a></li><li style="margin-left:18px"><a href="#sec-28">05.3 第 0 步是死规矩</a></li><li style="margin-left:18px"><a href="#sec-29">05.4 一次导入触及多少文件</a></li><li style="margin-left:18px"><a href="#sec-30">05.5 标注逻辑冲突</a></li><li style="margin-left:0px"><a href="#sec-31">§06 Query：问它，它从自己的知识里答</a></li><li style="margin-left:18px"><a href="#sec-32">06.1 Query 是什么</a></li><li style="margin-left:18px"><a href="#sec-33">06.2 四步流程</a></li><li style="margin-left:18px"><a href="#sec-34">06.3 它跟 RAG 检索的区别</a></li><li style="margin-left:18px"><a href="#sec-35">06.4 输出多样</a></li><li style="margin-left:18px"><a href="#sec-36">06.5 index.md 是加速器</a></li><li style="margin-left:0px"><a href="#sec-37">§07 Lint：给知识库做体检</a></li><li style="margin-left:18px"><a href="#sec-38">07.1 Lint 是什么</a></li><li style="margin-left:18px"><a href="#sec-39">07.2 六项检查</a></li><li style="margin-left:18px"><a href="#sec-40">07.3 为什么 Lint 必要</a></li><li style="margin-left:18px"><a href="#sec-41">07.4 Lint 不是删，是标注</a></li><li style="margin-left:0px"><a href="#sec-42">Part 3: 进阶实战</a></li><li style="margin-left:0px"><a href="#sec-43">§08 交叉引用与逻辑冲突：知识要成网，矛盾要显形</a></li><li style="margin-left:18px"><a href="#sec-44">08.1 交叉引用原则</a></li><li style="margin-left:18px"><a href="#sec-45">08.2 知识关联的四种发现</a></li><li style="margin-left:18px"><a href="#sec-46">08.3 页面命名规范</a></li><li style="margin-left:18px"><a href="#sec-47">08.4 YAML frontmatter</a></li><li style="margin-left:0px"><a href="#sec-48">§09 markitdown + Obsidian：工具链让 Wiki 活起来</a></li><li style="margin-left:18px"><a href="#sec-49">09.1 资料获取的两条路</a></li><li style="margin-left:18px"><a href="#sec-50">09.2 为什么要 markitdown</a></li><li style="margin-left:18px"><a href="#sec-51">09.3 Obsidian 当浏览 IDE</a></li><li style="margin-left:18px"><a href="#sec-52">09.4 整条工具链</a></li><li style="margin-left:0px"><a href="#sec-53">§10 思维转变：从"检索"到"编译"，知识开始复利</a></li><li style="margin-left:18px"><a href="#sec-54">10.1 这本书真正的转折</a></li><li style="margin-left:18px"><a href="#sec-55">10.2 三个转变</a></li><li style="margin-left:18px"><a href="#sec-56">10.3 投研 Wiki 的本质</a></li><li style="margin-left:0px"><a href="#sec-57">附录</a></li><li style="margin-left:18px"><a href="#sec-58">A 核心概念速查</a></li><li style="margin-left:18px"><a href="#sec-59">B 这本书没讲但你应该继续看的</a></li><li style="margin-left:0px"><a href="#sec-60">附录 C：DeepWiki 官方架构图 / 流程图 / 设计图（深度解读补充）</a></li><li style="margin-left:18px"><a href="#sec-61">C.1 Logic to Filesystem Mapping</a></li><li style="margin-left:18px"><a href="#sec-62">C.2 Knowledge Lifecycle Workflow</a></li><li style="margin-left:18px"><a href="#sec-63">C.3 Agent Invocation Pipeline</a></li><li style="margin-left:18px"><a href="#sec-64">C.4 REPL Sequence Diagram</a></li><li style="margin-left:18px"><a href="#sec-65">C.5 System Operation Flow</a></li><li style="margin-left:18px"><a href="#sec-66">C.6 Knowledge Synthesis Logic</a></li></ul>
+  </nav>
+  <main class="content">
+    <h1 id="sec-1">LLM-Wiki -最佳实践</h1>
+<h1 id="sec-2">LLM-Wiki: From Zero to Hero</h1>
+<p><img alt="封面" src="cover.png" /></p>
+<p><strong>创建者</strong>: 标叔
+<strong>为谁创建</strong>: 想让 LLM 帮自己持续攒投研知识、又不想要"每次重检索"的人
+<strong>基于</strong>: Geek04 项目 4 · deepagents + stock-wiki skill · 2026
+<strong>最后更新</strong>: 2026-08-07
+<strong>适用场景</strong>: 用 LLM 构建并维护一个会自己生长的股票投研知识库
+<strong>特别感谢</strong>: https://time.geekbang.org/column/intro/101170001
+</p>
+<hr />
+<h2 id="sec-3">阅读指南</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>章节</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 1</td>
+<td>§01-§03</td>
+<td>跑通 deepagents，理解为什么是 Wiki</td>
+</tr>
+<tr>
+<td>Day 2</td>
+<td>§04-§07</td>
+<td>掌握三层架构与三大操作</td>
+</tr>
+<tr>
+<td>Day 3</td>
+<td>§08-§10</td>
+<td>让知识成网、矛盾显形，工具链接通</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sec-4">Part 1: 起步</h2>
+<p>从"问一次检索一次"，走到"知识持续积累"。</p>
+<h2 id="sec-5">§01 为什么你的投研需要一座"Wiki"，而不是 RAG</h2>
+<h3 id="sec-6">01.1 时间线锚点</h3>
+<p>我做投研，最痛的是知识不沉淀。</p>
+<p>去年读过一份宁德时代研报。今年再问，模型不记得。RAG 能检索原文，但它不"理解"——每次从零拼答案，前后矛盾。</p>
+<p>2026 年我拆 Geek04 项目 4。<code>stock-wiki</code> 的 SKILL.md 第一段就把我点醒了：</p>
+<blockquote>
+<p>不同于 RAG 每次从零检索，LLM Wiki 让 LLM <strong>持续构建并维护一个结构化的 Markdown 投研 Wiki</strong>。每次导入新资料，LLM 不是简单索引，而是阅读、提取、整合——更新个股档案、修订行业逻辑、标注多空矛盾。<strong>知识编译一次，持续更新，而非每次查询重新推导。</strong></p>
+</blockquote>
+<p>这一句，是这本书的灵魂。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：RAG 是"图书馆"，Wiki 是"笔记本"</p>
+<p>RAG 把原文堆那儿，每次检索片段。它不改原文，不发现矛盾。Wiki 是 LLM 边读边整理的活笔记本。<strong>检索快，但理解浅；编译慢，但能复利。</strong></p>
+</blockquote>
+<h3 id="sec-7">01.2 它跟前三本书的区别</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>项目 1/2/3</th>
+<th>项目 4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>知识形态</td>
+<td>临时、跑完即弃</td>
+<td>持久、持续积累</td>
+</tr>
+<tr>
+<td>模型角色</td>
+<td>执行器</td>
+<td>知识管理者</td>
+</tr>
+<tr>
+<td>核心产物</td>
+<td>一次性的报告/分析</td>
+<td>一座会生长的 Wiki</td>
+</tr>
+<tr>
+<td>框架</td>
+<td>claude_agent_sdk / smolagents</td>
+<td>deepagents</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>干活</td>
+<td>攒认知</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-8">01.3 这本书带你走到哪</h3>
+<p>读完你能回答：</p>
+<ol>
+<li>deepagents 框架长什么样？跟 claude_agent_sdk 啥不同？</li>
+<li>stock-wiki 的三层架构各自干啥？</li>
+<li>Ingest/Query/Lint 三大操作怎么让知识复利？</li>
+</ol>
+<p>认知装好。下一章看框架。</p>
+<hr />
+<h2 id="sec-9">§02 deepagents 框架：模型 + 后端 + skill</h2>
+<h3 id="sec-10">02.1 最小形态就三行核心</h3>
+<p><code>12-14deepagents/agent.py</code>，剥到骨架：</p>
+<pre><code class="language-python">from langchain_openai import ChatOpenAI
+from deepagents import create_deep_agent
+from deepagents.backends import LocalShellBackend
+
+model = ChatOpenAI(
+    model_name=&quot;MiniMax-M3&quot;,
+    base_url=&quot;https://api.minimaxi.com/v1&quot;,
+    api_key=os.getenv(&quot;MINIMAX_API_KEY&quot;))
+
+backend = LocalShellBackend(&quot;./&quot;, virtual_mode=True)   # 关键：给 agent 一个本地后端
+
+agent = create_deep_agent(
+    model=model,
+    backend=backend,
+    skills=[&quot;./my-project/skills/&quot;])                  # 关键：挂 skill 目录
+)
+</code></pre>
+<p>三件套：模型、后端、skill。</p>
+<h3 id="sec-11">02.2 三个关键点</h3>
+<p><strong>第一，模型走 LangChain。</strong> <code>langchain_openai.ChatOpenAI</code>。deepagents 是 LangChain 之上的框架。MiniMax 走 OpenAI 兼容协议接进来。</p>
+<p><strong>第二，后端给"手脚"。</strong> <code>LocalShellBackend("./", virtual_mode=True)</code>。它给 agent 一个本地 shell 后端——能读写文件、跑命令。<code>virtual_mode=True</code> 是虚拟模式，相当于一个半沙箱。这是 deepagents 跟 claude_agent_sdk 最大的不同：<strong>后端是一等公民</strong>。</p>
+<p><strong>第三，skill 是目录。</strong> <code>skills=["./my-project/skills/"]</code>。指向一个文件夹，里面每个子目录是一个 skill。deepagents 自动发现。</p>
+<h3 id="sec-12">02.3 跟 claude_agent_sdk 的对比</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>claude_agent_sdk</th>
+<th>deepagents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型层</td>
+<td>自有协议</td>
+<td>LangChain</td>
+</tr>
+<tr>
+<td>后端</td>
+<td>工具内建</td>
+<td>独立 Backend 类</td>
+</tr>
+<tr>
+<td>skill 加载</td>
+<td>skills="all"</td>
+<td>skills=[目录]</td>
+</tr>
+<tr>
+<td>子智能体</td>
+<td>AgentDefinition</td>
+<td>（后端抽象）</td>
+</tr>
+<tr>
+<td>生态</td>
+<td>Anthropic 系</td>
+<td>LangChain 系</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>工程化强</td>
+<td>灵活、后端可换</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>标叔的经验</strong>：后端可换是关键</p>
+<p>deepagents 把"在哪儿执行"抽成 Backend。本地用 LocalShellBackend，要隔离能换 Docker backend。<strong>执行环境跟 agent 逻辑解耦，这点比 claude_agent_sdk 优雅。</strong></p>
+</blockquote>
+<h3 id="sec-13">02.4 REPL 循环</h3>
+<pre><code class="language-python">messages: list[dict] = []
+while True:
+    user_input = input(&quot;You&gt; &quot;).strip()
+    if user_input.lower() in {&quot;exit&quot;, &quot;quit&quot;}: break
+    messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_input})
+    result = agent.invoke({&quot;messages&quot;: messages})
+    reply = result[&quot;messages&quot;][-1]
+    messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: reply.content})
+    print(f&quot;Agent&gt; {reply.content}\n&quot;)
+</code></pre>
+<p>一个标准的多轮对话循环。messages 列表当记忆。<code>agent.invoke({"messages": messages})</code> 同步调用，取最后一条回复。</p>
+<blockquote>
+<p><strong>核心建议</strong>：多轮记忆自己管</p>
+<p>deepagents 不像 claude_agent_sdk 有 session_id。多轮上下文你自己维护 messages 列表。<strong>框架给你能力，记忆你自己负责。</strong></p>
+</blockquote>
+<p>框架讲清了。下一章，跑通第一次。</p>
+<hr />
+<h2 id="sec-14">§03 跑通第一次对话：deepagents REPL</h2>
+<h3 id="sec-15">03.1 你需要什么</h3>
+<ul>
+<li>Python，装 deepagents、langchain-openai</li>
+<li>一个 MiniMax（或任意 OpenAI 兼容）API key</li>
+<li><code>my-project/skills/stock-wiki/</code> 就位</li>
+</ul>
+<h3 id="sec-16">03.2 我们最终做成什么</h3>
+<p>启动 <code>agent.py</code>，REPL 起来。你输入：</p>
+<blockquote>
+<p>创建一个股票投研知识库</p>
+</blockquote>
+<p>agent 调用 stock-wiki skill，读它的 SKILL.md，按"初始化工作流"建出目录结构、index.md、log.md。</p>
+<p>你再输入：</p>
+<blockquote>
+<p>导入这份宁德时代研报</p>
+</blockquote>
+<p>它按 Ingest 流程：markitdown 转 PDF、建摘要页、更新个股页、更新行业页、更新 index、追加 log。</p>
+<h3 id="sec-17">03.3 后端怎么给它"手脚"</h3>
+<p>deepagents 的 LocalShellBackend 让 agent 能：</p>
+<ul>
+<li><code>read_file</code> / <code>write_file</code> / <code>edit_file</code>：操作 Wiki 的 Markdown</li>
+<li><code>execute_command</code> / <code>bash</code>：跑 markitdown 这类工具</li>
+</ul>
+<p>这些是 stock-wiki skill 干活的基础。没有后端，skill 的"建文件、改文件、跑脚本"全是空谈。</p>
+<h3 id="sec-18">03.4 踩坑记录</h3>
+<p><strong>坑一：路径写死。</strong> stock-wiki SKILL.md 里路径全是 <code>/Users/Admin/workspace/...</code>，原作者机器的。换环境必须改。建议改成相对 <code>./data/...</code>。</p>
+<p><strong>坑二：PDF 不能直接读。</strong> SKILL.md 反复警告："禁止直接 read_file 任何 PDF"。PDF 是二进制，会被 base64 编码塞回模型，既看不懂又烧 token。必须先 markitdown 转 Markdown。</p>
+<p><strong>坑三：skill 要在目录里。</strong> <code>skills=["./my-project/skills/"]</code> 指向目录。stock-wiki 是 <code>my-project/skills/stock-wiki/</code>。放错层级，agent 发现不了。</p>
+<blockquote>
+<p><strong>注意</strong>：SKILL.md 是 agent 的操作手册</p>
+<p>agent 不会"猜"怎么建 Wiki。它读 stock-wiki 的 SKILL.md，照着做。<strong>手册写得越细，行为越可控。这就是 skill 的意义。</strong></p>
+</blockquote>
+<p>第一次跑通了。下一章，进三层架构。</p>
+<hr />
+<h2 id="sec-19">Part 2: 核心能力</h2>
+<p>三层架构 + 三大操作，是 stock-wiki 的心脏。</p>
+<h2 id="sec-20">§04 三层架构：Raw / Wiki / Schema</h2>
+<h3 id="sec-21">04.1 一张图</h3>
+<pre><code>┌─────────────────────────────────────┐
+│ 3. Schema (schema.md)  — 结构约定   │
+│   告诉 LLM Wiki 怎么组织、怎么命名   │
+└─────────────────────────────────────┘
+            ▲ 共同迭代
+┌─────────────────────────────────────┐
+│ 2. Wiki (data/wiki/)  — LLM 全权管   │
+│   个股页 / 行业页 / 宏观页 / 策略页   │
+│   index.md 索引 + log.md 操作日志    │
+└─────────────────────────────────────┘
+            ▲ 读 / 整合 / 更新
+┌─────────────────────────────────────┐
+│ 1. Raw Sources (data/raw/) — 不可变  │
+│   研报PDF / 新闻 / 财报 / 复盘记录    │
+└─────────────────────────────────────┘
+</code></pre>
+<p><img alt="三层架构" src="images/three-layer.png" /></p>
+<h3 id="sec-22">04.2 三层各干啥</h3>
+<p><strong>第一层，Raw Sources。</strong> 原始资料，只读不改。券商研报 PDF、财经新闻、公司公告、交易复盘。它是投研的"真相来源"。LLM 只能读，不能改。这一层保证可溯。</p>
+<p><strong>第二层，Wiki。</strong> LLM 生成并维护的 Markdown 文件集。个股档案页、行业综述页、宏观概念页、投资策略页、综合分析页。LLM 全权管理：建页面、更新、维护交叉引用、保持逻辑一致。这一层是"理解后的知识"。</p>
+<p><strong>第三层，Schema。</strong> <code>schema.md</code> 定义 Wiki 的结构、命名约定、工作流。你跟 LLM 共同迭代它。这一层是"规则的规则"。</p>
+<h3 id="sec-23">04.3 两个关键文件</h3>
+<p>Wiki 层有两个枢纽文件：</p>
+<ul>
+<li><code>index.md</code>：内容总览目录。按类别（个股/行业/宏观/策略）组织，每条含链接 + 核心逻辑一句话摘要。LLM 每次导入更新。查询时 LLM 先读索引再深入。</li>
+<li><code>log.md</code>：投研操作日志。按时间追加，如 <code>## [2026-04-29] ingest | 某券商-宁德时代深度研报</code>。</li>
+</ul>
+<p>index 是"目录"，log 是"历史"。一个看现状，一个看演化。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：index.md 是查询的入口</p>
+<p>查询时 agent 不去翻所有文件。它先读 index.md，定位到相关页，再深入读。<strong>索引让查询从 O(n) 降到 O(1)。</strong></p>
+</blockquote>
+<h3 id="sec-24">04.4 为什么 Raw 不可变</h3>
+<p>Raw 是只读的真相。LLM 在 Wiki 层整合、判断、标注矛盾。但原始数据不动。</p>
+<p>好处：万一 LLM 整合错了，你还能回 Raw 查原文。Raw 是 Wiki 的"审计回退点"。</p>
+<blockquote>
+<p><strong>核心建议</strong>：原始层和知识层必须分开</p>
+<p>别让 LLM 直接改原始资料。Raw 不可变，是可信的底线。<strong>知识可以错，事实不能被改。</strong></p>
+</blockquote>
+<p>三层架构讲清了。下一章，Ingest。</p>
+<hr />
+<h2 id="sec-25">§05 Ingest：导入一份研报，编译进知识库</h2>
+<h3 id="sec-26">05.1 Ingest 是什么</h3>
+<p>当你说"导入""处理这份研报""添加到知识库"，触发 Ingest。它把一份新资料<strong>编译</strong>进 Wiki。</p>
+<h3 id="sec-27">05.2 七步流程</h3>
+<p>stock-wiki 的 Ingest 流程：</p>
+<pre><code class="language-text">0.【强制前置】markitdown 把 PDF → .md（图片提取到 assets/）
+1. 复制原文到 data/raw/（保持不可变）
+2. 建摘要页 source-xxx.md（观点/数据/链接）
+3. 创建/更新个股页（基本面/核心逻辑/催化剂/估值）
+4. 创建/更新行业/宏观页（放进行业背景）
+5. 交叉引用（所有页面 [[wikilink]] 互连）
+6. 更新 index.md（按类别加条目）
+7. 更新 log.md（记录建了啥、改了啥）
+</code></pre>
+<p><img alt="三大操作" src="images/three-ops.png" /></p>
+<h3 id="sec-28">05.3 第 0 步是死规矩</h3>
+<p>SKILL.md 用警告框反复强调：</p>
+<blockquote>
+<p>⚠️ <strong>第一步永远是 markitdown 预处理</strong>。<strong>禁止直接 read_file 任何 PDF</strong>。</p>
+</blockquote>
+<p>PDF 是二进制。直接读，deepagents 会 base64 编码塞回模型——OpenAI 兼容模型不支持原生 PDF，还触发 <code>LC_AUTOGENERATED</code> 文件名警告。既看不懂又烧 token。</p>
+<p>解法：先 <code>markitdown data/raw/xxx.pdf -o data/raw/xxx.md</code>。转成 Markdown + 提取图片到 <code>assets/</code>。后续只读 .md。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：格式归一化是编译的前提</p>
+<p>不管来的是 PDF、网页、剪藏，第一步都转成 Markdown。统一格式后，LLM 处理逻辑才一致。<strong>异构资料，先归一再理解。</strong></p>
+</blockquote>
+<h3 id="sec-29">05.4 一次导入触及多少文件</h3>
+<p>SKILL.md 给了经验数据：一篇 20-30 页研报，通常：</p>
+<ul>
+<li>新建 2-4 个页面（1 摘要 + 1 个股 + 1-2 行业/概念）</li>
+<li>更新 2-4 个已有页面</li>
+<li>总计触及 <strong>5-8 个文件</strong></li>
+</ul>
+<p>所以 Ingest 不是"存个文件"。是"一次导入，全库联动"。</p>
+<h3 id="sec-30">05.5 标注逻辑冲突</h3>
+<p>第 6 步（SKILL.md 的 Ingest 第 6 点）：</p>
+<blockquote>
+<p>如果新资料与已有认知矛盾（之前看多，新研报看空），必须在对应页面明确标注冲突点。</p>
+</blockquote>
+<p>不是覆盖旧观点。是并存、标注、留待你判断。这是 Wiki 比 RAG 强的地方——它<strong>记得矛盾</strong>。</p>
+<blockquote>
+<p><strong>核心建议</strong>：矛盾要显形，不能被覆盖</p>
+<p>LLM 容易用新资料盖掉旧观点。要明确禁止覆盖，要求标注"矛盾"。<strong>投资里矛盾信号本身就是信息。</strong></p>
+</blockquote>
+<p>Ingest 讲清了。下一章，Query。</p>
+<hr />
+<h2 id="sec-31">§06 Query：问它，它从自己的知识里答</h2>
+<h3 id="sec-32">06.1 Query 是什么</h3>
+<p>当提问或要分析时触发。它从 Wiki 里找、综合、回答。</p>
+<h3 id="sec-33">06.2 四步流程</h3>
+<pre><code class="language-text">1. 读 index.md 定位相关页面
+2. 深入阅读相关个股、行业页面
+3. 综合回答，附带引用（指向 source 或 wiki 页面）
+4. 有价值的结论回写为 Wiki 新页面
+</code></pre>
+<p>注意第 4 步。<strong>查询也能产生新知识</strong>。一次好的分析结论，写回 Wiki 成新页面。探索也能复利。</p>
+<h3 id="sec-34">06.3 它跟 RAG 检索的区别</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>RAG</th>
+<th>Wiki Query</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>来源</td>
+<td>原文片段</td>
+<td>已整理的 Wiki 页</td>
+</tr>
+<tr>
+<td>一致性</td>
+<td>低，片段间可能矛盾</td>
+<td>高，LLM 已整合</td>
+</tr>
+<tr>
+<td>引用</td>
+<td>指向原文</td>
+<td>指向 source + wiki 页</td>
+</tr>
+<tr>
+<td>反哺</td>
+<td>无</td>
+<td>结论回写新页面</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>快</td>
+<td>深</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-35">06.4 输出多样</h3>
+<p>SKILL.md 说输出格式可以多样：Markdown 页面、个股对比表格、SWOT 分析等。</p>
+<p>因为它读的是结构化 Wiki，能灵活组织输出。RAG 只能拼原文片段，组织能力弱。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：好的查询要回写</p>
+<p>一次查询得出"某交易模式"，别让它蒸发。写回 Wiki 成 strategy-xxx.md。<strong>问一次，攒一条，知识就复利了。</strong></p>
+</blockquote>
+<h3 id="sec-36">06.5 index.md 是加速器</h3>
+<p>查询第一步读 index。索引每条含链接 + 一句话核心逻辑摘要。agent 扫一遍索引，就知道该深入哪个页面，不用全库翻。</p>
+<blockquote>
+<p><strong>核心建议</strong>：维护好 index，查询快十倍</p>
+<p>index.md 的摘要要精炼——一句话点出每页核心逻辑。agent 靠它导航。<strong>索引烂，查询就全库扫描。</strong></p>
+</blockquote>
+<p>Query 讲清了。下一章，Lint。</p>
+<hr />
+<h2 id="sec-37">§07 Lint：给知识库做体检</h2>
+<h3 id="sec-38">07.1 Lint 是什么</h3>
+<p>当你说"检查知识库""维护一下"触发。它给 Wiki 做健康体检。</p>
+<h3 id="sec-39">07.2 六项检查</h3>
+<p>SKILL.md 的 Lint 清单：</p>
+<ol>
+<li>页面间内容冲突（A 研报说产能过剩，B 说供不应求）</li>
+<li>被新财报/政策取代的过时内容（标 <code>[已过时]</code>）</li>
+<li>无入站链接的孤立页面</li>
+<li>被提及但缺专属页面的重要概念</li>
+<li>缺失的交叉引用（个股页没链行业页）</li>
+<li>可通过网络搜索填补的数据空白</li>
+</ol>
+<h3 id="sec-40">07.3 为什么 Lint 必要</h3>
+<p>Wiki 会长大。长大就会：</p>
+<ul>
+<li>观点过时（去年看多，今年基本面变了）</li>
+<li>产生孤儿页（建了没人引用）</li>
+<li>出现术语黑洞（提到新概念但没专门页）</li>
+<li>链接断裂</li>
+</ul>
+<p>不 Lint，Wiki 慢慢变垃圾堆。定期体检，尤其财报季后，是 SKILL.md 明确建议的。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：知识库会腐化</p>
+<p>不维护的 Wiki，半年后就成"记了但没人信"的废档。Lint 是知识库的杀毒。<strong>建库容易守库难，Lint 就是守。</strong></p>
+</blockquote>
+<h3 id="sec-41">07.4 Lint 不是删，是标注</h3>
+<p>注意 Lint 不删内容。它标 <code>[已过时]</code>、标冲突、列孤儿。删不删，你定。</p>
+<p>这跟 Raw 不可变一脉相承——知识层也倾向"标注而非销毁"，保留演化痕迹。</p>
+<blockquote>
+<p><strong>注意</strong>：维护是标注，不是删除</p>
+<p>过时内容标出来，不抹掉。它记录了"我们曾经这么想"。<strong>演化痕迹本身有信息量。</strong></p>
+</blockquote>
+<p>三大操作讲清了。下一章，进阶。</p>
+<hr />
+<h2 id="sec-42">Part 3: 进阶实战</h2>
+<p>让知识成网、矛盾显形、工具链接通。</p>
+<h2 id="sec-43">§08 交叉引用与逻辑冲突：知识要成网，矛盾要显形</h2>
+<h3 id="sec-44">08.1 交叉引用原则</h3>
+<p>stock-wiki 的交叉引用规则：</p>
+<ul>
+<li>每个个股页底部有"来源"链接，指回资料摘要页</li>
+<li>新资料导入时，主动检查已有页面要不要更新</li>
+<li>摘要页末尾列"相关概念"，形成概念网络</li>
+<li>跨资料关联明确标注（"与 source-xxx 共同主题：集中度提升"）</li>
+</ul>
+<p>用 <code>[[wikilink]]</code> 双向链接。这让 Wiki 变成<strong>图</strong>，不是列表。</p>
+<h3 id="sec-45">08.2 知识关联的四种发现</h3>
+<p>导入第二篇起，重点关注：</p>
+<table>
+<thead>
+<tr>
+<th>关系</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>共同主题</td>
+<td>多篇研报都看出海逻辑</td>
+</tr>
+<tr>
+<td>矛盾观点</td>
+<td>A 说产能过剩，B 说供不应求</td>
+</tr>
+<tr>
+<td>补充关系</td>
+<td>新资料给已有概念加案例</td>
+</tr>
+<tr>
+<td>逻辑演化</td>
+<td>从"主题炒作"变"业绩兑现"</td>
+</tr>
+</tbody>
+</table>
+<p>这四种是知识"联网"的线索。LLM 导入时要主动找它们、标出来。</p>
+<p><img alt="知识成网" src="images/knowledge-network.png" /></p>
+<h3 id="sec-46">08.3 页面命名规范</h3>
+<p>SKILL.md 定了约定：</p>
+<table>
+<thead>
+<tr>
+<th>页面类型</th>
+<th>命名</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>资料摘要</td>
+<td><code>source-{关键词}.md</code></td>
+<td><code>source-300750-宁德时代2025年报.md</code></td>
+</tr>
+<tr>
+<td>个股页</td>
+<td><code>{代码}-{简称}.md</code></td>
+<td><code>300750-宁德时代.md</code></td>
+</tr>
+<tr>
+<td>行业页</td>
+<td><code>industry-{名}.md</code></td>
+<td><code>industry-动力电池.md</code></td>
+</tr>
+<tr>
+<td>宏观页</td>
+<td><code>macro-{概念}.md</code></td>
+<td><code>macro-美联储加息.md</code></td>
+</tr>
+<tr>
+<td>策略页</td>
+<td><code>strategy-{名}.md</code></td>
+<td><code>strategy-网格交易复盘.md</code></td>
+</tr>
+</tbody>
+</table>
+<p>命名规范让 index 能自动归类，链接能稳定指向。</p>
+<h3 id="sec-47">08.4 YAML frontmatter</h3>
+<p>每个页面带 frontmatter：</p>
+<pre><code class="language-yaml">---
+tags: [stock, company, 300750]
+type: company
+ticker: &quot;300750&quot;
+sector: &quot;电力设备&quot;
+source: &quot;原文标题&quot;
+date: 2026-04-29
+---
+</code></pre>
+<p>配合 Obsidian 的 Dataview 插件，能自动生成动态表格——比如"所有强烈推荐评级的个股"。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：结构化才能批量用</p>
+<p>靠 frontmatter + 命名规范，知识库才能从"一堆文件"变"可查询的库"。<strong>散乱的知识用不起来，结构化的才能复利。</strong></p>
+</blockquote>
+<p>知识成网讲清了。下一章，工具链。</p>
+<hr />
+<h2 id="sec-48">§09 markitdown + Obsidian：工具链让 Wiki 活起来</h2>
+<h3 id="sec-49">09.1 资料获取的两条路</h3>
+<p><strong>微信公众号/财经文章</strong>：用 <strong>Obsidian Web Clipper</strong> 浏览器扩展剪藏成 Markdown，丢进 <code>data/raw/</code>。剪藏自带 frontmatter（title、source、author、created、tags）。</p>
+<p><strong>券商研报/财报 PDF</strong>：丢进 <code>data/raw/</code> 后，必须先 markitdown：</p>
+<pre><code class="language-bash">./bin/markitdown data/raw/xxx.pdf -o data/raw/xxx.md
+</code></pre>
+<p>markitdown 把 PDF 转 Markdown，图片提取到 <code>data/raw/assets/xxx/</code>。</p>
+<h3 id="sec-50">09.2 为什么要 markitdown</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>直接读 PDF</th>
+<th>markitdown 转</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>可读性</td>
+<td>差，base64 编码</td>
+<td>好，纯文本</td>
+</tr>
+<tr>
+<td>token 消耗</td>
+<td>巨大</td>
+<td>小</td>
+</tr>
+<tr>
+<td>图片</td>
+<td>丢或乱码</td>
+<td>提取到 assets</td>
+</tr>
+<tr>
+<td>标叔的结论</td>
+<td>别用</td>
+<td>必须</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-51">09.3 Obsidian 当浏览 IDE</h3>
+<p>SKILL.md 推荐 Obsidian 看 Wiki。原因：</p>
+<ul>
+<li>图谱视图看"个股-行业-宏观"逻辑脉络</li>
+<li>双向链接 <code>[[wikilink]]</code> 原生支持</li>
+<li>Dataview 插件用 frontmatter 出动态表</li>
+<li>本质就是个 Markdown 文件的 Git 仓库</li>
+</ul>
+<p>agent 写 Wiki，你用 Obsidian 看。两者解耦。</p>
+<h3 id="sec-52">09.4 整条工具链</h3>
+<pre><code>PDF/网页 → markitdown/Web Clipper → data/raw/*.md
+                                          ↓ Ingest
+                                    data/wiki/*.md
+                                          ↓ Lint
+                                      体检/标注
+                                          ↓
+                                      Obsidian 看
+</code></pre>
+<blockquote>
+<p><strong>核心建议</strong>：人机各用趁手的工具</p>
+<p>agent 用 markitdown 编译，你用 Obsidian 浏览。别强求一个工具干所有事。<strong>agent 管编译，人管判断。</strong></p>
+</blockquote>
+<p>工具链讲清了。最后一章，换脑子。</p>
+<hr />
+<h2 id="sec-53">§10 思维转变：从"检索"到"编译"，知识开始复利</h2>
+<p><img alt="从&quot;检索&quot;到&quot;编译&quot;" src="images/core-01-compile.png" /></p>
+<p><img alt="知识开始复利" src="images/core-02-compound.png" /></p>
+<h3 id="sec-54">10.1 这本书真正的转折</h3>
+<p>很多人以为"AI + 知识库"就是 RAG。项目 4 戳破了。</p>
+<p>RAG 是"检索 + 拼接"。LLM Wiki 是"阅读 + 整合 + 标注矛盾 + 维护网络"。前者是图书馆，后者是会生长的笔记本。</p>
+<h3 id="sec-55">10.2 三个转变</h3>
+<p><strong>转变一：从"存原文"到"存理解"。</strong>
+Raw 存原文，但真正有用的是 Wiki 层——LLM 理解后的结构化知识。</p>
+<p><strong>转变二：从"检索"到"编译"。</strong>
+每次查询不是从零检索。是读已编译的 Wiki。知识编译一次，反复用。</p>
+<p><strong>转变三：从"消费"到"复利"。</strong>
+查询结论回写新页面。导入触发全库联动。知识越用越多，不是越用越散。</p>
+<h3 id="sec-56">10.3 投研 Wiki 的本质</h3>
+<p>它不是"一个问答机器人"。是"一套会自己生长的认知系统"。</p>
+<p>LLM 是管理员。Raw 是真相。Wiki 是认知。Schema 是规则。Ingest 喂、Query 用、Lint 养。</p>
+<blockquote>
+<p><strong>标叔的经验</strong>：知识复利是最大的杠杆</p>
+<p>我用 RAG 时，每次问答都是一次性消费。换成 LLM Wiki 后，每次导入都让全库更厚。<strong>同样烧 token，RAG 是消耗，Wiki 是投资。</strong></p>
+</blockquote>
+<p>思维变了。剩下的，是把你自己领域的资料，灌进这座 Wiki。</p>
+<hr />
+<h2 id="sec-57">附录</h2>
+<h3 id="sec-58">A 核心概念速查</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>deepagents</td>
+<td>LangChain 上的 agent 框架，模型+后端+skill</td>
+</tr>
+<tr>
+<td>LocalShellBackend</td>
+<td>本地 shell 后端，给 agent 文件/命令能力</td>
+</tr>
+<tr>
+<td>Raw / Wiki / Schema</td>
+<td>原始层 / 知识层 / 规则层</td>
+</tr>
+<tr>
+<td>Ingest / Query / Lint</td>
+<td>导入编译 / 查询推演 / 维护体检</td>
+</tr>
+<tr>
+<td>index.md / log.md</td>
+<td>索引 / 操作日志</td>
+</tr>
+<tr>
+<td>markitdown</td>
+<td>PDF → Markdown 转换器</td>
+</tr>
+<tr>
+<td><code>[[wikilink]]</code></td>
+<td>双向链接，让知识成图</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-59">B 这本书没讲但你应该继续看的</h3>
+<ul>
+<li>deepagents 的其他 Backend（Docker 隔离执行）。</li>
+<li>Wiki 规模变大后的检索增强：纯 index 不够时怎么加向量检索。</li>
+<li>多人协作 Wiki：多人同时 Ingest 怎么不冲突。</li>
+</ul>
+<blockquote>
+<p>⚠️ 免责声明：本书基于 Geek04 开源代码解读。投达示例仅作技术演示，不构成投资建议。</p>
+</blockquote>
+<hr />
+<h2 id="sec-60">附录 C：DeepWiki 官方架构图 / 流程图 / 设计图（深度解读补充）</h2>
+<blockquote>
+<p>以下内容来自 DeepWiki 对 <code>xingyunyang01/Geek04</code> 的自动深度解读（Mermaid 源码），作为本书架构与流程的权威参考补充。在支持 Mermaid 的 Markdown 阅读器（GitHub / Obsidian / VS Code + Mermaid 插件）中会自动渲染为图。</p>
+</blockquote>
+<h3 id="sec-61">C.1 Logic to Filesystem Mapping</h3>
+<div class="mermaid">
+graph TD
+    subgraph "Natural Language Space (User Intent)"
+        A["'Ingest this report'"]
+        B["'Query logic for CATL'"]
+        C["'Lint the wiki'"]
+    end
+
+    subgraph "Code Entity Space (Implementation)"
+        D["create_deep_agent()"]
+        E["LocalShellBackend"]
+        F["stock-wiki Skill"]
+        G["markitdown CLI"]
+    end
+
+    subgraph "Filesystem Space (Knowledge Base)"
+        H["data/raw/ (Immutable)"]
+        I["data/wiki/ (LLM-Managed)"]
+        J["data/wiki/index.md"]
+        K["data/wiki/log.md"]
+    end
+
+    A --> F
+    B --> F
+    C --> F
+    F -- "Uses" --> D
+    D -- "Executes via" --> E
+    E -- "Writes to" --> I
+    F -- "Pre-processes with" --> G
+    G -- "Reads from" --> H
+    I -- "Summarized in" --> J
+    I -- "Audited in" --> K
+
+</div>
+
+<h3 id="sec-62">C.2 Knowledge Lifecycle Workflow</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant User
+    participant Agent as "deepagents (agent.py)"
+    participant Tool as "markitdown / Shell"
+    participant Wiki as "Wiki Files (Markdown)"
+
+    User->>Agent: "Add 300750_Report.pdf to wiki"
+    Agent->>Tool: exec "markitdown data/raw/300750.pdf"
+    Tool-->>Agent: 300750.md generated
+    Agent->>Wiki: Create source-300750.md (Summary)
+    Agent->>Wiki: Update 300750-CATL.md (Company Profile)
+    Agent->>Wiki: Update industry-Battery.md (Industry View)
+    Agent->>Wiki: Update index.md & log.md
+    Wiki-->>Agent: Success
+    Agent-->>User: "Wiki updated. Noted conflict in Q3 margins."
+
+</div>
+
+<h3 id="sec-63">C.3 Agent Invocation Pipeline</h3>
+<div class="mermaid">
+graph TD
+    User["User (Natural Language)"] -- "input()" --> REPL["main() Loop"]
+    REPL -- "agent.invoke()" --> Agent["DeepAgent (create_deep_agent)"]
+
+    subgraph "Code Entity Space"
+        Agent -- "uses" --> Model["ChatOpenAI (MiniMax-M3)"]
+        Agent -- "references" --> Skills["./my-project/skills/"]
+        Agent -- "executes via" --> Backend["LocalShellBackend (virtual_mode=True)"]
+    end
+
+    Backend -- "Shell Commands" --> FS["File System (./)"]
+    FS -- "Markdown/PDF/Data" --> Backend
+    Backend -- "Execution Results" --> Agent
+    Agent -- "reply.content" --> User
+
+</div>
+
+<h3 id="sec-64">C.4 REPL Sequence Diagram</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant M as main() Loop
+    participant A as DeepAgent
+    participant B as LocalShellBackend
+
+    U->>M: Enter Query (e.g., "Ingest PDF")
+    M->>M: append {"role": "user", "content": ...}
+    M->>A: agent.invoke({"messages": history})
+    A->>B: Execute Shell (ls, cat, python)
+    B-->>A: Command Output
+    A-->>M: ResultMessage (Final Answer)
+    M->>M: append {"role": "assistant", "content": ...}
+    M->>U: Print Agent Response
+
+</div>
+
+<h3 id="sec-65">C.5 System Operation Flow</h3>
+<div class="mermaid">
+graph TD
+    subgraph "Natural Language Space"
+        UserReq["User Request: 'Ingest 300750 report'"]
+    end
+
+    subgraph "Code Entity Space (deepagents)"
+        Agent["agent.py: create_deep_agent()"]
+        Backend["LocalShellBackend"]
+        Skill["SKILL.md: stock-wiki"]
+    end
+
+    subgraph "Data Storage"
+        RawDir["data/raw/ (PDF/MD)"]
+        WikiDir["data/wiki/ (Synthesized MD)"]
+        IndexMD["wiki/index.md"]
+        LogMD["wiki/log.md"]
+    end
+
+    UserReq --> Agent
+    Agent --> Skill
+    Skill -- "1. Pre-process" --> Backend
+    Backend -- "markitdown" --> RawDir
+    Skill -- "2. Read & Synthesize" --> RawDir
+    Skill -- "3. Update Pages" --> WikiDir
+    Skill -- "4. Update Index" --> IndexMD
+    Skill -- "5. Append Log" --> LogMD
+
+</div>
+
+<h3 id="sec-66">C.6 Knowledge Synthesis Logic</h3>
+<div class="mermaid">
+flowchart LR
+    subgraph "Input Processing"
+        PDF["Report.pdf"] -- "markitdown" --> MD["Report.md"]
+    end
+
+    subgraph "Synthesis Logic (SKILL.md)"
+        direction TB
+        Extract["Extract Thesis & Metrics"]
+        CrossCheck["Check Existing Wiki Pages"]
+        Conflict["Identify Conflicts (Bull vs Bear)"]
+    end
+
+    subgraph "Knowledge Graph (Wiki)"
+        Stock["300750-CATL.md"]
+        Ind["industry-Battery.md"]
+        Source["source-CATL-2025.md"]
+
+        Stock <--> Ind
+        Stock <--> Source
+    end
+
+    MD --> Extract
+    Extract --> CrossCheck
+    CrossCheck --> Conflict
+    Conflict --> Stock
+    Conflict --> Ind
+    Conflict --> Source
+
+</div>
+    <div class="footnote">
+      本文由 Geek04 项目图书自动排版生成。正文离线可读；
+      含 <code>graph/sequence/class</code> 的「DeepWiki 架构图」需联网由 Mermaid 渲染，
+      离线时显示原始源码，不影响阅读。
+    </div>
+  </main>
+</div>
+<button class="totop" id="totop" title="回到顶部">↑</button>
+<script>
+// 目录高亮（scroll-spy）
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc-list a'));
+  var map = {};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var targets = links.map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = map[e.target.id]; if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-10% 0px -75% 0px', threshold:0});
+  targets.forEach(function(t){ obs.observe(t); });
+  // 回到顶部
+  var btn = document.getElementById('totop');
+  window.addEventListener('scroll', function(){ btn.style.display = window.scrollY>600 ? 'block':'none'; });
+  btn.addEventListener('click', function(){ window.scrollTo({top:0,behavior:'smooth'}); });
+})();
+</script>
+</body>
+</html>
