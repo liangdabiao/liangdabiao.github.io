@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DeepSeek Harness（dsh）从入门到精通</title>
+<style>
+:root{
+  --bg:#ffffff; --fg:#1f2328; --muted:#57606a; --line:#e3e6ea;
+  --accent:#0a6b6b; --accent2:#e8622c; --code-bg:#f6f8fa; --quote-bg:#f3f8f8;
+  --card:#fbfcfd;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Noto Sans CJK SC",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-size:17px; line-height:1.85;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex; align-items:flex-start; max-width:1280px; margin:0 auto}
+.sidebar{
+  position:sticky; top:0; align-self:flex-start;
+  flex:0 0 270px; height:100vh; overflow-y:auto;
+  padding:24px 18px 40px; border-right:1px solid var(--line);
+  background:#fcfdfe;
+}
+.sidebar h2{
+  font-size:15px; margin:0 0 12px; color:var(--accent);
+  font-weight:700; letter-spacing:.5px;
+}
+.toc-list{list-style:none; margin:0; padding:0; font-size:14px}
+.toc-list li{margin:2px 0; line-height:1.5}
+.toc-list a{color:var(--muted); display:block; padding:3px 8px; border-radius:6px; border-left:2px solid transparent}
+.toc-list a:hover{background:#eef3f3; color:var(--fg); text-decoration:none}
+.toc-list a.active{color:var(--accent); background:#e9f3f3; border-left:2px solid var(--accent); font-weight:600}
+.content{
+  flex:1; min-width:0; max-width:860px; margin:0 auto;
+  padding:40px 48px 120px;
+}
+.content h1{font-size:30px; line-height:1.35; margin:0 0 8px; color:#0c2b2b}
+.content h2{font-size:24px; margin:42px 0 14px; padding-bottom:8px; border-bottom:2px solid var(--line); color:#0c2b2b}
+.content h3{font-size:19px; margin:28px 0 10px; color:var(--accent)}
+.content p{margin:14px 0}
+.content img{max-width:100%; height:auto; display:block; margin:20px auto; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.content blockquote{
+  margin:18px 0; padding:12px 18px; background:var(--quote-bg);
+  border-left:4px solid var(--accent); border-radius:0 8px 8px 0; color:#26403f;
+}
+.content blockquote p{margin:8px 0}
+.content code{
+  background:var(--code-bg); padding:.15em .4em; border-radius:5px;
+  font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; font-size:.9em;
+  border:1px solid var(--line);
+}
+.content pre{
+  background:var(--code-bg); border:1px solid var(--line); border-radius:10px;
+  padding:16px 18px; overflow-x:auto; margin:18px 0;
+}
+.content pre code{background:none; border:none; padding:0; font-size:13.5px; line-height:1.6}
+.content table{
+  border-collapse:collapse; width:100%; margin:18px 0; font-size:15px;
+  display:block; overflow-x:auto;
+}
+.content th,.content td{border:1px solid var(--line); padding:8px 12px; text-align:left}
+.content th{background:#eef3f3; font-weight:700; color:#0c2b2b}
+.content tr:nth-child(even) td{background:#fafcfc}
+.mermaid{
+  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  padding:18px; margin:22px 0; overflow-x:auto; text-align:center;
+}
+.mermaid pre{text-align:left; white-space:pre; font-size:13px; color:var(--muted)}
+.cover-note{color:var(--muted); font-size:14px; margin:4px 0 30px}
+.footnote{margin-top:60px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:13px}
+.totop{
+  position:fixed; right:24px; bottom:24px; width:44px; height:44px; border-radius:50%;
+  background:var(--accent); color:#fff; border:none; font-size:20px; cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.18); display:none;
+}
+.totop:hover{background:#085656}
+@media (max-width:980px){
+  .layout{flex-direction:column}
+  .sidebar{position:static; height:auto; width:100%; border-right:none; border-bottom:1px solid var(--line); max-height:42vh}
+  .content{padding:24px 18px 90px}
+  .content h1{font-size:25px}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js" defer></script>
+<script>window.addEventListener('DOMContentLoaded',function(){ if(window.mermaid){ mermaid.initialize({startOnLoad:true, theme:'base', themeVariables:{primaryColor:'#e9f3f3',lineColor:'#0a6b6b',fontSize:'15px'}}); } });</script>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <h2>DeepSeek Harness（dsh）从入门到精通</h2>
+    <ul class="toc-list"><li style="margin-left:0px"><a href="#sec-2">阅读指南</a></li><li style="margin-left:0px"><a href="#sec-3">Part 1: 起步</a></li><li style="margin-left:0px"><a href="#sec-4">§01 为什么需要一个「没有内核」的 Agent 框架</a></li><li style="margin-left:18px"><a href="#sec-5">01.1 时间线锚点</a></li><li style="margin-left:18px"><a href="#sec-6">01.2 「万物皆插件」到底什么意思</a></li><li style="margin-left:18px"><a href="#sec-7">01.3 一个重要的判断</a></li><li style="margin-left:18px"><a href="#sec-8">01.4 dsh 的四种用法：对号入座</a></li><li style="margin-left:18px"><a href="#sec-9">01.5 本书怎么用 OmniOps</a></li><li style="margin-left:0px"><a href="#sec-10">§02 5 分钟跑通第一个 dsh</a></li><li style="margin-left:18px"><a href="#sec-11">02.1 一条命令</a></li><li style="margin-left:18px"><a href="#sec-12">02.2 三步才能跑起来</a></li><li style="margin-left:18px"><a href="#sec-13">02.3 三个常见报错</a></li><li style="margin-left:18px"><a href="#sec-14">02.4 CLI 还是源码</a></li><li style="margin-left:0px"><a href="#sec-15">§03 第一个插件：从 greet 学会「注册即副作用」</a></li><li style="margin-left:18px"><a href="#sec-16">03.1 最简插件长什么样</a></li><li style="margin-left:18px"><a href="#sec-17">03.2 三个关键点</a></li><li style="margin-left:18px"><a href="#sec-18">03.3 挂载与验证</a></li><li style="margin-left:18px"><a href="#sec-19">本章小结</a></li><li style="margin-left:0px"><a href="#sec-20">Part 2: 框架内核（源码深潜）</a></li><li style="margin-left:0px"><a href="#sec-21">§04 插件树的组装：Profile、组合包与 Patch</a></li><li style="margin-left:18px"><a href="#sec-22">04.1 三个概念</a></li><li style="margin-left:18px"><a href="#sec-23">04.2 叠层顺序</a></li><li style="margin-left:18px"><a href="#sec-24">04.3 看你的机器真实启动的树</a></li><li style="margin-left:18px"><a href="#sec-25">04.4 一个致命细节：别编辑 cordis.yml</a></li><li style="margin-left:18px"><a href="#sec-26">本章小结</a></li><li style="margin-left:0px"><a href="#sec-27">§05 事件系统：dsh 的神经系统</a></li><li style="margin-left:18px"><a href="#sec-28">05.1 四种分发模式</a></li><li style="margin-left:18px"><a href="#sec-29">05.2 waterfall 语义（重点）</a></li><li style="margin-left:18px"><a href="#sec-30">05.3 三个事件域</a></li><li style="margin-left:18px"><a href="#sec-31">05.4 一秒判断法：这是不是瀑布？</a></li><li style="margin-left:18px"><a href="#sec-32">本章小结</a></li><li style="margin-left:0px"><a href="#sec-33">§06 工具子系统：ctx.tools 的完整解剖</a></li><li style="margin-left:18px"><a href="#sec-34">06.1 ToolDefinition 的九个字段</a></li><li style="margin-left:18px"><a href="#sec-35">06.2 执行流水线：五道关卡</a></li><li style="margin-left:18px"><a href="#sec-36">06.3 失败即结构化错误</a></li><li style="margin-left:18px"><a href="#sec-37">06.4 并行与独占</a></li><li style="margin-left:18px"><a href="#sec-38">本章小结</a></li><li style="margin-left:0px"><a href="#sec-39">§07 Agent Loop 与会话日志：模型可见即已记录</a></li><li style="margin-left:18px"><a href="#sec-40">07.1 轮次与步骤</a></li><li style="margin-left:18px"><a href="#sec-41">07.2 agent/pre-step 决定模型看到什么</a></li><li style="margin-left:18px"><a href="#sec-42">07.3 模型可见即已记录（最重要的不变量）</a></li><li style="margin-left:18px"><a href="#sec-43">07.4 inject()：给模型塞上下文的正规通道</a></li><li style="margin-left:18px"><a href="#sec-44">本章小结</a></li><li style="margin-left:0px"><a href="#sec-45">§08 Skills：可发现的指令，不是会话事件</a></li><li style="margin-left:18px"><a href="#sec-46">08.1 skill 是什么</a></li><li style="margin-left:18px"><a href="#sec-47">08.2 本地发现优先级（rank 越小越优先）</a></li><li style="margin-left:18px"><a href="#sec-48">08.3 渐进式披露：目录 → 调用 → 正文</a></li><li style="margin-left:18px"><a href="#sec-49">08.4 会话目录的智能更新</a></li><li style="margin-left:18px"><a href="#sec-50">08.5 调用策略</a></li><li style="margin-left:18px"><a href="#sec-51">本章小结</a></li><li style="margin-left:0px"><a href="#sec-52">Part 3: OmniOps 实战（全案例拆解）</a></li><li style="margin-left:0px"><a href="#sec-53">§09 案例总览：OmniOps 怎么在 dsh 上搭运维大脑</a></li><li style="margin-left:18px"><a href="#sec-54">09.1 OmniOps 是什么</a></li><li style="margin-left:18px"><a href="#sec-55">09.2 它在 dsh 上的三层结构</a></li><li style="margin-left:18px"><a href="#sec-56">09.3 案例的三个教学价值</a></li><li style="margin-left:18px"><a href="#sec-57">本章小结</a></li><li style="margin-left:0px"><a href="#sec-58">§10 架构决策：为什么拆成三块而不是一个大插件</a></li><li style="margin-left:18px"><a href="#sec-59">10.1 先看决策表</a></li><li style="margin-left:18px"><a href="#sec-60">10.2 三单元职责表（背下来）</a></li><li style="margin-left:18px"><a href="#sec-61">10.3 为什么不写成一个 dsh 插件</a></li><li style="margin-left:18px"><a href="#sec-62">本章小结</a></li><li style="margin-left:0px"><a href="#sec-63">§11 源码走读①：mysql-diag-mcp 服务器</a></li><li style="margin-left:18px"><a href="#sec-64">11.1 目录与依赖</a></li><li style="margin-left:18px"><a href="#sec-65">11.2 tools.ts：三个工具</a></li><li style="margin-left:18px"><a href="#sec-66">11.3 db.ts：连接封装的凭据哲学</a></li><li style="margin-left:18px"><a href="#sec-67">11.4 pt-digest.ts：慢日志分析的工程细节</a></li><li style="margin-left:18px"><a href="#sec-68">11.5 双入口：index.ts 与 stdio.ts</a></li><li style="margin-left:18px"><a href="#sec-69">本章小结</a></li><li style="margin-left:0px"><a href="#sec-70">§12 源码走读②：SKILL.md 方法论与凭据安全</a></li><li style="margin-left:18px"><a href="#sec-71">12.1 完整 SKILL.md（原文件只有 34 行）</a></li><li style="margin-left:18px"><a href="#sec-72">12.2 为什么这么写（四个设计点）</a></li><li style="margin-left:18px"><a href="#sec-73">12.3 凭据安全全景</a></li><li style="margin-left:18px"><a href="#sec-74">本章小结</a></li><li style="margin-left:0px"><a href="#sec-75">§13 源码走读③：接线层与前端引导</a></li><li style="margin-left:18px"><a href="#sec-76">13.1 cordis.patch.yml 两段式</a></li><li style="margin-left:18px"><a href="#sec-77">13.2 前端三级下拉框（真实源码）</a></li><li style="margin-left:18px"><a href="#sec-78">13.3 强联动方案（未来的路）</a></li><li style="margin-left:18px"><a href="#sec-79">本章小结</a></li><li style="margin-left:0px"><a href="#sec-80">§14 运行与验证：从 S0 到 S7 的完整流程</a></li><li style="margin-left:18px"><a href="#sec-81">14.1 七步开发流程（spec 原表）</a></li><li style="margin-left:18px"><a href="#sec-82">14.2 S0 环境准备（动手前提）</a></li><li style="margin-left:18px"><a href="#sec-83">14.3 启动两个进程</a></li><li style="margin-left:18px"><a href="#sec-84">14.4 curl 验证 MCP</a></li><li style="margin-left:18px"><a href="#sec-85">14.5 端到端验证清单（8 条）</a></li><li style="margin-left:18px"><a href="#sec-86">14.6 常见坑速查（9 个）</a></li><li style="margin-left:18px"><a href="#sec-87">14.7 S7 详解：packages/bundle/mysql-diag 是怎样生成的</a></li><li style="margin-left:18px"><a href="#sec-88">本章小结</a></li><li style="margin-left:0px"><a href="#sec-89">Part 4: 扩展与素养</a></li><li style="margin-left:0px"><a href="#sec-90">§15 把方法论迁移到新场景</a></li><li style="margin-left:18px"><a href="#sec-91">15.1 万能公式</a></li><li style="margin-left:18px"><a href="#sec-92">15.2 Redis 大 Key 检测示例（作者已在写）</a></li><li style="margin-left:18px"><a href="#sec-93">15.3 六个候选场景</a></li><li style="margin-left:18px"><a href="#sec-94">15.4 什么时候该写 dsh 插件而不是 MCP</a></li><li style="margin-left:18px"><a href="#sec-95">本章小结</a></li><li style="margin-left:0px"><a href="#sec-96">§16 插件形式实现：与 MCP 形式的对照实战</a></li><li style="margin-left:18px"><a href="#sec-97">16.1 三种插件写法</a></li><li style="margin-left:18px"><a href="#sec-98">16.2 ctx：服务容器 + 生命周期 API</a></li><li style="margin-left:18px"><a href="#sec-99">16.3 完整示例：事件监听型插件</a></li><li style="margin-left:18px"><a href="#sec-100">16.4 可逆副作用：自动清理 vs 手动清理</a></li><li style="margin-left:18px"><a href="#sec-101">16.5 加载机制：五阶段 + fiber 状态机</a></li><li style="margin-left:18px"><a href="#sec-102">16.6 最小可跑的插件 + 启动内部过程</a></li><li style="margin-left:18px"><a href="#sec-103">16.7 同一能力两条路：插件 vs MCP 全对照</a></li><li style="margin-left:18px"><a href="#sec-104">16.8 怎么选：回到那张表</a></li><li style="margin-left:18px"><a href="#sec-105">本章小结</a></li><li style="margin-left:0px"><a href="#sec-106">§17 Harness 三选一：Pi、DSH、Codex 的扩展路线对比</a></li><li style="margin-left:18px"><a href="#sec-107">17.1 为什么要看选型</a></li><li style="margin-left:18px"><a href="#sec-108">17.2 Pi：小内核、大扩展（改装现有工厂）</a></li><li style="margin-left:18px"><a href="#sec-109">17.3 DSH：不是扩展，而是组装 Agent（组装模块化工厂）</a></li><li style="margin-left:18px"><a href="#sec-110">17.4 Codex：稳定内核，按标准扩展（给成熟工厂接新能力）</a></li><li style="margin-left:18px"><a href="#sec-111">17.5 三句话记住三条路线</a></li><li style="margin-left:18px"><a href="#sec-112">17.6 企业落地：不必只选一个</a></li><li style="margin-left:18px"><a href="#sec-113">本章小结</a></li><li style="margin-left:0px"><a href="#sec-114">§18 思维转变：你搭积木，不是造轮子</a></li><li style="margin-left:18px"><a href="#sec-115">18.1 这本书真正的转折</a></li><li style="margin-left:18px"><a href="#sec-116">18.2 三个转变</a></li><li style="margin-left:18px"><a href="#sec-117">18.3 dsh 的本质</a></li><li style="margin-left:0px"><a href="#sec-118">附录</a></li><li style="margin-left:18px"><a href="#sec-119">A 核心命令速查</a></li><li style="margin-left:18px"><a href="#sec-120">B 关键 API / 概念速查</a></li><li style="margin-left:18px"><a href="#sec-121">C 事件分发模式速查</a></li><li style="margin-left:18px"><a href="#sec-122">D skill 发现 rank 速查</a></li><li style="margin-left:18px"><a href="#sec-123">E 环境变量速查（mysql-diag-mcp）</a></li><li style="margin-left:18px"><a href="#sec-124">F 参考资料与延伸阅读</a></li></ul>
+  </nav>
+  <main class="content">
+    <h1 id="sec-1">DeepSeek Harness（dsh）从入门到精通</h1>
+<p>以 OmniOps 为案例，把「万物皆插件」的 Agent 运行时学透</p>
+<p><img alt="封面" src="cover.png" /></p>
+<p><strong>创建者</strong>: 标叔（整理自「AI实验室的一角」实战复盘 + OmniOps 开源源码深读）
+<strong>为谁创建</strong>: 想真正掌握 dsh 框架、能自己搭 Agent / 运维诊断平台的工程师
+<strong>基于</strong>: DeepSeek Harness v0.1-rc（developer preview）、OmniOps（github.com/luxiu666/OmniOps）
+<strong>最后更新</strong>: 2026-08-28
+<strong>适用场景</strong>: 系统学习 dsh 框架内核、插件开发、skill/MCP 接入、公司级 AIOps 平台实战</p>
+<blockquote>
+<p><strong>免责声明</strong>：dsh 处于 developer preview，官方明确后续会有破坏性变更。本书基于公开文章与 OmniOps 仓库源码（含完整 dsh 框架 fork）编写，落地前请以官方文档为准；不构成生产部署建议。</p>
+</blockquote>
+<h2 id="sec-2">阅读指南</h2>
+<p>2026 年 8 月，DeepSeek 开源了 Harness（dsh）。几天冲到 12 万星。</p>
+<p>我一开始以为它是个「套壳 Claude Code」。读完全部源码文档后，我收回这句话。dsh 最值钱的不是模型能力，是一个设计决断：<strong>没有任何特权内核</strong>。模型适配器、工具注册表、会话日志、agent loop 本身，全是插件。想换，拔掉换一个。</p>
+<p>这本书不是功能清单，是一本「教学书」。目标只有一个：<strong>你读完能独立复刻 OmniOps</strong>——在 dsh 上搭一套 MySQL 慢查询诊断能力，并把方法论迁移到 Redis 大 Key、GPU 掉卡等任何场景。</p>
+<p>dsh 有四种用法（详见 §01.4）：当工具用、当插件平台用、当二次开发平台用、当自进化框架用。本书主线覆盖前三种，重点在第二种——<strong>插件平台</strong>是大多数开发者的主战场，OmniOps 就是这个层次的完整示范。</p>
+<table>
+<thead>
+<tr>
+<th>分段</th>
+<th>章节</th>
+<th>你获得什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Part 1 起步</td>
+<td>§01–03</td>
+<td>跑通 dsh，写出第一个插件</td>
+</tr>
+<tr>
+<td>Part 2 框架内核</td>
+<td>§04–08</td>
+<td>吃透插件树、事件、工具流水线、agent loop、skill 机制</td>
+</tr>
+<tr>
+<td>Part 3 OmniOps 实战</td>
+<td>§09–14</td>
+<td>全源码走读，从 0 复刻 MySQL 慢查询诊断</td>
+</tr>
+<tr>
+<td>Part 4 扩展与素养</td>
+<td>§15–18</td>
+<td>迁移到新场景、插件 vs MCP 对照、Harness 三选一、工程判断</td>
+</tr>
+</tbody>
+</table>
+<p>读法建议：时间紧就先读 §02、§05、§09–§14（动手主线）；时间够就顺读。每章末尾有「本章小结」。</p>
+<hr />
+<h2 id="sec-3">Part 1: 起步</h2>
+<p>从零到一。先跑起来，再写第一个插件。</p>
+<h2 id="sec-4">§01 为什么需要一个「没有内核」的 Agent 框架</h2>
+<h3 id="sec-5">01.1 时间线锚点</h3>
+<p>2026 年 8 月 17 日，我第一次 <code>npx @deepseek-ai/dsh web</code>。</p>
+<p>之前用 Claude Code，感受很矛盾：很强，但「太成品」。想换模型、加工具、改界面，只能等官方发版。我管这叫「精装交付」——装修好了，墙不能动。</p>
+<h3 id="sec-6">01.2 「万物皆插件」到底什么意思</h3>
+<p>dsh 跑在 Cordis 插件系统上。运行时是一棵<strong>插件树</strong>，由启动时按序叠加的层组成。</p>
+<p>有人把 Cordis 比作「乐高底板」：模型、工具、Agent Loop 都是积木，<code>ctx</code> 是统一接口，Cordis 按依赖装配、随时拆换。它本身不思考，只做三件事：共享能力、按依赖启动、管理装卸与清理。三大 Harness 的选型对比见 §16。</p>
+<p>关键在三条设计事实：</p>
+<ol>
+<li>没有特权内核。要扩展，就把插件挂到别的插件旁边。</li>
+<li>插件向共享 <code>ctx</code> 贡献<strong>服务、类型化事件、可逆副作用</strong>。</li>
+<li>注册即副作用（Registrations are effects）：插件卸载，它注册的东西自动撤销。</li>
+</ol>
+<blockquote>
+<p><strong>标叔的结论</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>成品 Agent</th>
+<th>dsh</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>换模型</td>
+<td>等官方</td>
+<td>换一个适配器插件</td>
+</tr>
+<tr>
+<td>加工具</td>
+<td>等官方</td>
+<td>写个插件注册进 ctx.tools</td>
+</tr>
+<tr>
+<td>改循环</td>
+<td>不可能</td>
+<td>agent-loop 本身是插件</td>
+</tr>
+<tr>
+<td>心智模型</td>
+<td>买电器</td>
+<td>买乐高</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<h3 id="sec-7">01.3 一个重要的判断</h3>
+<p>很多人以为「万物皆插件」就是模块化做得好。不是。它的深层含义是<strong>可替换性贯穿到最深处</strong>——连「Agent 怎么思考和行动」这件事本身（agent loop）都能换。</p>
+<p>这意味着：dsh 不是给你一个更好的 Agent，是给你一个<strong>能长出任何 Agent 的底盘</strong>。</p>
+<h3 id="sec-8">01.4 dsh 的四种用法：对号入座</h3>
+<p>理解了 dsh 是什么、新在哪儿，下一个问题就是：它该怎么用？dsh 不是只有一种用法。我把常见的四种讲给你，你可以对号入座：</p>
+<table>
+<thead>
+<tr>
+<th>用法</th>
+<th>干什么</th>
+<th>成本</th>
+<th>适合谁</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>① 当 Agent 工具用</strong></td>
+<td>直接跑 dsh，用官方预设（preset）组合出一套能用的 Agent，接上自己的模型，让它帮你干活</td>
+<td>最低</td>
+<td>「我就想先有个能跑的 Agent」</td>
+</tr>
+<tr>
+<td><strong>② 当插件平台用</strong></td>
+<td>安装感兴趣的插件，或在扩展点上写自己的插件——加一个工具、接一个模型，装进自己的 cordis.yml / bundle</td>
+<td>中</td>
+<td><strong>大多数开发者最常用的层次</strong></td>
+</tr>
+<tr>
+<td><strong>③ 当二次开发平台用</strong></td>
+<td>深度融合自己的业务逻辑进 dsh</td>
+<td>高</td>
+<td>需要对业务、需求、dsh 能力有全面深入理解的开发者</td>
+</tr>
+<tr>
+<td><strong>④ 当自进化基础框架用</strong></td>
+<td>利用时空组合特性与 Append-Only 日志等能力，构建能自我改进、持续进化的系统</td>
+<td>最高</td>
+<td>最有难度、最有野心的用法</td>
+</tr>
+</tbody>
+</table>
+<p>这四种用法是<strong>递进关系</strong>，正好对上本书结构：</p>
+<ul>
+<li>用法① → Part 1（跑起来）</li>
+<li>用法② → Part 2 + Part 3 前半（插件、skill、MCP 接入——OmniOps 案例正是这个层次的完整示范）</li>
+<li>用法③ → Part 3 后半 + Part 4（fork 全源码改前端、改组合层，向内核动手）</li>
+<li>用法④ → 超出本书范围，是「时空组合 + Append-Only 日志」的进阶方向（Append-Only 会话日志的底子见 §07）</li>
+</ul>
+<blockquote>
+<p><strong>标叔的结论</strong>：别一上来就奔着第四种去。先用①尝到甜头，用②建立插件心智，用③做过一次真业务（比如复刻 OmniOps），你才配谈④。</p>
+</blockquote>
+<h3 id="sec-9">01.5 本书怎么用 OmniOps</h3>
+<p>OmniOps 是 dsh 上搭的 AIOps 平台，而且它的仓库 <strong>fork 了整个 dsh 框架源码</strong>（根 package.json 叫 <code>@deepseek-ai/dsh-root</code>）。这意味着我们能在同一个仓库里同时看到「框架内核」和「业务扩展」，是绝佳教学案例。</p>
+<p>本书 Part 2 讲内核时引用 <code>packages/</code>（框架源码），Part 3 讲实战时引用 <code>connectors/</code>、<code>skills/</code>、<code>apps/web</code>（OmniOps 扩展）。</p>
+<h2 id="sec-10">§02 5 分钟跑通第一个 dsh</h2>
+<h3 id="sec-11">02.1 一条命令</h3>
+<p>环境只要 Node.js 22.19+ 或 24+：</p>
+<pre><code class="language-bash">npx @deepseek-ai/dsh web
+# 看到 dsh web: http://127.0.0.1:3080 即成功
+</code></pre>
+<h3 id="sec-12">02.2 三步才能跑起来</h3>
+<p>我第一次卡了十分钟，不是因为难，是漏了一步。</p>
+<p><strong>第一步，填模型密钥。</strong> 界面填 DeepSeek API Key。密钥只存脱敏引用，落在 <code>$DSH_HOME/.credentials.yaml</code>，不回显明文，改了立即生效不用重启。</p>
+<p><strong>第二步，选工作区（workspace）。</strong> 最容易漏。不选，会话输入框用不了。把启动目录加进去选中——dsh 进程的调用目录就是默认文件系统位置。</p>
+<p><strong>第三步，起会话发任务。</strong> 比如「Summarize this repository and identify its main packages.」</p>
+<h3 id="sec-13">02.3 三个常见报错</h3>
+<table>
+<thead>
+<tr>
+<th>报错</th>
+<th>原因</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MISSING_CREDENTIAL</td>
+<td>没存 key</td>
+<td>界面填 key</td>
+</tr>
+<tr>
+<td>UNKNOWN_MODEL</td>
+<td>选了没配置的模型</td>
+<td>手动填模型名</td>
+</tr>
+<tr>
+<td>模型列表 401</td>
+<td>接口没提供</td>
+<td>手动填模型名</td>
+</tr>
+</tbody>
+</table>
+<p>不绑 DeepSeek 也行：内置 Anthropic、OpenAI 提供商；也能加 OpenAI 兼容端点（公司网关、llama.cpp、ollama），填 Provider ID、base URL、协议、模型。</p>
+<h3 id="sec-14">02.4 CLI 还是源码</h3>
+<pre><code class="language-bash"># 方式二：从源码构建（后续开发建议这条）
+git clone https://github.com/deepseek-ai/deepseek-harness.git
+cd deepseek-harness
+pnpm install &amp;&amp; pnpm run build
+pnpm dsh web
+</code></pre>
+<blockquote>
+<p><strong>核心建议</strong>：想深学框架，直接 clone OmniOps（含 dsh 全源码），后面所有章节都基于它。</p>
+</blockquote>
+<h2 id="sec-15">§03 第一个插件：从 greet 学会「注册即副作用」</h2>
+<h3 id="sec-16">03.1 最简插件长什么样</h3>
+<p>插件就是导出 <code>apply</code> 函数的 TypeScript 模块。框架加载时调 <code>apply(ctx)</code>，你通过 <code>ctx</code> 注册能力：</p>
+<pre><code class="language-typescript">// src/my-plugin.ts
+import type { Context } from '@deepseek-ai/cordis'
+import { defineTool } from '@deepseek-ai/dsh-tools'
+
+export const name = 'greet-tool'
+export const inject = ['tools']            // 声明依赖 tools 服务
+
+export function apply(ctx: Context) {
+  ctx.tools.register(defineTool({
+    name: 'greet',
+    description: 'Greet someone by name.',
+    parameters: {
+      name: { type: 'string', required: true },
+    },
+    output: {
+      schema: { type: 'string' },
+      render: (_a, v) =&gt; [{ type: 'text', text: v }],
+    },
+    async execute(args) {
+      return `Hello, ${args.name}!`
+    },
+  }))
+}
+</code></pre>
+<h3 id="sec-17">03.2 三个关键点</h3>
+<p><strong>第一，<code>inject = ['tools']</code> 是依赖声明。</strong> 插件声明需要的服务，Cordis 会等这些服务就绪才启动它。加载顺序不靠手动编排，靠服务依赖表达。</p>
+<p><strong>第二，<code>register()</code> 返回一个 disposer。</strong> 这就是「注册即副作用」：插件卸载时，注册的工具自动消失。你不用写清理代码。</p>
+<p><strong>第三，<code>defineTool</code> 负责校验。</strong> 它收窄参数类型、校验入参、按 <code>output.schema</code> 推导返回类型。手写 <code>ToolDefinition</code> 不校验，<code>defineTool</code> 校验。</p>
+<h3 id="sec-18">03.3 挂载与验证</h3>
+<pre><code class="language-yaml"># cordis.yml（路径用绝对路径）
+- insert:
+    - id: hello
+      name: '/绝对路径/scratch-plugin/src/my-plugin.ts'
+</code></pre>
+<pre><code class="language-bash">pnpm dsh web --patch ./scratch-plugin/cordis.yml
+# 浏览器说：Use the greet tool to greet Ada → Hello, Ada!
+</code></pre>
+<h3 id="sec-19">本章小结</h3>
+<ul>
+<li>dsh 运行时是插件树；插件 = <code>apply(ctx)</code> + 可选 <code>inject</code>。</li>
+<li>依赖用 <code>inject</code> 声明，不手动排启动顺序。</li>
+<li>注册返回 disposer，卸载自动撤销。</li>
+</ul>
+<p>下一章进内核：这棵插件树是怎么「叠」出来的。</p>
+<hr />
+<h2 id="sec-20">Part 2: 框架内核（源码深潜）</h2>
+<p>这一段讲清楚五件事：插件树怎么组装（§04）、事件怎么流动（§05）、工具怎么被执行（§06）、agent 循环怎么转（§07）、skill 怎么被发现与调用（§08）。读完你对 dsh 的理解会超过 90% 的用户。</p>
+<h2 id="sec-21">§04 插件树的组装：Profile、组合包与 Patch</h2>
+<h3 id="sec-22">04.1 三个概念</h3>
+<p>运行中的 dsh 是一棵插件树，由<strong>层</strong>叠出来。三个概念要分清：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>是什么</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>profile</td>
+<td>Harness home 里的具名组装</td>
+<td><code>web</code>、<code>headless</code></td>
+</tr>
+<tr>
+<td>组合包</td>
+<td>Cordis 配置 + 挂载代码的分发格式</td>
+<td>dsh-base、dsh-web-app</td>
+</tr>
+<tr>
+<td>patch</td>
+<td>按 id 定位条目替换 config，或插入新条目</td>
+<td>cordis.patch.yml</td>
+</tr>
+</tbody>
+</table>
+<p><code>dsh-base</code> 是每个 profile 的第一层：模型适配器、工具、持久化、沙箱与审批、设置、凭据、遥测。<code>dsh-web-app</code> 加浏览器应用；<code>dsh-headless</code> 加一次性运行器（无服务器）。</p>
+<h3 id="sec-23">04.2 叠层顺序</h3>
+<p>各层按此顺序应用在空条目列表上：</p>
+<pre><code class="language-text">空列表
+  → 按 profile 列出的顺序应用每个组合包
+  → profile 的 cordis.patch.yml
+  → home 级 cordis patch
+  → 任意 --patch overlay
+</code></pre>
+<p>一条 patch 按 <strong>id</strong> 定位条目，替换其整个 config；或者用 <code>insert</code> 插入新条目。</p>
+<h3 id="sec-24">04.3 看你的机器真实启动的树</h3>
+<pre><code class="language-bash">dsh --profile web --dump-config
+</code></pre>
+<p>它打印的任何条目，都可以被你的 patch 替换。这是排查「插件为什么没生效」的第一命令。</p>
+<h3 id="sec-25">04.4 一个致命细节：别编辑 cordis.yml</h3>
+<p>profile 根下的 <code>cordis.yml</code> 每次 boot 都会被框架重写回 <code>[]</code>。<strong>所有插件组合都写在 <code>cordis.patch.yml</code></strong>。这是 OmniOps 开发手册里明确警告的坑。</p>
+<h3 id="sec-26">本章小结</h3>
+<ul>
+<li>插件树 = 空列表 + 组合包 + 各级 patch 依次叠加。</li>
+<li>patch 按 id 替换 config；insert 插新条目。</li>
+<li><code>--dump-config</code> 是第一排查命令；<code>cordis.yml</code> 别碰，写 <code>cordis.patch.yml</code>。</li>
+</ul>
+<h2 id="sec-27">§05 事件系统：dsh 的神经系统</h2>
+<h3 id="sec-28">05.1 四种分发模式</h3>
+<p>Cordis 事件有四种分发模式，每种只能用对应方法分发：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>await？</th>
+<th>顺序</th>
+<th>返回值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>emit</td>
+<td>否</td>
+<td>按注册顺序观察</td>
+<td>无</td>
+<td>通知（tools/result）</td>
+</tr>
+<tr>
+<td>waterfall</td>
+<td>否</td>
+<td>按注册顺序</td>
+<td>有</td>
+<td>中间件链（tools/pre-execute）</td>
+</tr>
+<tr>
+<td>parallel</td>
+<td>是</td>
+<td>并行扇出</td>
+<td>无</td>
+<td>多监听者并发</td>
+</tr>
+<tr>
+<td>serial</td>
+<td>是</td>
+<td>按注册顺序</td>
+<td>有</td>
+<td>终局检查（agent/turn-stopping）</td>
+</tr>
+</tbody>
+</table>
+<p>分发模式是事件公开约定的一部分——你监听一个 waterfall 事件，就得遵守 waterfall 规则。</p>
+<h3 id="sec-29">05.2 waterfall 语义（重点）</h3>
+<p><code>ctx.waterfall</code> 是环绕中间件。监听器收 <code>(...args, next)</code>：</p>
+<ul>
+<li>调 <code>next()</code> → 执行下游监听器，下游返回值经 <code>next()</code> 流回来，可包装。</li>
+<li>不调 <code>next()</code> 直接返回 → <strong>短路</strong>。</li>
+</ul>
+<p>对单决策事件，短路是设计意图。策略监听器拥有决策权时可以直接返回 deny，不委托。</p>
+<p>写一个瀑布中间件长这样——拿到事件、做你想做的改写，最后<strong>一定</strong>把控制权交出去：</p>
+<pre><code class="language-typescript">// 在 agent/request 这段瀑布里注入自定义逻辑
+ctx.on('agent/request', async (req, next) =&gt; {
+  req.messages = injectHint(req.messages)  // 改写请求
+  return next()                            // ← 忘了它，整个 agent 就卡住
+})
+</code></pre>
+<blockquote>
+<p><strong>注意：最常见的坑</strong>。写瀑布中间件时<strong>忘了调用 <code>next()</code></strong>。后果是整个 agent 静悄悄「卡住」不再推进，而且<strong>不报错</strong>——因为链路只是在礼貌地等你。调试半天找不到报错日志，原因往往就是它。</p>
+</blockquote>
+<p>哪些环节是瀑布？<code>agent/pre-step</code>、<code>agent/request</code>、<code>llm/stream</code>、三段 <code>tools/*</code>——请求的改写权、工具的放行权都在这些瀑布里。唯一的例外是 <code>agent/turn-stopping</code>：它是串行（serial），<strong>没有 next()</strong>，所有监听者按序被通知，但只能旁观与响应，不能改写主链路。</p>
+<p>同一份 <code>ctx.on</code> 注册，在 §03 讲过是「可逆副作用」——插件卸载时它会被 <code>dispose()</code> 精确回收。事件系统与生命周期，在这里闭环。</p>
+<h3 id="sec-30">05.3 三个事件域</h3>
+<p>dsh 里流动着三类语义不同的事件。分清它们，就分清了「什么会被回放、什么转瞬即逝」：</p>
+<table>
+<thead>
+<tr>
+<th>事件域</th>
+<th>特性</th>
+<th>广播方式</th>
+<th>角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>会话事件</td>
+<td><strong>持久</strong>、写进日志</td>
+<td>经 <code>session/event</code> 广播</td>
+<td>fork / 恢复 / 转写（transcript）的唯一来源</td>
+</tr>
+<tr>
+<td><code>agent/*</code> 事件</td>
+<td><strong>活体</strong>，携带当前 Agent 实例</td>
+<td>实时分发</td>
+<td>驱动一个 turn 的推进（inbox、步骤、请求、续跑）</td>
+</tr>
+<tr>
+<td>能力事件</td>
+<td><strong>瞬时</strong>，不进日志</td>
+<td>贴 seam</td>
+<td><code>fs/*</code>、<code>tools/*</code>、<code>telemetry/*</code>，描述一次能力调用</td>
+</tr>
+</tbody>
+</table>
+<p>一条铁律统摄全局：<strong>模型可见 ⇒ 必被记录</strong>。<code>deriveMessages()</code> 从日志投影出模型历史，<code>ctx.sessions.fork(source, boundary?)</code> 从任意边界分叉子会话——全都基于同一份日志。没有第二份「真相」，回放与调试因此是确定的（不变量的完整展开见 §07）。</p>
+<blockquote>
+<p><strong>标叔的结论</strong>：选对事件域是大多数改动的第一个决定。判断口诀——要持久用会话事件，要实时用 agent 事件，要贴能力用能力事件。</p>
+</blockquote>
+<h3 id="sec-31">05.4 一秒判断法：这是不是瀑布？</h3>
+<p>判断一个事件能不能被拦下，只需问一句：<strong>「监听器能不能拦下它？」</strong></p>
+<ul>
+<li>能 → 瀑布（waterfall），记得 <code>next()</code>，你有改写权。</li>
+<li>不能 → 串行（serial）或 emit，你只是众多旁观者之一。</li>
+</ul>
+<p>这条心智模型，能帮你避开 dsh 插件开发九成的坑。</p>
+<h3 id="sec-32">本章小结</h3>
+<ul>
+<li>四种分发模式，waterfall 可短路，serial 是终局检查。</li>
+<li>会话事件=持久事实；agent 事件=实时协调；能力事件=贴 seam——「什么会被回放、什么转瞬即逝」由此分界。</li>
+<li>瀑布中间件忘调 <code>next()</code> 会静默卡死不报错——插件开发头号坑。</li>
+<li>一秒判断法：监听器能拦下的是瀑布；不能的是旁观。</li>
+<li>新增模型可见输入 = 新增会话事件（见 §07 的「模型可见即已记录」）。</li>
+</ul>
+<h2 id="sec-33">§06 工具子系统：ctx.tools 的完整解剖</h2>
+<p><img alt="工具流水线" src="images/pipeline-tools.png" /></p>
+<h3 id="sec-34">06.1 ToolDefinition 的九个字段</h3>
+<p>一个已注册工具由这些部分组成（源码 <code>packages/core/tools</code>）：</p>
+<pre><code class="language-typescript">interface ToolDefinition extends ToolSchema {
+  readonly output: ToolOutputDefinition   // 必需的规范输出声明
+  execute(args, exec): Promise&lt;unknown&gt;   // 执行函数
+  finalizeContent?(exec, result)          // 可选：最后一英里的内容变换
+  timeoutMs?: number                      // 协作式超时（不发给模型）
+  isConcurrencySafe?(args): boolean       // 并行调度分类器（不发给模型）
+  presentCall?(args)                      // UI 待执行视图
+  presentResult?(args, result)            // UI 完成视图
+}
+</code></pre>
+<p>两个安全设计值得注意：</p>
+<ol>
+<li><strong><code>schemas()</code> 白名单投影</strong>。面向模型的 schema 只含 name/description/parameters——<code>execute</code>、<code>timeoutMs</code>、<code>presentCall</code> 等宿主元数据<strong>绝不会泄漏进模型请求</strong>。</li>
+<li><strong>参数不可被改写</strong>。参数已经过日志与展示，改了会破坏历史、审计、UI、执行的一致性。前置策略只能 allow/deny/ask。</li>
+</ol>
+<h3 id="sec-35">06.2 执行流水线：五道关卡</h3>
+<p><code>ctx.tools.execute()</code> 让一次调用依次经过：</p>
+<pre><code class="language-text">tools/pre-execute  →  单调 guard  →  tools/execute  →  tools/post-execute  →  finalizeContent  →  tools/result
+（allow/deny/ask）    （最终预分派）   （环绕分派）      （检查/替换结果）      （工具自有变换）     （不可变最终结果）
+</code></pre>
+<ul>
+<li><code>tools/pre-execute</code>（waterfall）：决策 <code>allow | deny(reason) | ask</code>。ask 只有审批服务返回 allowed-once 才放行，否则拒绝。</li>
+<li><strong>ToolGuard（单调策略）</strong>：返回 reason 只能拒绝，没有 allow 结果。所以后注册的监听器<strong>无法把别人拒的调用翻回允许</strong>——权限只减不增。</li>
+<li><code>tools/execute</code>（waterfall）：做超时、重试、指标的环绕层。只能换 signal，不能动调用身份。</li>
+<li><code>tools/post-execute</code>（waterfall）：<code>accept / 替换内容或值 / block(反馈)</code>。替换内容保留规范值；替换值重新校验；block 转为带纠正反馈的错误。</li>
+<li><code>tools/result</code>（emit）：冻结的最终结果，观察者无法变换。</li>
+</ul>
+<h3 id="sec-36">06.3 失败即结构化错误</h3>
+<p>未知工具和抛异常的工具都变成结构化错误（<code>UNKNOWN_TOOL</code> 等），调用失败但不终止轮次。模型看到错误，自己决定重试还是换路。</p>
+<h3 id="sec-37">06.4 并行与独占</h3>
+<p>agent loop 按注册表的 <code>executionMode()</code> 分类待处理调用：<code>parallel</code>（可与兄弟调用重叠）加入滚动池，<code>exclusive</code>（独占屏障）。默认独占，只有 <code>isConcurrencySafe</code> 精确返回 true 才并行——fail-closed 设计。</p>
+<h3 id="sec-38">本章小结</h3>
+<ul>
+<li>工具 = schema + 输出契约 + 执行 + 宿主元数据；模型只见白名单字段。</li>
+<li>执行过五道关卡；guard 单调（权限只减不增）；参数不可改写。</li>
+<li>并行默认关闭，<code>isConcurrencySafe===true</code> 才开——fail-closed。</li>
+</ul>
+<h2 id="sec-39">§07 Agent Loop 与会话日志：模型可见即已记录</h2>
+<h3 id="sec-40">07.1 轮次与步骤</h3>
+<p>一个<strong>步骤</strong>= 一次模型请求 + 它调用的工具。一个<strong>轮次</strong>= 零或多步骤，在领取首条输入前打开、不再欠工作后关闭。</p>
+<p>完整轮次流程（摘自官方 architecture 文档）：</p>
+<pre><code class="language-text">turn/start
+  claim next-step input + one queued message
+  assemble prompt sections + tool schemas
+  -&gt; agent/pre-step                reject | enter(messages)
+  step/start
+  append entered messages as user/message
+  derive model history from the log
+  agent/request -&gt; llm/stream -&gt; assistant/chunk* -&gt; assistant/message
+  tool/call* -&gt; tools/pre-execute -&gt; tools/execute -&gt; tools/post-execute -&gt; tool/result*
+  step/end
+  tools owe another request, or next-step input arrived -&gt; claim -&gt; next step
+-&gt; agent/turn-stopping
+turn/end
+</code></pre>
+<h3 id="sec-41">07.2 agent/pre-step 决定模型看到什么</h3>
+<p>监听器可以改写已领取的消息，或直接拒绝。首次领取被拒或被改写为空时，仍会关闭一个不含步骤的持久轮次——日志会记录这次尝试。</p>
+<h3 id="sec-42">07.3 模型可见即已记录（最重要的不变量）</h3>
+<p><strong>抵达模型请求的一切，都必须能从日志重建。</strong> 有运行时不变量断言这一点。</p>
+<p>推论：新增一项模型可见输入，就需要新增一个会话事件（扩展 <code>SessionEventMap</code>）。fork、恢复、transcript、遥测都派生自事件流——这就是「模型可见即已记录」。</p>
+<blockquote>
+<p><strong>标叔的结论</strong>：这条不变量解释了 OmniOps 的凭据设计（§12）。密码为什么绝不进 tool 入参？因为 tool 入参是模型可见的，而「模型可见即已记录」——密码会进 session log。</p>
+</blockquote>
+<h3 id="sec-43">07.4 inject()：给模型塞上下文的正规通道</h3>
+<p><code>agent.inject()</code> 把上下文排进下一次获准的请求。注入的上下文留在 inbox，等另一条消息唤醒。</p>
+<h3 id="sec-44">本章小结</h3>
+<ul>
+<li>步骤=请求+工具；轮次=领取输入→步骤→不欠工作→关闭。</li>
+<li>agent/pre-step 决定模型所见；拒绝也留持久痕迹。</li>
+<li>模型可见即已记录——新输入必须配新会话事件。</li>
+</ul>
+<h2 id="sec-45">§08 Skills：可发现的指令，不是会话事件</h2>
+<h3 id="sec-46">08.1 skill 是什么</h3>
+<p>skill 是<strong>可选的指令</strong>（SKILL.md 文件），不是插件、不是会话事件。体系分四个包：</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>包</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Service Definition</td>
+<td>dsh-skill（ctx.skills）</td>
+<td>注册表</td>
+</tr>
+<tr>
+<td>Service Provider</td>
+<td>dsh-skill-filesystem</td>
+<td>扫描目录</td>
+</tr>
+<tr>
+<td>可选徽章</td>
+<td>dsh-skill-badge</td>
+<td>随包 skill</td>
+</tr>
+<tr>
+<td>Consumer</td>
+<td>dsh-tool-skill</td>
+<td>面向模型的 skill 工具</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-47">08.2 本地发现优先级（rank 越小越优先）</h3>
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>来源</th>
+<th>根目录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100</td>
+<td>project-dsh</td>
+<td><code>&lt;projectRoot&gt;/.dsh/skills</code></td>
+</tr>
+<tr>
+<td>200</td>
+<td>project-agents</td>
+<td><code>&lt;projectRoot&gt;/.agents/skills</code></td>
+</tr>
+<tr>
+<td>300</td>
+<td>custom</td>
+<td><code>Config.customSkillDirs</code></td>
+</tr>
+<tr>
+<td>400</td>
+<td>user-dsh</td>
+<td><code>&lt;dshHome&gt;/skills</code></td>
+</tr>
+<tr>
+<td>500</td>
+<td>user-agents</td>
+<td><code>&lt;agentsHome&gt;/skills</code></td>
+</tr>
+<tr>
+<td>600</td>
+<td>bundled</td>
+<td>配置 bundledSkillDir 时</td>
+</tr>
+</tbody>
+</table>
+<p>项目根 = 含 <code>.git</code> 的最近祖先。这就是 OmniOps 把 skills 目录配进 <code>customSkillDirs</code>（rank 300）的原因。</p>
+<h3 id="sec-48">08.3 渐进式披露：目录 → 调用 → 正文</h3>
+<p>模型看到的是<strong>两段式</strong>的：</p>
+<ol>
+<li><strong>目录</strong>：每个 skill 的 <code>name</code> + <code>description</code>，经 <code>&lt;available_skills&gt;</code> 标签注入 system-reminder。正文、路径、来源都不进目录。</li>
+<li><strong>正文</strong>：模型调 <code>skill({ name })</code> 工具，返回 <code>&lt;skill_content&gt;</code> + 资源引导。</li>
+</ol>
+<p>这个设计叫 <strong>progressive disclosure</strong>。几十个 skill 也不会撑爆上下文——平时只占目录那几行，用到才加载正文。</p>
+<h3 id="sec-49">08.4 会话目录的智能更新</h3>
+<p>dsh-tool-skill 在目录 digest 变化时通过 <code>agent.inject()</code> 追加完整替换。压缩隐藏了历史目录消息？下一份完整快照重建。视图为空且从未发布？不发任何内容。</p>
+<h3 id="sec-50">08.5 调用策略</h3>
+<p><code>SkillInvocationPolicy</code> 两个独立控制：<code>modelInvocable</code>（模型可调）、<code>userInvocable</code>（用户可调）。frontmatter 键 <code>disable-model-invocation</code>、<code>user-invocable</code>，省略默认 true。</p>
+<h3 id="sec-51">本章小结</h3>
+<ul>
+<li>skill = 文件（SKILL.md）+ 注册表（ctx.skills）+ 目录工具（skill）。</li>
+<li>六级 rank 发现；项目 &gt; 自定义 &gt; 用户。</li>
+<li>渐进式披露：目录常驻，正文按需；digest 变化自动替换。</li>
+</ul>
+<hr />
+<h2 id="sec-52">Part 3: OmniOps 实战（全案例拆解）</h2>
+<p>这一段是全书的高潮。我们以 OmniOps 的 MySQL 慢查询诊断为完整案例，从架构决策讲到每一行源码，走完「设计→开发→接线→验证→扩展」全程。</p>
+<h2 id="sec-53">§09 案例总览：OmniOps 怎么在 dsh 上搭运维大脑</h2>
+<h3 id="sec-54">09.1 OmniOps 是什么</h3>
+<p>公司级 AIOps 智能运维平台，专注<strong>全技术栈问题快速诊断</strong>。底层 dsh（fork 全源码），上层搭运维语义。</p>
+<p>核心设计：「<strong>技术栈 → 组件 → 诊断技能</strong>」三级联动。</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>含义</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>技术栈</td>
+<td>大的领域</td>
+<td>数据库、计算(GPU)、网络、存储</td>
+</tr>
+<tr>
+<td>组件</td>
+<td>具体中间件</td>
+<td>MySQL、Redis、Kafka、Pod</td>
+</tr>
+<tr>
+<td>诊断技能</td>
+<td>可执行诊断方法</td>
+<td>慢查询分析、死锁、大 Key、GPU 掉卡</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-55">09.2 它在 dsh 上的三层结构</h3>
+<div class="mermaid">
+flowchart LR
+  subgraph OMNIOPS["OmniOps 扩展层"]
+    direction TB
+    ui["Web UI 三级下拉框\n（ConversationRoot.tsx）"]
+    skills["skills/mysql-slow-query-analysis\n（SKILL.md 方法论）"]
+    mcp["connectors/mysql-diag-mcp\n（独立 TS 进程，3 个工具）"]
+    bundle["packages/bundle/mysql-diag\n（组合分发）"]
+  end
+  subgraph DSH["dsh 框架层（fork 源码）"]
+    skillfs["dsh-skill-filesystem\n（扫描 skill）"]
+    mcpc["dsh-mcp-client\n（连 MCP）"]
+    loop["agent-loop + ctx.tools"]
+  end
+  ui --> skills
+  skills --> skillfs
+  mcp --> mcpc
+  bundle --> DSH
+  loop -->|调工具| mcpc
+
+</div>
+
+<h3 id="sec-56">09.3 案例的三个教学价值</h3>
+<ol>
+<li><strong>一行插件代码都不写</strong>。加能力 = SKILL.md + MCP server + 一段配置。这打破了「扩展=写插件」的直觉。</li>
+<li><strong>三种接缝并用</strong>。skill（指令）+ MCP（工具）+ 配置（组合层），是 dsh 能力扩展的标准姿势。</li>
+<li><strong>可复制的方法论</strong>。Redis 大 Key、PostgreSQL 死锁、Kafka lag、GPU 掉卡，都是「一个 MCP server + 一个 SKILL.md + 一段配置」的事。</li>
+</ol>
+<h3 id="sec-57">本章小结</h3>
+<ul>
+<li>OmniOps = dsh 底盘 + 三级联动运维语义。</li>
+<li>加能力三件套：SKILL.md（方法论）+ MCP server（采集）+ 配置（接入）。</li>
+<li>前端只是引导层，不改变 agent 行为。</li>
+</ul>
+<h2 id="sec-58">§10 架构决策：为什么拆成三块而不是一个大插件</h2>
+<h3 id="sec-59">10.1 先看决策表</h3>
+<p>OmniOps 的 spec（docs/specs/mysql-slow-query-analysis.md）开篇就是一张已拍板决策表：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>决策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MCP server 语言</td>
+<td>TypeScript</td>
+</tr>
+<tr>
+<td>MVP 工具范围</td>
+<td>3 个：慢日志→执行计划→表结构</td>
+</tr>
+<tr>
+<td>skill</td>
+<td>一起做</td>
+</tr>
+<tr>
+<td>bundle 打包</td>
+<td>暂缓，测试完成后打包</td>
+</tr>
+<tr>
+<td>DSN 凭据</td>
+<td>host/port 走对话入参，password 走 env</td>
+</tr>
+<tr>
+<td>交互格式</td>
+<td>ip/port + 描述任务</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-60">10.2 三单元职责表（背下来）</h3>
+<table>
+<thead>
+<tr>
+<th>单元</th>
+<th>形态</th>
+<th>职责</th>
+<th>要写吗</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>推理方法论</td>
+<td>skill（SKILL.md）</td>
+<td>告诉模型怎么查、按什么步骤、调哪个工具</td>
+<td>✅ 一个文件</td>
+</tr>
+<tr>
+<td>数据采集</td>
+<td>MCP server（独立进程）</td>
+<td>连 MySQL、调 pt-query-digest、暴露 3 个 tool</td>
+<td>✅ 一个 server</td>
+</tr>
+<tr>
+<td>接入层</td>
+<td>dsh-mcp-client + 配置</td>
+<td>把 MCP 工具注册进 ctx.tools</td>
+<td>❌ 复用现成</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-61">10.3 为什么不写成一个 dsh 插件</h3>
+<p>写插件意味着：工具逻辑进 dsh 进程、生命周期绑框架、分发走 npm。而 MCP 方式：server 独立进程（跨机器部署）、协议标准（任何 MCP 客户端能连）、可以给多个 agent 框架复用。</p>
+<blockquote>
+<p><strong>标叔的结论</strong>：方法论放 skill（改起来秒生效），脏活累活放 MCP（进程隔离），组合放配置（不写代码）。这是「关注点分离」在 Agent 工程里的标准答案。</p>
+</blockquote>
+<h3 id="sec-62">本章小结</h3>
+<ul>
+<li>三单元拆分：方法论/采集/接入各归其位。</li>
+<li>MCP 独立进程带来部署隔离与跨框架复用。</li>
+<li>决策先拍板写进 spec，再动手——工程纪律。</li>
+</ul>
+<h2 id="sec-63">§11 源码走读①：mysql-diag-mcp 服务器</h2>
+<h3 id="sec-64">11.1 目录与依赖</h3>
+<pre><code class="language-text">connectors/mysql-diag-mcp/
+├── package.json        # bin 两个入口；依赖 MCP SDK + mysql2 + zod
+├── tsconfig.json       # ES2022 / NodeNext / strict
+├── .env.example        # 六个环境变量模板
+└── src/
+    ├── index.ts        # HTTP 入口（streamable-http，无状态）
+    ├── stdio.ts        # stdio 入口（给 dsh 子进程拉起）
+    ├── tools.ts        # 三个工具注册（双入口共用）
+    ├── db.ts           # mysql2 连接封装
+    └── pt-digest.ts    # pt-query-digest 调用封装
+</code></pre>
+<p>依赖三个：<code>@modelcontextprotocol/sdk</code>（协议）、<code>mysql2</code>（驱动）、<code>zod</code>（schema）。注意：<strong>这个子项目不在根 workspaces 里，要单独 pnpm install</strong>。</p>
+<h3 id="sec-65">11.2 tools.ts：三个工具</h3>
+<p>每个工具 = 注册名 + 描述 + zod inputSchema + 执行函数。三个工具各干一件事：</p>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>干什么</th>
+<th>数据来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>list_slow_queries</td>
+<td>慢日志聚合报告（Top N）</td>
+<td>pt-query-digest（不连库）</td>
+</tr>
+<tr>
+<td>explain_query</td>
+<td>EXPLAIN FORMAT=JSON</td>
+<td>mysql2 直连</td>
+</tr>
+<tr>
+<td>inspect_schema</td>
+<td>列/索引/数据量</td>
+<td>information_schema</td>
+</tr>
+</tbody>
+</table>
+<p>核心源码（节选，注释照搬原仓库）：</p>
+<pre><code class="language-typescript">// src/tools.ts —— 三个诊断工具，stdio / streamable-http 双入口共用
+export function registerTools(server: McpServer): void {
+  // 工具 1：慢日志分析（不连库，纯文件分析）
+  server.registerTool('list_slow_queries', {
+    description:
+      '用 pt-query-digest 分析慢日志目录，返回 Top N 慢 SQL 聚合报告（执行次数、响应时间占比、扫描行数等）。',
+    inputSchema: {
+      slowLogDir: z.string().optional().describe('慢日志目录绝对路径，默认取环境变量 MYSQL_SLOW_LOG_DIR'),
+      ptQueryDigest: z.string().optional().describe('pt-query-digest 二进制路径，默认取 PT_QUERY_DIGEST'),
+      since: z.string().optional().describe('开始时间 YYYY-MM-DD HH:mm:ss 或相对时间如 24h'),
+      until: z.string().optional().describe('结束时间 YYYY-MM-DD HH:mm:ss'),
+      limit: z.number().int().optional().describe('Top N 条数，默认 3'),
+    },
+  }, async ({ slowLogDir, ptQueryDigest, since, until, limit }) =&gt; {
+    const report = await runPtQueryDigest({ slowLogDir, ptQueryDigest, since, until, limit })
+    return { content: [{ type: 'text' as const, text: report }] }
+  })
+
+  // 工具 2：执行计划（连库直查）
+  server.registerTool('explain_query', {
+    description: '对给定 SQL 返回 EXPLAIN FORMAT=JSON 执行计划，用于判断是否走索引、是否全表扫描。',
+    inputSchema: {
+      connection: connectionSchema,      // 只有 host + port，没有密码！
+      database: z.string().optional(),
+      sql: z.string().describe('要分析的 SQL 语句'),
+    },
+  }, async ({ connection, database, sql }) =&gt; {
+    const db = database ?? process.env.MYSQL_DATABASE  // 缺省取 env
+    return withPool({ ...connection, database: db }, async (pool) =&gt; {
+      const [rows] = await pool.query('EXPLAIN FORMAT=JSON ' + sql)
+      return { content: [{ type: 'text', text: JSON.stringify(rows, null, 2) }] }
+    })
+  })
+
+  // 工具 3：表结构 + 索引（information_schema 三连查）
+  server.registerTool('inspect_schema', { /* ... */ }, async ({ connection, database, table }) =&gt; {
+    // 查 COLUMNS（列定义）、STATISTICS（索引基数）、TABLES（数据量）三张系统表
+    // 返回 { columns, indexes, tableInfo } 的 JSON
+  })
+}
+</code></pre>
+<h3 id="sec-66">11.3 db.ts：连接封装的凭据哲学</h3>
+<pre><code class="language-typescript">// src/db.ts —— user/password 从 env 读，绝不进参数
+export async function withPool&lt;T&gt;(conn, fn): Promise&lt;T&gt; {
+  const pool = mysql.createPool({
+    host: conn.host,
+    port: conn.port ?? 3306,
+    user: process.env.MYSQL_USER ?? '',           // ← 凭据来自启动进程的 env
+    password: process.env.MYSQL_PASSWORD ?? '',
+    database: conn.database ?? process.env.MYSQL_DATABASE,
+    waitForConnections: true,
+    connectionLimit: 2,        // 诊断工具，2 个连接足够，别占资源
+    connectTimeout: 5000,
+  })
+  try {
+    return await fn(pool)
+  } finally {
+    await pool.end()           // 短生命周期：用完即释放
+  }
+}
+</code></pre>
+<p>三个细节：<strong>凭据走 env 不走参数</strong>；<strong>connectionLimit: 2</strong>（诊断场景够用，不抢业务连接）；<strong>短生命周期池</strong>（用完即 end，不留连接）。</p>
+<h3 id="sec-67">11.4 pt-digest.ts：慢日志分析的工程细节</h3>
+<pre><code class="language-typescript">// src/pt-digest.ts —— 四步流程，全路径可配置
+export async function runPtQueryDigest(input: SlowQueryInput): Promise&lt;string&gt; {
+  const bin = input.ptQueryDigest ?? process.env.PT_QUERY_DIGEST ?? DEFAULT_PT_QUERY_DIGEST
+  const dir = input.slowLogDir ?? process.env.MYSQL_SLOW_LOG_DIR
+  if (!dir) throw new Error('未指定慢日志目录：请通过 slowLogDir 入参或 MYSQL_SLOW_LOG_DIR 环境变量提供')
+
+  // 1) 列目录里的慢日志文件（含轮转 *.log / *slow.log*），按 mtime 降序
+  const allFiles = await listSlowLogFiles(dir)
+
+  // 2) 按时间段粗筛：mtime 早于 since 的文件不可能含该时段事件，跳过
+  //    （精确过滤交给 pt-query-digest --since/--until）
+  let files = allFiles
+  if (input.since) { /* ... mtime 过滤 ... */ }
+
+  // 3) 复制到临时工作目录（不在原目录分析，不动原文件）
+  const workDir = await copyToWorkDir(files)
+
+  // 4) 跑 pt-query-digest（多文件 + --since/--until 精确过滤）
+  const args: string[] = []
+  if (input.since) args.push('--since', input.since)
+  if (input.until) args.push('--until', input.until)
+  args.push('--limit', String(input.limit ?? 3))
+  args.push(...files.map((f) =&gt; join(workDir, basename(f))))
+
+  const { stdout } = await execFileAsync(bin, args, { timeout: 60_000, maxBuffer: 10 * 1024 * 1024 })
+  return stdout
+}
+</code></pre>
+<p>四个工程细节值得学：<strong>粗筛+精筛两级过滤</strong>（mtime 粗筛省时间，digest 精确过滤）；<strong>复制到临时目录</strong>（不碰生产慢日志原文件）；<strong>60 秒超时</strong>（防外部工具挂死）；<strong>10MB maxBuffer</strong>（大日志不爆内存）。</p>
+<h3 id="sec-68">11.5 双入口：index.ts 与 stdio.ts</h3>
+<pre><code class="language-typescript">// src/stdio.ts —— 三行，给 dsh 当子进程拉起
+const server = new McpServer({ name: 'mysql-diag-mcp', version: '1.0.0' })
+registerTools(server)
+const transport = new StdioServerTransport()
+await server.connect(transport)
+</code></pre>
+<pre><code class="language-typescript">// src/index.ts —— HTTP 入口（无状态 streamable-http）
+const server = new McpServer({ name: 'mysql-diag-mcp', version: '1.0.0' })
+registerTools(server)                          // 双入口共用同一份工具注册
+const PORT = Number(process.env.MCP_HTTP_PORT ?? 8080)
+
+const httpServer = createServer((req, res) =&gt; {
+  if (req.method === 'GET') { res.writeHead(405).end(/* JSON-RPC error */) ; return }
+  // ...POST 转 transport，无状态：sessionIdGenerator: undefined
+})
+httpServer.listen(PORT, () =&gt; console.error(`mysql-diag-mcp 监听 http://127.0.0.1:${PORT}/mcp`))
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>入口</th>
+<th>场景</th>
+<th>启动者</th>
+<th>凭据来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>stdio</td>
+<td>本地开发、bundle 一键分发</td>
+<td>dsh 自动 spawn</td>
+<td>dsh 进程 env 透传</td>
+</tr>
+<tr>
+<td>streamable-http</td>
+<td>独立常驻、跨机器</td>
+<td>你手动起</td>
+<td>server 进程自己的 env</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键区别</strong>：HTTP 方式下 server 是独立常驻进程，dsh 只连 URL，<strong>密码不由 dsh 转发</strong>，由「启动 server 那个进程」的环境提供。「接 MCP」和「起 server」是两个独立动作。</p>
+<h3 id="sec-69">本章小结</h3>
+<ul>
+<li>三个工具 = 三步诊断法（找 Top → 看计划 → 看结构），一个文件注册、双入口共用。</li>
+<li>db.ts：凭据走 env、连接池小而短命。</li>
+<li>pt-digest.ts：粗筛+精筛、临时目录、超时+缓冲控制。</li>
+<li>stdio 给 dsh 拉起，HTTP 独立常驻——凭据来源不同。</li>
+</ul>
+<h2 id="sec-70">§12 源码走读②：SKILL.md 方法论与凭据安全</h2>
+<h3 id="sec-71">12.1 完整 SKILL.md（原文件只有 34 行）</h3>
+<pre><code class="language-markdown">---
+name: mysql-slow-query-analysis
+description: 用于分析 MySQL 慢查询。当用户要排查慢 SQL、分析执行计划、检查表结构/索引、定位数据库性能瓶颈时使用。
+---
+# MySQL 慢查询分析
+## 目标
+帮助用户定位 MySQL 慢查询的根因并给出优化建议。
+## 输入
+从用户消息中提取：host（ip）、port、分析时间段（起止时间）。
+user / password / 慢日志目录 / pt-query-digest 路径都从环境变量（配置）读取；库名从报告的 `# Databases` 字段读取。不要向用户索取密码。
+## 排查步骤
+1. 调 `list_slow_queries`（传 slowLogDir + since/until + limit）找 Top SQL；
+2. 对每条候选慢 SQL 调 `explain_query` 看执行计划；
+3. 调 `inspect_schema` 看表结构、索引定义与基数、数据量；
+4. 归因：缺索引 / 索引失效 / 数据量大 / 锁等待 / 排序临时表；
+5. 给可执行建议（加索引、改写 SQL、调参）并说明预期收益。
+## 判定标准
+- type=ALL → 全表扫描，通常需加索引
+- key 为 NULL 且 rows 很大 → 未走索引
+- rows_examined 远大于 rows_sent → 过滤性差
+- Extra 含 Using filesort / Using temporary → 排序/临时表开销大
+## 输出格式
+1. 慢查询清单（TopN：耗时 / 次数 / 扫描行数 / SQL）
+2. 根因分析（逐条说明为什么慢）
+3. 优化建议（按优先级，含具体 SQL / 建索引语句）
+4. 预期收益（估算）
+</code></pre>
+<h3 id="sec-72">12.2 为什么这么写（四个设计点）</h3>
+<p><strong>1. description 是路由器。</strong> 模型凭 description 决定要不要 invoke（§08 渐进式披露）。所以 description 必须写清<strong>触发场景</strong>：「当用户要排查慢 SQL、分析执行计划……时使用」。</p>
+<p><strong>2. 「不要向用户索取密码」是安全护栏。</strong> SKILL.md 是给模型的指令。这句直接阻止模型在对话里问密码——配合凭据走 env，形成双保险。</p>
+<p><strong>3. 排查步骤是可执行的。</strong> 每一步都对应一个具体工具调用，参数怎么传都写明了（database 取报告的 <code># Databases</code> 字段）。模型照做即可，不用自己发明流程。</p>
+<p><strong>4. 判定标准是领域知识。</strong> type=ALL、基数过低、filesort——这些是资深 DBA 的经验，写进 skill 就成了所有会话共享的判断力。</p>
+<h3 id="sec-73">12.3 凭据安全全景</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>走哪里</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>host / port</td>
+<td>对话入参（tool 入参）</td>
+<td>非敏感，现场换实例方便</td>
+</tr>
+<tr>
+<td>user / password</td>
+<td>启动 server 的 env</td>
+<td>模型可见即已记录（§07），密码绝不能进 tool 入参</td>
+</tr>
+<tr>
+<td>database</td>
+<td>报告 <code># Databases</code> 字段，缺省 env</td>
+<td>不用每次问用户</td>
+</tr>
+<tr>
+<td>慢日志目录 / pt 路径</td>
+<td>env</td>
+<td>部署环境不同，不写死</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>标叔的结论</strong>：把 §07 的「模型可见即已记录」和这张表放在一起看，你就理解了整套凭据设计不是习惯，是框架不变量倒逼的必然。</p>
+</blockquote>
+<h3 id="sec-74">本章小结</h3>
+<ul>
+<li>SKILL.md = frontmatter（name + description 路由）+ 方法论（步骤/判定/输出）。</li>
+<li>description 写触发场景；「不要索取密码」是模型级护栏。</li>
+<li>凭据分层：非敏感进对话，敏感走 env，库名从报告推。</li>
+</ul>
+<h2 id="sec-75">§13 源码走读③：接线层与前端引导</h2>
+<h3 id="sec-76">13.1 cordis.patch.yml 两段式</h3>
+<pre><code class="language-yaml"># ~/.dsh/profiles/web/cordis.patch.yml
+
+# 1) 重启 skill-filesystem 并指向本仓库 skills 目录
+- id: skill-filesystem
+  disabled: false          # web-app bundle 默认禁用了它，必须显式开
+  config:
+    customSkillDirs:
+      - /绝对路径/OmniOps/skills
+
+# 2) 接入 MCP server（stdio：dsh 自动拉起子进程）
+- insert:
+    - id: mysql-diag
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: mysql_diag
+        transport: stdio
+        command: mysql-diag-mcp-stdio    # bin 名，dsh spawn 它
+        args: []
+        env:                              # dsh 进程 env 透传给子进程
+          MYSQL_USER: !!js process.env.MYSQL_USER ?? ''
+          MYSQL_PASSWORD: !!js process.env.MYSQL_PASSWORD ?? ''
+          MYSQL_DATABASE: !!js process.env.MYSQL_DATABASE ?? ''
+          MYSQL_SLOW_LOG_DIR: !!js process.env.MYSQL_SLOW_LOG_DIR ?? ''
+          PT_QUERY_DIGEST: !!js process.env.PT_QUERY_DIGEST ?? '/usr/local/mysql/bin/pt-query-digest'
+</code></pre>
+<p>三个要点：
+- <code>disabled: false</code>——web profile 默认禁用 host 的 skill-filesystem，忘了这行 skill 全部不生效（最常见坑）。
+- <code>!!js</code> 表达式让 loader 在激活后插值 env（§05 Loader 配置）。
+- stdio 模式下 env 由 dsh 透传；HTTP 模式则不透传（§11.5）。</p>
+<h3 id="sec-77">13.2 前端三级下拉框（真实源码）</h3>
+<p>OmniOps 改了 <code>packages/client/ui-conversation/src/client/skeleton/ConversationRoot.tsx</code>：</p>
+<pre><code class="language-tsx">// 三级 state：技术栈 → 组件 → 技能（原始源码节选）
+const [techStackId, setTechStackId] = useState&lt;string&gt;(TECH_STACKS[0].id)
+const [componentId, setComponentId] = useState&lt;string&gt;(TECH_STACKS[0].components[0].id)
+const [skillId, setSkillId] = useState&lt;string&gt;(TECH_STACKS[0].components[0].skills[0].id)
+
+// 派生当前选中项（状态短暂不一致时回退首项）
+const techStack = TECH_STACKS.find(s =&gt; s.id === techStackId) ?? TECH_STACKS[0]
+const component = techStack.components.find(c =&gt; c.id === componentId) ?? techStack.components[0]
+const currentSkill = component.skills.find(s =&gt; s.id === skillId) ?? component.skills[0]
+
+// 派生占位文案：随选中项联动，引导用户按统一格式描述任务
+const heroPlaceholder =
+  `【${techStack.label} / ${component.label} / ${currentSkill.label}】` +
+  '请描述任务，例如「帮我分析 10.0.0.5:3306 的慢查询，时间段：2026-08-10 10:00:01 到 2026-08-10 11:00:01」'
+
+// 切换技术栈：组件与技能级联重置
+const pickTechStack = (id: string): void =&gt; {
+  const stack = TECH_STACKS.find(s =&gt; s.id === id) ?? TECH_STACKS[0]
+  setTechStackId(stack.id)
+  setComponentId(stack.components[0].id)
+  setSkillId(stack.components[0].skills[0].id)
+}
+</code></pre>
+<p><strong>教学点</strong>：这个下拉框<strong>只改 React state，不触发任何逻辑</strong>。真正干活的是 skill 的 description 路由——模型识别到「慢查询」任务自动 invoke。下拉框的作用是「placeholder 引导用户按统一格式说话」，让模型路由更准。</p>
+<h3 id="sec-78">13.3 强联动方案（未来的路）</h3>
+<p>如果以后要「选中即执行」，spec 里写了两个方案：
+- <strong>方案 A（轻量）</strong>：composer 提交时把选中 skill 名拼进首条消息。
+- <strong>方案 B（规范）</strong>：写插件监听提交，<code>agent.inject()</code> 注入「当前诊断技能：慢查询分析」或直接触发 skill invoke。</p>
+<p>OmniOps 的 MVP 选了 A 的变体（placeholder 引导），B 是规范化方向。</p>
+<h3 id="sec-79">本章小结</h3>
+<ul>
+<li>patch 两段：开 skill-filesystem + 插 mcp-client。</li>
+<li><code>disabled: false</code> 是第一坑；<code>!!js</code> 插值 env。</li>
+<li>前端是引导不是执行；强联动用 agent.inject()。</li>
+</ul>
+<h2 id="sec-80">§14 运行与验证：从 S0 到 S7 的完整流程</h2>
+<h3 id="sec-81">14.1 七步开发流程（spec 原表）</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>内容</th>
+<th>验收</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>开发 mysql-diag-mcp：3 工具、连真实 MySQL、单测</td>
+<td>server 单独跑通</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>写 SKILL.md 方法论</td>
+<td>内容评审通过</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>cordis.patch.yml 组合接线</td>
+<td>模型能调起工具</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>下拉框联动（placeholder 引导）</td>
+<td>选中即走对应诊断</td>
+</tr>
+<tr>
+<td>S5</td>
+<td>snapshot 测试（mock MCP server 回放）</td>
+<td>快照通过</td>
+</tr>
+<tr>
+<td>S6</td>
+<td>双语文档 + Agent Note</td>
+<td>门禁通过</td>
+</tr>
+<tr>
+<td>S7</td>
+<td>打包 bundle 一键分发</td>
+<td>用户 mount 即得能力</td>
+</tr>
+</tbody>
+</table>
+<p>S1/S2 可并行；S4 依赖 S2；S7 在 S5 之后。</p>
+<h3 id="sec-82">14.2 S0 环境准备（动手前提）</h3>
+<pre><code class="language-sql">-- MySQL 开慢日志写文件
+SET GLOBAL slow_query_log = 'ON';
+SET GLOBAL slow_query_log_file = '/usr/local/mysql/data/slow.log';
+SET GLOBAL log_output = 'FILE';
+SET GLOBAL long_query_time = 0.1;   -- 测试调小，生产建议 1~2s
+</code></pre>
+<pre><code class="language-bash"># 验证 pt-query-digest 能出报告
+/usr/local/mysql/bin/pt-query-digest --limit 5 /usr/local/mysql/data/slow.log
+# 看到 Overall / Profile / Top SQL 即成功
+</code></pre>
+<h3 id="sec-83">14.3 启动两个进程</h3>
+<pre><code class="language-bash"># 进程 1：MCP server（独立常驻）
+cd connectors/mysql-diag-mcp
+cp .env.example .env    # 填 MYSQL_USER/PASSWORD/DATABASE/SLOW_LOG_DIR/PT_QUERY_DIGEST/MCP_HTTP_PORT
+pnpm install &amp;&amp; pnpm build
+pnpm start              # HTTP 方式；stdio 方式由 dsh 自动拉起
+# 看到「mysql-diag-mcp 监听 http://127.0.0.1:8080/mcp」即成功
+</code></pre>
+<pre><code class="language-bash"># 进程 2：dsh
+cd /你的路径/OmniOps
+pnpm dsh web
+# 验证接线：能列出 mysql-diag 这一行即成功
+pnpm dsh web --dump-config | grep -A5 &quot;id: mysql-diag&quot;
+</code></pre>
+<h3 id="sec-84">14.4 curl 验证 MCP</h3>
+<pre><code class="language-bash">curl -s -X POST http://127.0.0.1:8080/mcp \
+  -H 'Content-Type: application/json' \
+  -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quot;:&quot;initialize&quot;,&quot;params&quot;:{&quot;protocolVersion&quot;:&quot;2024-11-05&quot;,&quot;capabilities&quot;:{},&quot;clientInfo&quot;:{&quot;name&quot;:&quot;test&quot;,&quot;version&quot;:&quot;1&quot;}}}'
+# 返回 JSON-RPC 响应即 OK
+</code></pre>
+<h3 id="sec-85">14.5 端到端验证清单（8 条）</h3>
+<ol>
+<li>MySQL 已开慢日志写文件，慢日志有数据；</li>
+<li>pt-query-digest --limit 5 能出 Top SQL 报告；</li>
+<li>mysql-diag-mcp build 通过，启动后看到监听日志；</li>
+<li>curl initialize 收到 JSON-RPC 响应；</li>
+<li>SKILL.md 被扫描到（dump-config 可见）；</li>
+<li>cordis.patch.yml 的 mysql-diag 行能 dump 出来；</li>
+<li>选中「MySQL → 慢查询分析」，输入任务，模型自动调三个工具；</li>
+<li>交互日志出现 <code>mcp__mysql_diag__list_slow_queries</code>，产出诊断报告。</li>
+</ol>
+<h3 id="sec-86">14.6 常见坑速查（9 个）</h3>
+<table>
+<thead>
+<tr>
+<th>坑</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>连接被拒 ECONNREFUSED</td>
+<td>server 没启动/没常驻；先起服务确认端口</td>
+</tr>
+<tr>
+<td>url 指向不对</td>
+<td>transport 的 url 要和 server 监听 host:port 一致</td>
+</tr>
+<tr>
+<td>密码/路径不生效</td>
+<td>HTTP 方式 env 由启动 server 的进程提供，不是 dsh 转发</td>
+</tr>
+<tr>
+<td>pt-query-digest 找不到</td>
+<td>用 PT_QUERY_DIGEST 环境变量或工具入参覆盖</td>
+</tr>
+<tr>
+<td>慢日志读不了（EACCES）</td>
+<td>MySQL 默认 <code>_mysql:640</code>，<code>sudo chmod 644</code> 慢日志文件</td>
+</tr>
+<tr>
+<td>时间段查不到</td>
+<td>since/until 用 <code>YYYY-MM-DD HH:mm:ss</code>，且日志里有该时段数据</td>
+</tr>
+<tr>
+<td>密码进日志</td>
+<td>密码只走 env，绝不作为 tool 入参</td>
+</tr>
+<tr>
+<td>skill 不被 invoke</td>
+<td>description 没写清触发场景；目录不在 customSkillDirs</td>
+</tr>
+<tr>
+<td>dump 里 skill-filesystem 是 disabled:true</td>
+<td>漏了 <code>disabled: false</code></td>
+</tr>
+<tr>
+<td>模型用 Bash 跑 mysql 还问密码</td>
+<td>skill/MCP 没注册，查 patch 和重启</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-87">14.7 S7 详解：packages/bundle/mysql-diag 是怎样生成的</h3>
+<p>前面 14.1 的表里，S7 只有一行「打包 bundle 一键分发」。这一节把它拆开讲透——因为这是「自用」和「分发给别人用」的分水岭。</p>
+<p><strong>先想清楚 bundle 解决什么问题。</strong> S3 那种接法，要求每个用户手动编辑 <code>~/.dsh/profiles/web/cordis.patch.yml</code> 写两段配置。用户一多，这就是灾难。bundle 把「skill 目录 + MCP 接线 + 默认配置」打成<strong>一个 npm 包</strong>，别人一行命令装完即用。</p>
+<p><strong>第一步：建目录，抄三样东西。</strong> 在 <code>packages/bundle/mysql-diag/</code> 下创建四个文件：</p>
+<pre><code class="language-text">packages/bundle/mysql-diag/
+├── package.json          # ① npm 包声明 + dsh.bundle 字段
+├── cordis.patch.yml      # ② 发布版接线（比 S3 版多了自动化）
+├── skills/               # ③ 把根目录 skills/ 原样复制进来
+│   └── mysql-slow-query-analysis/SKILL.md
+└── README.md             # ④ 安装说明（仓库门禁要求）
+</code></pre>
+<p>skill 文件直接复制——仓库里 <code>packages/bundle/mysql-diag/skills/</code> 与根 <code>skills/</code> 下的 SKILL.md <strong>逐字节一致</strong>（md5 相同），这是有意的双份存在：根目录供开发者本机调试，bundle 供分发。</p>
+<p><strong>第二步：package.json 声明 dsh.bundle。</strong> 关键是 <code>dsh.bundle.patch</code> 指向接线文件，以及 <code>files</code> 白名单只带必要产物：</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;@luxiu666/dsh-mysql-diag&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;type&quot;: &quot;module&quot;,
+  &quot;publishConfig&quot;: { &quot;access&quot;: &quot;public&quot; },
+  &quot;files&quot;: [&quot;cordis.patch.yml&quot;, &quot;skills/&quot;],   // 只发 patch + skill，不发源码
+  &quot;peerDependencies&quot;: {
+    &quot;@deepseek-ai/dsh-mcp-client&quot;: &quot;*&quot;        // 宿主必有的接入层，peer 声明
+  },
+  &quot;dsh&quot;: {
+    &quot;bundle&quot;: { &quot;patch&quot;: &quot;./cordis.patch.yml&quot; }  // ← dsh 认 bundle 的标志
+  }
+}
+</code></pre>
+<p><code>dsh</code> 字段是 dsh 生态的约定（§04）：<code>dsh.bundle</code> 声明这是组合包并指向 patch 文件，<code>dsh.profile</code> 声明 profile 的 bundle 列表——两种身份在安装端闭环。</p>
+<p><strong>第三步：写发布版 cordis.patch.yml（与 S3 开发版的三处不同）。</strong></p>
+<pre><code class="language-yaml"># 1) skill-filesystem：不再用绝对路径，改用 createRequire 按包名自动定位
+- id: skill-filesystem
+  disabled: false
+  config:
+    customSkillDirs:
+      - !!js &gt;-
+        (() =&gt; {
+          const { createRequire } = process.getBuiltinModule('node:module')
+          const path = process.getBuiltinModule('node:path')
+          try {
+            // 从安装位置反向解析本 bundle 的 skills 目录
+            const pkg = createRequire(process.cwd() + '/package.json').resolve('@luxiu666/dsh-mysql-diag/package.json')
+            return path.join(path.dirname(pkg), 'skills')
+          } catch {
+            return ''    // 解析失败回退为空，不炸启动
+          }
+        })()
+
+# 2) mcp-client：transport 从 streamable-http 改为 stdio
+- insert:
+    - id: mysql-diag
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: mysql_diag
+        transport: stdio
+        command: mysql-diag-mcp-stdio    # dsh 自动 spawn 子进程
+        args: []
+        env:                              # 3) 凭据从 dsh 进程 env 透传给子进程
+          MYSQL_USER: !!js process.env.MYSQL_USER ?? ''
+          MYSQL_PASSWORD: !!js process.env.MYSQL_PASSWORD ?? ''
+          MYSQL_DATABASE: !!js process.env.MYSQL_DATABASE ?? ''
+          MYSQL_SLOW_LOG_DIR: !!js process.env.MYSQL_SLOW_LOG_DIR ?? ''
+          PT_QUERY_DIGEST: !!js process.env.PT_QUERY_DIGEST ?? '/usr/local/mysql/bin/pt-query-digest'
+</code></pre>
+<p>三处演进，各有理由：</p>
+<table>
+<thead>
+<tr>
+<th>变化</th>
+<th>S3 开发版</th>
+<th>bundle 发布版</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>skill 目录</td>
+<td>写死绝对路径</td>
+<td><code>createRequire</code> 按包名解析</td>
+<td>用户装在任意位置都能找到</td>
+</tr>
+<tr>
+<td>transport</td>
+<td>streamable-http</td>
+<td><strong>stdio</strong></td>
+<td>免去「手动起 server」这步，dsh 拉起子进程</td>
+</tr>
+<tr>
+<td>凭据来源</td>
+<td>server 进程自己的 .env</td>
+<td>dsh 进程 env 经 <code>!!js</code> 透传</td>
+<td>一处配置（启动 dsh 时），bundle 自动传给子进程</td>
+</tr>
+</tbody>
+</table>
+<p><code>!!js</code> 表达式是 loader 在插件激活后插值的（§05 Loader 配置），<code>process.env.X ?? ''</code> 保证未设置时是空串而不是 undefined——fail-safe 但不 fail-loud，因为凭据本就允许运行时再填。</p>
+<p><strong>第四步：前置依赖要写清。</strong> bundle 不打包 MCP server 本体（它是独立 npm 包），README 明确要求用户先装：</p>
+<pre><code class="language-bash">npm install -g mysql-diag-mcp
+# 或本地：cd connectors/mysql-diag-mcp &amp;&amp; pnpm install &amp;&amp; pnpm build &amp;&amp; npm link
+</code></pre>
+<p><strong>第五步：发布与安装。</strong></p>
+<pre><code class="language-bash"># 发布（bundle 是普通 npm 包，publishConfig.public 即可发公共包）
+cd packages/bundle/mysql-diag &amp;&amp; npm publish
+
+# 用户安装（方式一，推荐：装到某个 profile）
+dsh plugin --profile web add @luxiu666/dsh-mysql-diag
+
+# 用户安装（方式二：手动列进 profile 的 package.json）
+# &quot;dsh&quot;: { &quot;profile&quot;: { &quot;bundles&quot;: [&quot;@luxiu666/dsh-mysql-diag&quot;] } }
+
+# 使用：带上 env 启动即可，bundle 透传给子进程
+MYSQL_USER=xxx MYSQL_PASSWORD=xxx MYSQL_DATABASE=omniops \
+MYSQL_SLOW_LOG_DIR=/usr/local/mysql/data \
+dsh --profile web
+</code></pre>
+<p>装完的用户<strong>不需要</strong>再写任何 cordis.patch.yml——skill 自动发现（createRequire 定位）、MCP 自动拉起（stdio spawn）、凭据自动透传（env）。这就是 §04 组合层的完整价值：<strong>bundle 是「能力包」的分发单位，patch 是它的装配图</strong>。</p>
+<blockquote>
+<p><strong>注意</strong>：若安装方式（如全局 link）导致 <code>createRequire</code> 解析失败，bundle 的 README 给了兜底——在 profile 的 cordis.patch.yml 里覆盖 <code>skill-filesystem.config.customSkillDirs</code>，指向 bundle 内 <code>skills/</code> 的绝对路径。</p>
+</blockquote>
+<h3 id="sec-88">本章小结</h3>
+<ul>
+<li>流程纪律：S0 准备 → S1/S2 并行开发 → S3 接线 → S4 引导 → S5 测试 → S6 文档 → S7 打包。</li>
+<li>两个进程两个动作：起 server + 起 dsh，缺一不可。</li>
+<li>8 条验证清单 + 10 个坑，照着过一遍。</li>
+<li>S7 bundle 四件套：package.json（dsh.bundle）+ 发布版 patch + 复制的 skills/ + README；三处演进（包名解析/stdio/透传）。</li>
+</ul>
+<hr />
+<h2 id="sec-89">Part 4: 扩展与素养</h2>
+<h2 id="sec-90">§15 把方法论迁移到新场景</h2>
+<h3 id="sec-91">15.1 万能公式</h3>
+<p>OmniOps 作者的原话：这套方法论可以原样复制到别的诊断场景。公式：</p>
+<pre><code class="language-text">新诊断能力 = 1 个 MCP server（N 个工具）+ 1 个 SKILL.md + 1 段 cordis.patch.yml
+</code></pre>
+<h3 id="sec-92">15.2 Redis 大 Key 检测示例（作者已在写）</h3>
+<table>
+<thead>
+<tr>
+<th>单元</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MCP 工具</td>
+<td>scan_big_keys（SCAN 遍历 + OBJECT 找 size）、memory_usage（MEMORY USAGE key）</td>
+</tr>
+<tr>
+<td>SKILL.md 步骤</td>
+<td>扫描 → 排序 Top → 逐个看类型/TTL/大小 → 归因 → 建议拆分或改结构</td>
+</tr>
+<tr>
+<td>凭据</td>
+<td>host/port 进对话，密码走 env（同 MySQL 模式）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-93">15.3 六个候选场景</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>工具三件套</th>
+<th>核心命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PostgreSQL 死锁</td>
+<td>list_locks / explain_query / inspect_schema</td>
+<td>pg_locks、EXPLAIN ANALYZE</td>
+</tr>
+<tr>
+<td>Kafka 消费 lag</td>
+<td>list_consumer_groups / describe_topic / tail_messages</td>
+<td>kafka-consumer-groups</td>
+</tr>
+<tr>
+<td>GPU 掉卡</td>
+<td>list_gpus / inspect_gpu / dmesg_scan</td>
+<td>nvidia-smi、dmesg</td>
+</tr>
+<tr>
+<td>Pod 崩溃循环</td>
+<td>describe_pod / get_events / logs</td>
+<td>kubectl</td>
+</tr>
+<tr>
+<td>磁盘打满</td>
+<td>df_top / lsof_deleted / inode_usage</td>
+<td>df、lsof +L1</td>
+</tr>
+<tr>
+<td>网络丢包</td>
+<td>ping_mesh / ss_summary / tcphdr_stats</td>
+<td>ping、ss -s</td>
+</tr>
+</tbody>
+</table>
+<p>写法全部一样：zod 定义入参（敏感项剔除）、env 读凭据、SKILL.md 写步骤与判定标准、patch 接线。</p>
+<h3 id="sec-94">15.4 什么时候该写 dsh 插件而不是 MCP</h3>
+<table>
+<thead>
+<tr>
+<th>情况</th>
+<th>选</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>纯工具（外部系统采集）</td>
+<td>MCP server</td>
+</tr>
+<tr>
+<td>要监听 dsh 事件（拦截/策略）</td>
+<td>dsh 插件</td>
+</tr>
+<tr>
+<td>要注册 prompt 片段</td>
+<td>dsh 插件</td>
+</tr>
+<tr>
+<td>只是方法论/流程指令</td>
+<td>skill 文件</td>
+</tr>
+<tr>
+<td>要换模型/沙箱/UI</td>
+<td>dsh 插件（适配器类）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>核心建议</strong>：先问「这能力要不要感知 dsh 内部生命周期」。不要 → skill 或 MCP；要 → 插件。两条路线的完整对照实现见下一章 §16。</p>
+</blockquote>
+<h3 id="sec-95">本章小结</h3>
+<ul>
+<li>万能公式：MCP + SKILL.md + 配置。</li>
+<li>六个场景照抄结构，换命令换判定标准即可。</li>
+<li>选型口诀：感知生命周期→插件；否则 skill/MCP。</li>
+</ul>
+<h2 id="sec-96">§16 插件形式实现：与 MCP 形式的对照实战</h2>
+<p>Part 3 用 MCP + skill 实现了慢查询诊断。但 §15.4 的选型表说得很清楚：<strong>要感知 dsh 内部生命周期，就该写插件</strong>。这一章补上另一条腿——同一个能力用<strong>原生插件</strong>怎么写，让你能对照着学。</p>
+<p>先记一个比喻：<strong>Cordis 就像一个「插件操作系统」</strong>。它本身不提供任何业务功能，只负责管理所有插件的加载、通信和销毁——就像 Windows 管理驱动程序。LLM 适配器、工具调用、文件访问、乃至 Agent Loop，全是挂在共享 ctx 上的平等插件。</p>
+<h3 id="sec-97">16.1 三种插件写法</h3>
+<p>插件是 Cordis 世界的一等公民，有三种形态：</p>
+<pre><code class="language-typescript">// 方式一：函数插件（最轻量）
+export function apply(ctx: Context) {
+  // 你的插件逻辑
+}
+
+// 方式二：对象插件（带名字）
+export const myPlugin = {
+  name: 'my-plugin',
+  apply(ctx: Context) { /* 插件逻辑 */ },
+}
+
+// 方式三：类插件（Service 子类）
+export class MyService extends Service {
+  private count = 0
+  constructor(ctx: Context) {
+    super(ctx, 'counter')   // 挂载到 ctx.counter
+  }
+  increment() { return ++this.count }
+  getValue() { return this.count }
+}
+// 其他插件通过 ctx.counter.increment() 使用
+</code></pre>
+<p><strong>关键区别</strong>：Service 子类<strong>不需要 apply 函数</strong>。加载时执行 <code>new MyService(ctx)</code>，构造函数里的 <code>super(ctx, 'myService')</code> 就把服务挂到 ctx 上了。当插件要维护状态、被别的插件按 key 访问时，用 Service。</p>
+<h3 id="sec-98">16.2 ctx：服务容器 + 生命周期 API</h3>
+<p>ctx 是框架的核心枢纽，所有服务挂在上面，同时自带生命周期 API：</p>
+<pre><code class="language-typescript">// 伪代码：ctx 里有什么
+ctx = {
+  // 服务挂载点（各插件提供）
+  llm:      { chat(), complete() },   // LLM 服务
+  tools:    { register(), execute() }, // 工具注册表
+  files:    { read(), write() },      // 文件访问
+  sessions: { get(), create() },      // 会话
+  // 生命周期 API（框架自带）
+  on(event, handler),      // 注册事件监听
+  waterfall(event, data),  // 瀑布流事件
+  effect(cleanup),         // 注册可逆副作用
+}
+</code></pre>
+<p>插件之间<strong>不互相 import</strong>，只通过 <code>ctx.llm</code>、<code>ctx.tools</code> 这样的 key 访问服务。这是「面向接口编程」在框架层面的实现——任何服务都能被替换、升级、移除，其他插件不受影响，因为它们只依赖 key，不依赖实现。</p>
+<h3 id="sec-99">16.3 完整示例：事件监听型插件</h3>
+<p>一个典型的插件——监听事件、用 LLM 生成回复：</p>
+<pre><code class="language-typescript">import { type Context } from '@deepseek-ai/cordis'
+
+export function apply(ctx: Context) {
+  // 监听消息事件
+  ctx.on('message', async (payload) =&gt; {
+    if (payload.text.includes('你好')) {
+      // 使用 LLM 服务生成回复——不关心是 OpenAI 还是 DeepSeek
+      const reply = await ctx.llm.chat('请友好地回复用户的问候')
+      await ctx.sendMessage(payload.userId, reply)
+    }
+  })
+}
+
+// 声明依赖：我需要 LLM 服务和发送消息的能力
+export const inject = ['llm', 'sendMessage']
+</code></pre>
+<p>它不关心 LLM 是谁提供的、消息发到微信还是 Discord——只声明「我需要这些能力」，运行时由框架注入。</p>
+<h3 id="sec-100">16.4 可逆副作用：自动清理 vs 手动清理</h3>
+<p>「注册即副作用」（§03）的具体规则：</p>
+<p><strong>自动清理（不用管）</strong>：<code>ctx.on()</code> 注册的事件监听器，Cordis 自动回收。</p>
+<p><strong>需要手动包（必须管）</strong>：定时器、网络连接、子进程这些 Cordis 管不到的资源，用 <code>ctx.effect()</code> 包起来：</p>
+<pre><code class="language-typescript">export function apply(ctx: Context) {
+  ctx.effect(() =&gt; {
+    // ----- 加载时执行 -----
+    const timer = setInterval(() =&gt; console.log('tick'), 1000)
+    // ----- 返回清理函数，卸载时执行 -----
+    return () =&gt; {
+      clearInterval(timer)
+      console.log('定时器已清理')
+    }
+  })
+}
+</code></pre>
+<p>卸载或热重载时，Cordis 按<strong>注册的逆序</strong>调用所有清理函数，不留残留。</p>
+<h3 id="sec-101">16.5 加载机制：五阶段 + fiber 状态机</h3>
+<p>插件怎么跑起来的？五个阶段：</p>
+<pre><code class="language-text">阶段一 收集    扫描目录，收集所有 apply 函数和 inject 声明
+阶段二 依赖图  读每个插件的 inject，构建依赖关系图；循环依赖报错拒启
+阶段三 实例化  按拓扑排序逐个调用 apply（或 new Service）
+阶段四 挂载    ctx.provide('key', service) 或 super(ctx, 'key') 挂上 ctx
+阶段五 副作用  记录事件监听/工具/路由；卸载时自动清理
+</code></pre>
+<p>依赖图示例：插件 A 提供 llm，插件 B 依赖 llm 提供 tools，插件 C 依赖 tools → 加载顺序必然 A → B → C。<strong>你永远不需要手动编排启动顺序</strong>。</p>
+<p>每个插件实例还有一个 fiber（运行时句柄），经历六个状态：<code>PENDING</code>（依赖未就绪）→ <code>LOADING</code>（执行 apply）→ <code>ACTIVE</code>（正常运行）→ <code>UNLOADING</code>（执行清理）→ <code>DISPOSED</code>（完全卸载）；失败或配置校验不过则是 <code>FAILED</code>。写插件时不用关心，调试时知道有这回事会救命。</p>
+<p><strong>热重载</strong>：改了插件代码保存后，Cordis 检测变更 → 调用该插件所有清理函数 → 从 ctx 移除其服务 → 重新加载 → 重新执行 apply。<strong>其他插件不受影响，继续运行</strong>。你可以不重启整个应用迭代单个插件。</p>
+<h3 id="sec-102">16.6 最小可跑的插件 + 启动内部过程</h3>
+<p>官方教程的最小工程（写在 <code>tmp/cordis-tutorial/</code>，被 git 忽略，不碰版本控制）：</p>
+<pre><code class="language-text">tmp/cordis-tutorial/
+├── cordis.yml      # 插件配置：一行 - name: './hello.ts'
+└── hello.ts        # 插件代码
+</code></pre>
+<pre><code class="language-typescript">// hello.ts
+import type { Context } from '@deepseek-ai/cordis'
+export const name = 'hello-plugin'
+export function apply(ctx: Context) {
+  console.log('hello from my first plugin')
+}
+</code></pre>
+<pre><code class="language-bash"># 在 tmp/cordis-tutorial/ 下执行
+node --import tsx ../../vendor/cordis/bin.js
+# --import tsx 让 Node 直接跑 TS；bin.js 是 Cordis 单文件启动器
+</code></pre>
+<p>启动时内部发生的事：</p>
+<pre><code class="language-text">1. bin.js 创建 rootContext
+2. 挂载 Loader 插件
+3. Loader 读取当前目录 ./cordis.yml
+4. 解析配置，找到 './hello.ts'
+5. 读取导出（apply、name 等）
+6. 检查 inject 声明，等待依赖服务就绪
+7. 调用 apply(ctx)
+8. 输出 &quot;hello from my first plugin&quot;
+</code></pre>
+<h3 id="sec-103">16.7 同一能力两条路：插件 vs MCP 全对照</h3>
+<p>现在把两条路线放在一起，这是本章的核心：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>插件形式（本章）</th>
+<th>MCP 形式（Part 3）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>语言/运行时</td>
+<td>TypeScript，跑在 dsh 进程内</td>
+<td>任意语言，独立进程</td>
+</tr>
+<tr>
+<td>注册方式</td>
+<td><code>ctx.tools.register(defineTool(...))</code></td>
+<td>MCP server 暴露 tool，<code>dsh-mcp-client</code> 发现接入</td>
+</tr>
+<tr>
+<td>依赖声明</td>
+<td><code>inject = ['tools']</code>，框架算加载顺序</td>
+<td>cordis.patch.yml 里写 url/command</td>
+</tr>
+<tr>
+<td>生命周期感知</td>
+<td><strong>能</strong>——监听 <code>agent/*</code>、<code>tools/*</code> 事件</td>
+<td><strong>不能</strong>——只是工具提供方</td>
+</tr>
+<tr>
+<td>凭据</td>
+<td>直接读 dsh 进程 env 或用 Schemastery config</td>
+<td>server 进程自己的 env（stdio 经 dsh 透传）</td>
+</tr>
+<tr>
+<td>配置</td>
+<td><code>Config: Schema&lt;Config&gt;</code> 声明，fail-loud</td>
+<td>工具入参 + 环境变量</td>
+</tr>
+<tr>
+<td>分发</td>
+<td>npm 包（dsh.bundle）或直接路径</td>
+<td>npm 包 + bundle（patch 指向 mcp-client）</td>
+</tr>
+<tr>
+<td>热重载</td>
+<td>支持，单插件级</td>
+<td>不适用（进程外）</td>
+</tr>
+<tr>
+<td>适用</td>
+<td>拦截/策略/prompt/适配器</td>
+<td>外部系统采集、跨框架复用</td>
+</tr>
+</tbody>
+</table>
+<p>用插件重写慢查询工具的样子（与 §11 的 tools.ts 对照）：</p>
+<pre><code class="language-typescript">// mysql-diag-plugin.ts —— 同一个工具，插件形态
+import type { Context } from '@deepseek-ai/cordis'
+import Schema from '@deepseek-ai/schemastery'
+import { defineTool } from '@deepseek-ai/dsh-tools'
+import { runPtQueryDigest } from './pt-digest.js'   // 直接复用 MCP 版的实现
+
+export const name = 'mysql-diag-plugin'
+export const inject = ['tools']
+
+export interface Config {
+  slowLogDir: string
+  ptQueryDigest: string
+}
+
+export const Config: Schema&lt;Config&gt; = Schema.object({
+  slowLogDir: Schema.string().default('/usr/local/mysql/data'),
+  ptQueryDigest: Schema.string().default('/usr/local/mysql/bin/pt-query-digest'),
+})
+
+export function apply(ctx: Context, config: Config) {
+  ctx.tools.register(defineTool({
+    name: 'list_slow_queries',
+    description: '用 pt-query-digest 分析慢日志目录，返回 Top N 慢 SQL 聚合报告。',
+    parameters: {
+      since: { type: 'string', required: false },
+      until: { type: 'string', required: false },
+      limit: { type: 'integer', required: false },
+    },
+    output: {
+      schema: { type: 'string' },
+      render: (_a, v) =&gt; [{ type: 'text', text: v }],
+    },
+    async execute(args) {
+      // 路径来自 Schemastery config（§04 fail-loud），不再是 env
+      return runPtQueryDigest({
+        slowLogDir: config.slowLogDir,
+        ptQueryDigest: config.ptQueryDigest,
+        ...args,
+      })
+    },
+  }))
+  // ...explain_query / inspect_schema 同理，连库逻辑复用 db.ts
+}
+</code></pre>
+<p>注意两处差异：<strong>凭据与路径改走 Schemastery config</strong>（加载时校验、类型错拒载，比 env 更 fail-loud）；<strong>实现代码原样复用</strong>（pt-digest.ts、db.ts 不用改——这正是逻辑与接入分离的好处）。</p>
+<p>而这个插件还能做到 MCP 做不到的事——感知生命周期，比如给慢查询调用加审计：</p>
+<pre><code class="language-typescript">  // 插件独有能力：监听工具执行事件做审计（MCP 形式做不到）
+  ctx.on('tools/pre-execute', async (exec, next) =&gt; {
+    if (exec.name === 'list_slow_queries') {
+      ctx.logger.info('[audit] 慢查询分析被调用，agent=%s', exec.agent?.id)
+    }
+    return next()   // 别忘了（§05 的头号坑）
+  })
+</code></pre>
+<h3 id="sec-104">16.8 怎么选：回到那张表</h3>
+<table>
+<thead>
+<tr>
+<th>情况</th>
+<th>选</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>纯工具（外部系统采集）</td>
+<td>MCP server</td>
+</tr>
+<tr>
+<td>要监听 dsh 事件（拦截/策略/审计）</td>
+<td><strong>dsh 插件</strong></td>
+</tr>
+<tr>
+<td>要注册 prompt 片段</td>
+<td><strong>dsh 插件</strong></td>
+</tr>
+<tr>
+<td>只是方法论/流程指令</td>
+<td>skill 文件</td>
+</tr>
+<tr>
+<td>要换模型/沙箱/UI</td>
+<td><strong>dsh 插件</strong>（适配器类）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>标叔的结论</strong>：MCP 是「给别人用的工具」，插件是「框架的一部分」。要跨框架复用、进程隔离，走 MCP；要拦截请求、注入上下文、改框架行为，只能走插件。OmniOps 选 MCP 是对的——诊断工具不需要感知 dsh 生命周期；但你要做审批策略、用量审计时，本章就是你的路线图。</p>
+</blockquote>
+<h3 id="sec-105">本章小结</h3>
+<ul>
+<li>Cordis = 插件操作系统；三种插件写法（函数/对象/Service 子类）。</li>
+<li>ctx 是服务容器：插件不 import 彼此，只按 key 访问。</li>
+<li>加载五阶段 + fiber 六状态 + 热重载；<code>ctx.effect()</code> 包住手动资源。</li>
+<li>插件 vs MCP 九维对照：生命周期感知是分水岭。</li>
+<li>同一能力两条路：实现可复用，接入方式看需求。</li>
+</ul>
+<h2 id="sec-106">§17 Harness 三选一：Pi、DSH、Codex 的扩展路线对比</h2>
+<h3 id="sec-107">17.1 为什么要看选型</h3>
+<p>前面 16 章都在 dsh 内部。这一章跳出来：把 dsh 放回「三大开源 Harness」的坐标系里，你才知道它独特在哪、什么时候不该用它。</p>
+<p>2026 年 8 月 24 日，「AI大模型应用实践」发了一篇三大 Harness 对比文章（Pi、DSH、Codex）。三个都满足同一组入选条件：源码开放可检查、具备会话/循环/工具/上下文等可复用核心、提供<strong>真正的扩展能力</strong>（不只是改提示词）、提供 SDK/RPC 等多种调用方式。但它们代表三种完全不同的开放方式。</p>
+<h3 id="sec-108">17.2 Pi：小内核、大扩展（改装现有工厂）</h3>
+<p>Pi（关注最上层的 Pi-Coding-Agent）是多层开源框架，核心思想是把 Agent Core 做好，再通过集中的 <code>ExtensionAPI</code> 开放一切。</p>
+<p>它默认「克制到近乎吝啬」：没有 MCP、没有 Subagent、没有 Plan Mode、没有 Todo，工具只有 read、write 少数几个。换来的是极强扩展：</p>
+<pre><code class="language-typescript">export default function (pi: ExtensionAPI) {
+  pi.registerTool(queryCustomer)     // 扩展工具
+  pi.on('tool_call', auditBeforeCall) // 事件钩子
+  pi.setActiveTools(activeTools)      // 控制工具启用
+  pi.registerCommand(planCommand)     // 扩展命令
+  pi.registerFlag(sandboxFlag)        // 扩展启动参数
+}
+</code></pre>
+<p>扩展分三类：<strong>能力扩展</strong>（工具/上下文/事件）、<strong>交互扩展</strong>（斜杠命令/快捷键）、<strong>界面扩展</strong>（TUI 状态栏/对话框）。交互上提供 TUI、RPC、SDK。</p>
+<p><strong>关键定位</strong>：Pi 的 Extension 扩展的是 Pi-Coding-Agent 的<strong>外围</strong>——内核还是人家的。适合「先有完整 Agent，再深度改装」。</p>
+<h3 id="sec-109">17.3 DSH：不是扩展，而是组装 Agent（组装模块化工厂）</h3>
+<p>这就是本书的主角。对比文章给了一个精准判断：<strong>DSH 的插件不是扩展外围，而是共同构成 Agent 系统本身</strong>——包括 Agent Loop。</p>
+<p>Cordis 的角色被比作「乐高底板」：模型、工具、Agent Loop 都是积木；<code>ctx</code> 是统一接口；Cordis 按依赖装载，随时拆换。它本身不思考，只负责三件事：通过 <code>ctx</code> 共享能力（<code>ctx.tools</code>、<code>ctx.llm</code>）、按依赖关系启动插件、管理加载/卸载/清理。</p>
+<p>文章还点出一个本书 §03 讲过的细节：dsh 插件的关键不是 <code>register</code>，而是 <code>inject=['tools']</code>——它声明依赖，只有 tools 服务可用工具才激活。依赖关系本身就是插件图。</p>
+<p><strong>关键定位</strong>：DSH 适合「高度自主、可插拔的企业级 Agent 平台」——所有部件包括 Agent Loop 都要能换、要用插件组合出不同 Agent、同一能力要在本地/容器/云端/内网切换多种实现。</p>
+<h3 id="sec-110">17.4 Codex：稳定内核，按标准扩展（给成熟工厂接新能力）</h3>
+<p>OpenAI 开源的 Rust 实现 Harness。内核已处理好 Agent Loop、流式事件、上下文管理、工具编排、会话恢复、沙箱、权限与审批。</p>
+<p>它没有 Pi 式的 <code>ExtensionAPI</code> 深度定制入口，扩展基于<strong>标准机制</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AGENTS.md</td>
+<td>注入项目规则、领域知识、顶级约束</td>
+</tr>
+<tr>
+<td>Skills</td>
+<td>封装可复用的 SOP、知识和脚本</td>
+</tr>
+<tr>
+<td>Hooks</td>
+<td>工具调用、会话结束等节点执行自定义逻辑</td>
+</tr>
+<tr>
+<td>MCP</td>
+<td>接入企业数据、工具和业务操作</td>
+</tr>
+<tr>
+<td>Plugin</td>
+<td>把 Skills + MCP + Hooks 打包成分发能力包</td>
+</tr>
+</tbody>
+</table>
+<p>交互三件套：<code>codex exec</code>（脚本/CI，对应 TUI）、Codex SDK（程序内启动/恢复）、App Server（深度嵌入 GUI/IDE/企业系统，stdio 通信）。</p>
+<p><strong>关键定位</strong>：扩展自由度不如 Pi 和 DSH，优势是强大的 Agent Core + 扩展简洁性 + 企业治理（沙箱/审批/权限）。适合「最少开发，把企业知识工具流程沉淀为标准化能力」。</p>
+<h3 id="sec-111">17.5 三句话记住三条路线</h3>
+<ul>
+<li><strong>Pi</strong> 擅长深度改装出一个 Agent，但内核还是人家的。</li>
+<li><strong>DSH</strong> 擅长用插件组装一个全新的 Agent 系统，包括内核。</li>
+<li><strong>Codex</strong> 擅长在成熟 Harness 外围扩展新能力，并为我所用。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Pi</th>
+<th>DSH</th>
+<th>Codex</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>扩展哲学</td>
+<td>改装外围</td>
+<td>组装整体（含内核）</td>
+<td>标准化外围</td>
+</tr>
+<tr>
+<td>定制入口</td>
+<td>ExtensionAPI</td>
+<td>Cordis 插件树</td>
+<td>AGENTS.md/Skills/Hooks/MCP</td>
+</tr>
+<tr>
+<td>内核语言</td>
+<td>TS</td>
+<td>TS（Cordis）</td>
+<td>Rust</td>
+</tr>
+<tr>
+<td>能换 Agent Loop</td>
+<td>否</td>
+<td><strong>是</strong></td>
+<td>否（只能改 Rust 内核）</td>
+</tr>
+<tr>
+<td>交互方式</td>
+<td>TUI/RPC/SDK</td>
+<td>WebUI/SDK/Web API/ACP</td>
+<td>exec/SDK/App Server</td>
+</tr>
+<tr>
+<td>适合</td>
+<td>深度定制专用 Agent</td>
+<td>高自主可插拔平台</td>
+<td>快速接入+企业治理</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-112">17.6 企业落地：不必只选一个</h3>
+<p>对比文章的落地建议很务实：<strong>不必强迫所有场景只用一个 Harness</strong>。开发编程场景用 Pi 或 DSH；办公场景用 Codex Harness 接 MCP；更复杂的业务流程用 LangGraph 定制 Workflow、多 Agent 编排成 Graph 协同。</p>
+<blockquote>
+<p><strong>标叔的结论</strong>：选型不是挑「最好」，是在业务需要、团队能力、开发速度之间找起点。读完这本书你已经知道 DSH 走的是「组装」路线——当你连 Agent Loop 都想换时，它几乎是你唯一的选择；而你只想加几个企业工具时，Codex 式的标准接入反而更快。</p>
+</blockquote>
+<h3 id="sec-113">本章小结</h3>
+<ul>
+<li>三条路线 = 改装（Pi）/ 组装（DSH）/ 接入（Codex）。</li>
+<li>DSH 的独特性：插件构成 Agent 系统本身，含 Agent Loop。</li>
+<li>企业可多基座并存，按场景选择。</li>
+</ul>
+<h2 id="sec-114">§18 思维转变：你搭积木，不是造轮子</h2>
+<p><img alt="你搭积木，不是造轮子" src="images/core-01-building-blocks.png" /></p>
+<h3 id="sec-115">18.1 这本书真正的转折</h3>
+<p>读完源码，我最大的感受：dsh 把「做一个 Agent」从「写框架」降维成「拼组件」。</p>
+<p>以前做运维诊断，得自己搞会话、工具调度、上下文管理。现在框架给骨架，你填三块：<strong>方法（skill）+ 采集（MCP）+ 接入（配置）</strong>。</p>
+<h3 id="sec-116">18.2 三个转变</h3>
+<table>
+<thead>
+<tr>
+<th>旧心智</th>
+<th>新心智</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>加能力 = 改主程序</td>
+<td>加能力 = skill + MCP + 配置</td>
+</tr>
+<tr>
+<td>安全靠自觉</td>
+<td>安全靠框架不变量（模型可见即已记录）</td>
+</tr>
+<tr>
+<td>凭据写进代码</td>
+<td>凭据走 env，fail-loud</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-117">18.3 dsh 的本质</h3>
+<p>dsh 不是「更聪明的 Agent」，是「更可拆的 Agent」。聪明靠模型，可控靠插件。</p>
+<p>它的三条工程启示值得带走：</p>
+<ol>
+<li><strong>注册即副作用</strong>——可逆性是插件系统的灵魂。</li>
+<li><strong>模型可见即已记录</strong>——审计和安全从不变量出发设计，不靠习惯。</li>
+<li><strong>关注点分离</strong>——方法论归 skill，脏活归 MCP，组合归配置。</li>
+</ol>
+<p><img alt="可控比聪明更重要" src="images/core-02-control-matters.png" /></p>
+<hr />
+<h2 id="sec-118">附录</h2>
+<h3 id="sec-119">A 核心命令速查</h3>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>npx @deepseek-ai/dsh web</code></td>
+<td>一键启动 Web UI</td>
+</tr>
+<tr>
+<td><code>pnpm dsh web</code></td>
+<td>从源码仓库启动</td>
+</tr>
+<tr>
+<td><code>dsh --profile web --dump-config</code></td>
+<td>查看实际启动的插件树</td>
+</tr>
+<tr>
+<td><code>dsh plugin --profile web add github:user/repo#tag</code></td>
+<td>安装插件</td>
+</tr>
+<tr>
+<td><code>pnpm dsh web --patch ./x.yml</code></td>
+<td>临时挂载本地 patch</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-120">B 关键 API / 概念速查</h3>
+<table>
+<thead>
+<tr>
+<th>API / 概念</th>
+<th>一句话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apply(ctx)</code></td>
+<td>插件入口</td>
+</tr>
+<tr>
+<td><code>inject = ['tools']</code></td>
+<td>服务依赖声明</td>
+</tr>
+<tr>
+<td><code>ctx.tools.register()</code></td>
+<td>注册工具（返回 disposer）</td>
+</tr>
+<tr>
+<td><code>ctx.tools.execute()</code></td>
+<td>五道关卡的执行流水线</td>
+</tr>
+<tr>
+<td><code>ctx.skills.registerProvider()</code></td>
+<td>注册 skill 提供方</td>
+</tr>
+<tr>
+<td><code>agent.inject()</code></td>
+<td>给模型塞上下文的正规通道</td>
+</tr>
+<tr>
+<td><code>tools/pre-execute</code></td>
+<td>allow/deny/ask 前置决策 waterfall</td>
+</tr>
+<tr>
+<td>ToolGuard</td>
+<td>单调守卫，权限只减不增</td>
+</tr>
+<tr>
+<td>defineTool</td>
+<td>带校验的工具构造器</td>
+</tr>
+<tr>
+<td><code>dsh.bundle</code> / <code>dsh.profile</code></td>
+<td>组合包 / profile 声明字段</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-121">C 事件分发模式速查</h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>await</th>
+<th>顺序</th>
+<th>返回值</th>
+<th>代表事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>emit</td>
+<td>否</td>
+<td>注册序</td>
+<td>无</td>
+<td>tools/result、skills/change</td>
+</tr>
+<tr>
+<td>waterfall</td>
+<td>否</td>
+<td>注册序（可短路）</td>
+<td>有</td>
+<td>tools/pre-execute、agent/request</td>
+</tr>
+<tr>
+<td>parallel</td>
+<td>是</td>
+<td>并行</td>
+<td>无</td>
+<td>多监听扇出</td>
+</tr>
+<tr>
+<td>serial</td>
+<td>是</td>
+<td>注册序</td>
+<td>有</td>
+<td>agent/turn-stopping</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-122">D skill 发现 rank 速查</h3>
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>来源</th>
+<th>根目录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100</td>
+<td>project-dsh</td>
+<td><code>&lt;projectRoot&gt;/.dsh/skills</code></td>
+</tr>
+<tr>
+<td>200</td>
+<td>project-agents</td>
+<td><code>&lt;projectRoot&gt;/.agents/skills</code></td>
+</tr>
+<tr>
+<td>300</td>
+<td>custom</td>
+<td><code>customSkillDirs</code></td>
+</tr>
+<tr>
+<td>400</td>
+<td>user-dsh</td>
+<td><code>&lt;dshHome&gt;/skills</code></td>
+</tr>
+<tr>
+<td>500</td>
+<td>user-agents</td>
+<td><code>&lt;agentsHome&gt;/skills</code></td>
+</tr>
+<tr>
+<td>600</td>
+<td>bundled</td>
+<td>bundledSkillDir</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-123">E 环境变量速查（mysql-diag-mcp）</h3>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MYSQL_USER</td>
+<td>是</td>
+<td>连库用户</td>
+</tr>
+<tr>
+<td>MYSQL_PASSWORD</td>
+<td>是</td>
+<td>连库密码</td>
+</tr>
+<tr>
+<td>MYSQL_DATABASE</td>
+<td>是</td>
+<td>默认库（可被报告 # Databases 覆盖）</td>
+</tr>
+<tr>
+<td>MYSQL_SLOW_LOG_DIR</td>
+<td>是</td>
+<td>慢日志目录（含轮转文件）</td>
+</tr>
+<tr>
+<td>PT_QUERY_DIGEST</td>
+<td>否</td>
+<td>pt-query-digest 路径</td>
+</tr>
+<tr>
+<td>MCP_HTTP_HOST / MCP_HTTP_PORT</td>
+<td>否</td>
+<td>HTTP 监听，默认 127.0.0.1:8080</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-124">F 参考资料与延伸阅读</h3>
+<ul>
+<li>dsh 官方架构文档（OmniOps 仓库 docs/architecture.zh.md）</li>
+<li>Cordis 入门与教程（docs/cordis-primer.zh.md、cordis-tutorial/）</li>
+<li>工具子系统（docs/subsystems/tools.zh.md）</li>
+<li>Agent 生命周期（docs/agent-lifecycle.zh.md）</li>
+<li>Skills 子系统（docs/subsystems/skills.zh.md）</li>
+<li>MySQL 慢查询 spec 与操作手册（docs/specs/mysql-slow-query-analysis*.md）</li>
+<li>社区插件：github.com/topics/dsh-plugin</li>
+<li>实测参考：三篇「AI实验室的一角」公众号复盘（2026-08-17/18/21）</li>
+<li>Harness 选型对比：「AI大模型应用实践」公众号《Pi、DSH、Codex Harness 扩展能力对比与选型》（2026-08-24）</li>
+<li>事件模型深读：「AI技术前沿」公众号《DeepSeek Harness 深度解读③ 事件模型：turn、step 与瀑布》（2026-08-24，全系列共 6 篇：①全景无特权内核 ②组合模型 ③事件模型 ④上下文工程·AGENTS.md 与压缩 ⑤四大预设与一核多入口 ⑥沙箱审批与可观测）</li>
+<li>Cordis 插件框架：「LLMDev+」公众号《DeepSeek Harness 的 Cordis 插件框架解读：从概念到运行机制》（2026-08-26，§16 插件形式章节的主要参考）</li>
+</ul>
+<blockquote>
+<p>本文所有代码与配置均取自 github.com/luxiu666/OmniOps 与 DeepSeek Harness 公开资料，仅供学习参考。</p>
+</blockquote>
+    <div class="footnote">
+      本文由 Geek04 项目图书自动排版生成。正文离线可读；
+      含 <code>graph/sequence/class</code> 的「DeepWiki 架构图」需联网由 Mermaid 渲染，
+      离线时显示原始源码，不影响阅读。
+    </div>
+  </main>
+</div>
+<button class="totop" id="totop" title="回到顶部">↑</button>
+<script>
+// 目录高亮（scroll-spy）
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc-list a'));
+  var map = {};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var targets = links.map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = map[e.target.id]; if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-10% 0px -75% 0px', threshold:0});
+  targets.forEach(function(t){ obs.observe(t); });
+  // 回到顶部
+  var btn = document.getElementById('totop');
+  window.addEventListener('scroll', function(){ btn.style.display = window.scrollY>600 ? 'block':'none'; });
+  btn.addEventListener('click', function(){ window.scrollTo({top:0,behavior:'smooth'}); });
+})();
+</script>
+</body>
+</html>
