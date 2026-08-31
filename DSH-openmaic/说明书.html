@@ -1,0 +1,1168 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dsh-openmaic 使用说明书</title>
+<style>
+:root{--accent:#2E3B8F;--accent2:#5B7FD6;--bg:#F7F7F4;--card:#ffffff;--border:#E4E3DD;--text:#1A1B1C;--muted:#6B7280;--code-bg:#F5F6FA;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'PingFang SC','Microsoft YaHei',system-ui,'Segoe UI',Arial,sans-serif;line-height:1.75;font-size:15px;}
+.wrap{max-width:920px;margin:0 auto;padding:28px 20px 80px;}
+h1{font-size:28px;line-height:1.4;color:var(--accent);margin:44px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--accent2);}
+h1:first-child{margin-top:8px;}
+h2{font-size:21px;line-height:1.45;color:var(--accent);margin:34px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+h3{font-size:17px;line-height:1.5;color:#1F2A7A;margin:26px 0 10px;}
+h4{font-size:15px;line-height:1.5;color:#333;margin:20px 0 8px;}
+p{margin:10px 0;}
+a{color:var(--accent2);text-decoration:none;}
+a:hover{text-decoration:underline;}
+ul,ol{margin:10px 0;padding-left:26px;}
+li{margin:4px 0;}
+strong{font-weight:700;}
+em{font-style:italic;}
+blockquote{margin:14px 0;padding:10px 16px;background:#EEF2FC;border-left:4px solid var(--accent2);border-radius:0 8px 8px 0;color:#333;}
+blockquote p{margin:6px 0;}
+code{font-family:Consolas,'Courier New',monospace;font-size:0.9em;background:#EEF0F6;color:#9C2B2D;padding:2px 6px;border-radius:4px;}
+pre{background:#1F2430;color:#E6E6E6;padding:14px 16px;border-radius:10px;overflow-x:auto;margin:14px 0;line-height:1.6;font-size:13px;}
+pre code{background:transparent;color:inherit;padding:0;font-size:13px;}
+pre code.language-{ }
+table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13.5px;display:block;overflow-x:auto;}
+th,td{border:1px solid #D8DEE8;padding:8px 12px;text-align:left;vertical-align:top;}
+th{background:#EAF1FD;color:#1F2A7A;font-weight:700;white-space:nowrap;}
+tr:nth-child(even) td{background:#FAFBFD;}
+img{max-width:100%;height:auto;border-radius:8px;display:block;margin:14px 0;border:1px solid var(--border);}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0;}
+details.toc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin:16px 0 8px;}
+details.toc summary{cursor:pointer;font-weight:700;color:var(--accent);font-size:15px;}
+details.toc a{display:block;padding:3px 0;color:#3a4666;font-size:13.5px;}
+details.toc a:hover{color:var(--accent2);}
+details.toc a.l2{padding-left:20px;color:#6B7280;font-size:12.5px;}
+.banner{background:linear-gradient(135deg, rgba(91,127,214,0.12), rgba(91,127,214,0.22));border:1px solid rgba(91,127,214,0.4);border-radius:12px;padding:14px 18px;margin-bottom:18px;color:#1F2A7A;}
+.banner .t{font-size:18px;font-weight:700;}
+.banner .s{font-size:13px;color:#44506b;margin-top:4px;}
+@media (max-width:640px){body{font-size:14.5px;}h1{font-size:23px;}h2{font-size:19px;}pre{font-size:12px;}table{font-size:12.5px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<details class="toc"><summary>📑 目录（点击展开 / 收起）</summary><a class="l1" href="#sec-1">dsh-openmaic 使用说明书</a><a class="l2" href="#sec-2">目录</a><a class="l2" href="#sec-3">一、这个项目是什么</a><a class="l2" href="#sec-8">二、它能帮你做什么（30 秒速览）</a><a class="l2" href="#sec-12">三、整体架构：它是怎么工作的</a><a class="l2" href="#sec-15">四、四个工具（Tools）详解</a><a class="l2" href="#sec-20">五、四个技能（Skills）详解</a><a class="l2" href="#sec-25">六、安装与配置</a><a class="l2" href="#sec-28">七、安全性：沙箱是怎么保护你的</a><a class="l2" href="#sec-31">八、代码结构导读</a><a class="l2" href="#sec-33">九、开发与测试</a><a class="l2" href="#sec-39">十、已知限制与规划</a><a class="l2" href="#sec-42">十一、常见问题 FAQ</a></details>
+<h1 id="sec-1">dsh-openmaic 使用说明书</h1>
+<blockquote>
+<p>把 OpenMAIC 带进 DeepSeek Harness —— 一个让 AI 助手能 &quot;上课、出幻灯片、做互动小游戏、随手画教学卡片&quot; 的插件。</p>
+</blockquote>
+<hr />
+<h2 id="sec-2">目录</h2>
+<ol>
+<li>
+<p><a href="#一这个项目是什么">这个项目是什么</a></p>
+</li>
+<li>
+<p><a href="#二它能帮你做什么30-秒速览">它能帮你做什么（30 秒速览）</a></p>
+</li>
+<li>
+<p><a href="#三整体架构它是怎么工作的">整体架构：它是怎么工作的</a></p>
+</li>
+<li>
+<p><a href="#四四个工具tools详解">四个工具（Tools）详解</a></p>
+</li>
+<li>
+<p><a href="#五四个技能skills详解">四个技能（Skills）详解</a></p>
+</li>
+<li>
+<p><a href="#六安装与配置">安装与配置</a></p>
+</li>
+<li>
+<p><a href="#七安全性沙箱是怎么保护你的">安全性：沙箱是怎么保护你的</a></p>
+</li>
+<li>
+<p><a href="#八代码结构导读">代码结构导读</a></p>
+</li>
+<li>
+<p><a href="#九开发与测试">开发与测试</a></p>
+</li>
+<li>
+<p><a href="#十已知限制与规划">已知限制与规划</a></p>
+</li>
+<li>
+<p><a href="#十一常见问题-faq">常见问题 FAQ</a></p>
+</li>
+</ol>
+<hr />
+<h2 id="sec-3">一、这个项目是什么</h2>
+<h3 id="sec-4">一句话概括</h3>
+<p><strong>dsh-openmaic</strong>（全名 <code>@openmaic/dsh-openmaic</code>，当前版本 0.4.0）是一个 <strong>DeepSeek Harness（简称 dsh）插件</strong>。它把清华开源项目 <strong>OpenMAIC</strong>（AI 智能课堂平台，线上服务在 open.maic.chat）的能力接进了 dsh 这个 AI 智能体框架里，让 AI 助手不再只会 &quot;打字回复&quot;，还能直接<strong>生成课堂、渲染幻灯片、制作可交互的教学组件、画出教学卡片</strong>。</p>
+<h3 id="sec-5">打个比方</h3>
+<ul>
+<li>
+<p><strong>DeepSeek Harness</strong> 就像一个 &quot;AI 操作系统&quot;，它有一套机制让各种 &quot;外挂能力&quot;（插件）可以插进来。</p>
+</li>
+<li>
+<p><strong>dsh-openmaic</strong> 就是插在这个系统上的一个 &quot;教学能力包&quot;。</p>
+</li>
+<li>
+<p>装上之后，你对 AI 说 &quot;帮我做一节量子物理课&quot;，它就能真的生成一个可以点开上课的网页课堂；说 &quot;画一张力的分解示意图&quot;，它就能在聊天框里就地渲染出一张幻灯片。</p>
+</li>
+</ul>
+<h3 id="sec-6">项目基本信息</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>包名</td>
+<td><code>@openmaic/dsh-openmaic</code></td>
+</tr>
+<tr>
+<td>版本</td>
+<td>0.4.0</td>
+</tr>
+<tr>
+<td>许可证</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>入口文件</td>
+<td><code>lib/index.js</code>（编译产物，随插件分发）</td>
+</tr>
+<tr>
+<td>源码位置</td>
+<td><code>src/</code>（TypeScript 编写）</td>
+</tr>
+<tr>
+<td>技术底座</td>
+<td>DeepSeek Harness（dsh）+ Cordis 插件框架</td>
+</tr>
+<tr>
+<td>官方安装源</td>
+<td><code>git+https://github.com/THU-MAIC/dsh-openmaic.git</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-7">设计理念（一句话）</h3>
+<p><strong>&quot;所有能力都是插件&quot;</strong> —— 这是 dsh 的核心哲学。本插件把 &quot;生成课堂、渲染幻灯片、渲染互动组件、渲染教学卡片、苏格拉底式教学&quot; 这五件事，全部以 ** 工具（Tool）+ 技能（Skill）+ 界面组件（Toolview）** 的形式贡献给 dsh，即插即用、互不干扰。</p>
+<hr />
+<h2 id="sec-8">二、它能帮你做什么（30 秒速览）</h2>
+<p>装上这个插件后，AI 助手会获得 <strong>4 个工具</strong> 和 <strong>4 个技能</strong>：</p>
+<h3 id="sec-9">4 个工具（AI 可以自动调用的 &quot;动作&quot;）</h3>
+<table>
+<thead>
+<tr>
+<th>工具名</th>
+<th>干什么</th>
+<th>典型用法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>openmaic_generate</code></td>
+<td>把一个教学需求提交给 open.maic.chat，<strong>异步生成一整套可播放的在线课堂</strong>，返回课堂链接</td>
+<td>用户：&quot;帮我做一节量子物理入门课&quot;</td>
+</tr>
+<tr>
+<td><code>openmaic_render</code></td>
+<td>把 AI 手写的<strong>一小段内联 HTML</strong>（概念卡、小测验、步骤讲解）渲染成聊天框里的沙箱卡片</td>
+<td>用户：&quot;用卡片解释一下什么是光合作用&quot;</td>
+</tr>
+<tr>
+<td><code>openmaic_widget</code></td>
+<td>把 AI 手写的<strong>完整交互组件 HTML</strong>（模拟器 / 小游戏 / 代码练习）渲染成可交互的沙箱卡片</td>
+<td>用户：&quot;做一个抛体运动模拟器&quot;</td>
+</tr>
+<tr>
+<td><code>openmaic_slide</code></td>
+<td>把 AI 写的 <strong>OpenMAIC 幻灯片 JSON</strong>（PPT 风格的页面）渲染成一页幻灯片</td>
+<td>用户：&quot;把这几个要点做成一张幻灯片&quot;</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-10">4 个技能（给 AI 的 &quot;写作规范手册&quot;）</h3>
+<table>
+<thead>
+<tr>
+<th>技能名</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>openmaic-render</code></td>
+<td>教 AI 怎么写 &quot;教学卡片&quot; 的 HTML 片段（格式、尺寸、样式类、范例）</td>
+</tr>
+<tr>
+<td><code>openmaic-widget</code></td>
+<td>教 AI 怎么写 &quot;互动组件&quot; 的完整 HTML（带 3 种模板：模拟器 / 游戏 / 代码）</td>
+</tr>
+<tr>
+<td><code>openmaic-slide</code></td>
+<td>教 AI 怎么写 &quot;幻灯片&quot; 的 JSON（画布规格、元素类型、排版规则）</td>
+</tr>
+<tr>
+<td><code>openmaic-teach</code></td>
+<td>把一次对话变成<strong>苏格拉底式教学</strong>：一步步引导提问，配合上面工具做教学辅助</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>简单记忆：</p>
+<p><strong>工具 = AI 的 &quot;手&quot;（做什么）</strong></p>
+<p>，</p>
+<p><strong>技能 = AI 的 &quot;说明书&quot;（怎么做、按什么规范做）</strong></p>
+<p>。AI 在第一次调用某个工具前，会先读取对应的技能规范。</p>
+</blockquote>
+<h3 id="sec-11">一个完整的体验示例</h3>
+<pre><code>用户：帮我做一节量子物理入门课
+
+AI  → 调用 openmaic_generate(requirement=&quot;量子物理入门课&quot;, language=&quot;zh-CN&quot;)
+
+     ← 得到: Classroom ID: class-abc123
+
+            Classroom URL: https://open.maic.chat/classroom/class-abc123
+
+AI  → 展示给用户: 课堂已经生成好了，点开就能上课：
+
+            https://open.maic.chat/classroom/class-abc123
+
+用户：做一个抛体运动模拟器
+
+AI  → 按 openmaic-widget 模板边写边流式输出完整 HTML
+
+     → 调用 openmaic_widget(html=&quot;&lt;!doctype html&gt;…&quot;, widgetType=&quot;simulation&quot;, title=&quot;抛体运动&quot;)
+
+     → 聊天框里就地出现一个可拖动、可交互的抛体运动模拟器
+</code></pre>
+<hr />
+<h2 id="sec-12">三、整体架构：它是怎么工作的</h2>
+<p>这个插件在 dsh 里分成<strong>两个 &quot;半边&quot;工作，再加上一段共享契约</strong>和<strong>一个外部服务</strong>：</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+
+│                    DeepSeek Harness（dsh）                        │
+
+│                                                                   │
+
+│  ┌──────────────────────┐          ┌───────────────────────────┐ │
+
+│  │   Node 端（服务端半边）  │          │   浏览器端（UI 半边）        │ │
+
+│  │                      │          │                           │ │
+
+│  │ 注册 4 个工具          │  ──────► │  OpenmaicCard（教学卡片）    │ │
+
+│  │ 注册 4 个技能(资产目录)  │  meta   │  WidgetCard（互动组件）      │ │
+
+│  │ 注入 4 段系统提示       │  传递    │  SlideCard（幻灯片）        │ │
+
+│  │ openmaic_generate     │          │  StreamingWidgetPreview  │ │
+
+│  │ 的 API 客户端          │          │  （写代码时实时预览）        │ │
+
+│  └──────────────────────┘          └───────────────────────────┘ │
+
+│          │   ▲                                    │              │
+
+│          │   │ 轮询作业                            │ 沙箱 iframe    │
+
+│          ▼   │                                    ▼              │
+
+│  ┌──────────────────────┐          ┌───────────────────────────┐ │
+
+│  │  共享契约模块(纯函数)   │          │  沙箱渲染（iframe+CSP）      │ │
+
+│  │ fragment/slide-meta/ │          │  只有内联脚本+白名单 CDN     │ │
+
+│  │ widget-meta          │          │  不联网、不访问宿主页面       │ │
+
+│  └──────────────────────┘          └───────────────────────────┘ │
+
+└─────────────────────┬─────────────────────────────────────────────┘
+
+                      │ HTTP（生成课堂）
+
+                      ▼
+
+          ┌─────────────────────────┐
+
+          │   OpenMAIC 服务          │
+
+          │  open.maic.chat          │
+
+          │  （异步生成可播放的课堂）    │
+
+          └─────────────────────────┘
+</code></pre>
+<h3 id="sec-13">各部件分工</h3>
+<table>
+<thead>
+<tr>
+<th>部件</th>
+<th>位置</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Node 端</strong></td>
+<td><code>src/index.ts</code>、<code>src/tool.ts</code>、<code>src/widget.ts</code>、<code>src/slide.ts</code>、<code>src/client.ts</code>、<code>src/skill.ts</code></td>
+<td>跑在 dsh 的 Node 进程里，负责注册工具、注册技能、注入系统提示、发起 HTTP 请求（课堂生成）</td>
+</tr>
+<tr>
+<td><strong>浏览器端</strong></td>
+<td><code>src/client/*</code></td>
+<td>跑在网页 UI 里，负责把工具返回的内容渲染成漂亮的交互卡片</td>
+</tr>
+<tr>
+<td><strong>共享契约模块</strong></td>
+<td><code>src/fragment.ts</code>、<code>src/slide-meta.ts</code>、<code>src/widget-meta.ts</code></td>
+<td>纯函数、不碰 I/O 和 DOM，Node 端、浏览器端、测试三方共用同一套校验逻辑</td>
+</tr>
+<tr>
+<td><strong>OpenMAIC 服务</strong></td>
+<td>外部（open.maic.chat）</td>
+<td>只有 <code>openmaic_generate</code> 会调用它；其余三个工具都在本地渲染，<strong>不上传任何内容</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-14">一次调用的完整生命周期（以 <code>openmaic_render</code> 为例）</h3>
+<ol>
+<li>
+<p>用户在对话框提出需求 → AI 判断适合用教学卡片。</p>
+</li>
+<li>
+<p>AI <strong>先加载 <strong><code>openmaic-render</code></strong> 技能</strong>，拿到 &quot;怎么写片段&quot; 的规范。</p>
+</li>
+<li>
+<p>AI 按规范写好一小段内联 HTML，调用 <code>openmaic_render</code> 工具，把 <code>fragment</code> 作为参数传入。</p>
+</li>
+<li>
+<p>Node 端校验片段（非空、≤256KB、不得包含文档骨架标签）。</p>
+</li>
+<li>
+<p>校验通过后，Node 端把片段写入<strong>持久化的 <strong><code>tool/result</code></strong> meta</strong>，返回一行简短确认文字给 AI（避免把大段 HTML 再喂回上下文浪费 token）。</p>
+</li>
+<li>
+<p>浏览器端监听到该工具的调用，用 <code>OpenmaicCard</code> 组件把 meta 里的片段包进<strong>沙箱 iframe</strong>，在聊天框就地渲染成卡片。</p>
+</li>
+<li>
+<p>因为内容来自持久化 meta，<strong>回放历史对话时卡片能一模一样地重现</strong>（replay-stable）。</p>
+</li>
+</ol>
+<blockquote>
+<p><code>openmaic_widget</code></p>
+<p>/</p>
+<p><code>openmaic_slide</code></p>
+<p>的过程类似，只是渲染的组件不同。</p>
+</blockquote>
+<hr />
+<h2 id="sec-15">四、四个工具（Tools）详解</h2>
+<h3 id="sec-16">4.1 <code>openmaic_generate</code> —— 生成整套在线课堂</h3>
+<p>把教学需求变成<strong>一整套可点开上课的 AI 课堂</strong>（含讲解、互动、测验的网页）。这是唯一一个调用外部服务（open.maic.chat）的工具。</p>
+<p><strong>参数：</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>必填</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>requirement</code></td>
+<td>✅</td>
+<td>string</td>
+<td>要教什么，自然语言描述，如 &quot;量子物理入门课&quot;</td>
+</tr>
+<tr>
+<td><code>language</code></td>
+<td>否</td>
+<td>enum</td>
+<td>生成课堂的语言：<code>zh-CN</code> 或 <code>en-US</code></td>
+</tr>
+<tr>
+<td><code>enableWebSearch</code></td>
+<td>否</td>
+<td>boolean</td>
+<td>是否允许生成管线联网搜索最新资料</td>
+</tr>
+<tr>
+<td><code>enableImageGeneration</code></td>
+<td>否</td>
+<td>boolean</td>
+<td>是否生成配图</td>
+</tr>
+<tr>
+<td><code>enableVideoGeneration</code></td>
+<td>否</td>
+<td>boolean</td>
+<td>是否生成视频</td>
+</tr>
+<tr>
+<td><code>enableTTS</code></td>
+<td>否</td>
+<td>boolean</td>
+<td>是否启用课堂 Agent 的语音朗读</td>
+</tr>
+<tr>
+<td><code>agentMode</code></td>
+<td>否</td>
+<td>enum</td>
+<td>生成模式：<code>default</code> 或 <code>generate</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>工作流程（异步作业 + 轮询）：</strong></p>
+<ol>
+<li>
+<p>如果配置了 <code>accessCode</code>（邀请码）：先 <code>POST /api/access-code/verify</code> 验证，把返回的 <code>openmaic_access</code> Cookie 记下来，后续请求带上。</p>
+</li>
+<li>
+<p><code>POST /api/generate-classroom</code>，提交需求（<strong>只提交用户确实要求的可选开关</strong>），得到 <code>jobId</code> 和 <code>pollUrl</code>。</p>
+</li>
+<li>
+<p>按 <code>pollIntervalMs</code> 间隔轮询 <code>pollUrl</code>，直到：</p>
+</li>
+</ol>
+<ul>
+<li>
+<p><code>succeeded</code>（成功）→ 返回课堂 ID + 可播放的课堂链接；</p>
+</li>
+<li>
+<p><code>failed</code>（失败）→ 报错并带上 <code>jobId</code> 和原因；</p>
+</li>
+<li>
+<p>超过 <code>maxWaitMs</code>（默认 10 分钟）→ 提示 &quot;仍在后台生成，稍后再查&quot;。</p>
+</li>
+</ul>
+<p><strong>返回给 AI 的格式：</strong></p>
+<pre><code>Classroom ID: class-abc123
+
+Classroom URL:
+
+https://open.maic.chat/classroom/class-abc123
+</code></pre>
+<p><strong>注意事项：</strong></p>
+<ul>
+<li>
+<p>课堂生成很慢，官方建议把 <code>pollIntervalMs</code> 调大到 60000（60 秒）更友好。</p>
+</li>
+<li>
+<p>只有用户明确要求才传可选开关；默认只传 <code>requirement</code>。</p>
+</li>
+</ul>
+<hr />
+<h3 id="sec-17">4.2 <code>openmaic_render</code> —— 渲染教学卡片</h3>
+<p>把 AI 手写的一小段<strong>内联 HTML 片段</strong>渲染成聊天框里的卡片。适合：概念讲解、小测验、算法 / 多步过程逐步讲解、简易图示。</p>
+<p><strong>参数：</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>必填</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fragment</code></td>
+<td>✅</td>
+<td>string</td>
+<td>内联 HTML 片段（只能有标签 + <code>&lt;style&gt;</code> + 可选 <code>&lt;script&gt;</code>，<strong>禁止</strong> <code>&lt;!doctype&gt;</code>/<code>&lt;html&gt;</code>/<code>&lt;head&gt;</code>/<code>&lt;body&gt;</code>）</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>否</td>
+<td>string</td>
+<td>卡片标题，默认 &quot;OpenMAIC 课堂&quot;</td>
+</tr>
+</tbody>
+</table>
+<p><strong>校验规则（写错会被工具报错拒绝）：</strong></p>
+<ul>
+<li>
+<p>片段不能为空；</p>
+</li>
+<li>
+<p>大小不能超过 <strong>256 KB</strong>；</p>
+</li>
+<li>
+<p>不能包含文档骨架标签（<code>&lt;!doctype&gt;</code>、<code>&lt;html&gt;</code>、<code>&lt;head&gt;</code>、<code>&lt;body&gt;</code>）—— 因为卡片会自己提供文档骨架和 CSP，嵌套会导致渲染错乱。</p>
+</li>
+</ul>
+<p><strong>写作要点（技能会教 AI）：</strong></p>
+<ul>
+<li>
+<p>所有数据<strong>内联</strong>进片段（沙箱不联网），大数据先降采样；</p>
+</li>
+<li>
+<p>使用内置样式类（<code>card</code>、<code>btn</code>、<code>viz-grid</code>、<code>viz-row</code>、<code>viz-stat</code> 等）自动继承宿主主题；</p>
+</li>
+<li>
+<p>自带判分的小测验：判分逻辑写在 <code>&lt;script&gt;</code> 里本地完成，<strong>不把答题结果回传模型</strong>。</p>
+</li>
+</ul>
+<hr />
+<h3 id="sec-18">4.3 <code>openmaic_widget</code> —— 渲染互动组件</h3>
+<p>把 AI 手写的<strong>完整 HTML 文档</strong>（模拟器 / 小游戏 / 代码练习）渲染成沙箱卡片。这是三种里最 &quot;重&quot;、最 &quot;好玩&quot; 的一个。</p>
+<p><strong>参数：</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>必填</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>html</code></td>
+<td>✅</td>
+<td>string</td>
+<td>完整 HTML 文档（<code>&lt;!doctype html&gt;</code> 到 <code>&lt;/html&gt;</code>）</td>
+</tr>
+<tr>
+<td><code>widgetType</code></td>
+<td>否</td>
+<td>enum</td>
+<td><code>simulation</code>（模拟器，默认）/ <code>game</code>（游戏）/ <code>code</code>（代码练习）</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>否</td>
+<td>string</td>
+<td>组件标题，默认 &quot;OpenMAIC 课堂&quot;</td>
+</tr>
+</tbody>
+</table>
+<p><strong>三种组件类型：</strong></p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>用途</th>
+<th>对应模板</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>simulation</code></td>
+<td>可交互画布：物理、系统、过程模拟</td>
+<td><code>assets/widget-templates/simulation.md</code></td>
+</tr>
+<tr>
+<td><code>game</code></td>
+<td>带计分 / 成就的小游戏（物理动作类、拖拽拼图、卡片配对等）</td>
+<td><code>assets/widget-templates/game.md</code></td>
+</tr>
+<tr>
+<td><code>code</code></td>
+<td>可运行的代码练习（Python/JS/TS，带测试用例）</td>
+<td><code>assets/widget-templates/code.md</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>特色功能：</strong></p>
+<ul>
+<li>
+<p><strong>流式预览</strong>：AI 还在写代码时，聊天输入框下方就会实时显示正在生成的 HTML（<code>StreamingWidgetPreview</code> 组件 + <code>extractStreamingWidget</code> 从不完整的 JSON 里边写边解析）。</p>
+</li>
+<li>
+<p><strong>LaTeX 转 KaTeX</strong>：工具会把 HTML 里的 LaTeX 后处理成 KaTeX 可渲染格式。</p>
+</li>
+<li>
+<p><strong>展开按钮</strong>：模拟器和游戏在聊天栏里可能不够大，卡片右上角有 &quot;⛶ 展开&quot; 按钮，可全屏 / 大窗体验。</p>
+</li>
+</ul>
+<hr />
+<h3 id="sec-19">4.4 <code>openmaic_slide</code> —— 渲染幻灯片</h3>
+<p>把 AI 写的 <strong>OpenMAIC 幻灯片 JSON</strong>（PPT 风格的单页）渲染成一页幻灯片。支持文本、图形、连线、图片、表格、图表、公式（LaTeX）、代码等元素。</p>
+<p><strong>参数：</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>必填</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>slide</code></td>
+<td>✅</td>
+<td>object</td>
+<td>幻灯片 JSON：必须有非空 <code>elements</code> 数组，<code>background</code> 可选</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>否</td>
+<td>string</td>
+<td>标题，默认 &quot;OpenMAIC 幻灯片&quot;</td>
+</tr>
+</tbody>
+</table>
+<p><strong>工具替你做的事：</strong></p>
+<ul>
+<li>
+<p><strong>固定画布</strong>：无论 AI 怎么写，画布统一为 <strong>1280 × 720（16:9）</strong>，AI 写不出错误的几何尺寸；</p>
+</li>
+<li>
+<p><strong>默认主题</strong>：如果 AI 没给主题，用内置的默认主题（白底 + 一套图表配色）；</p>
+</li>
+<li>
+<p><strong>补全 ID</strong>：没写 <code>id</code> 时自动生成。</p>
+</li>
+</ul>
+<p><strong>元素类型一览（来自 slide 生成契约）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>text</code></td>
+<td>文本（HTML 内容），高度必须查官方 &quot;高度速查表&quot;</td>
+</tr>
+<tr>
+<td><code>shape</code></td>
+<td>矩形 / 圆形等矢量图形（SVG path）</td>
+</tr>
+<tr>
+<td><code>line</code></td>
+<td>直线 / 箭头 / 折线 / 曲线（注意 <code>width</code> 是<strong>线宽</strong>不是长度）</td>
+</tr>
+<tr>
+<td><code>image</code></td>
+<td>图片</td>
+</tr>
+<tr>
+<td><code>table</code></td>
+<td>表格（单元格文本是纯文本，不支持 LaTeX）</td>
+</tr>
+<tr>
+<td><code>chart</code></td>
+<td>图表（bar/column/line/pie/ring/area/radar/scatter）</td>
+</tr>
+<tr>
+<td><code>latex</code></td>
+<td>LaTeX 公式（KaTeX 渲染，自动按比例缩放）</td>
+</tr>
+<tr>
+<td><code>code</code></td>
+<td>代码块</td>
+</tr>
+</tbody>
+</table>
+<p><strong>排版规则要点（契约里非常详细）：</strong></p>
+<ul>
+<li>
+<p>一页只放少量元素，别做成密集的整套 PPT；</p>
+</li>
+<li>
+<p>元素按数组顺序叠加，背景图形放前面；</p>
+</li>
+<li>
+<p>每个元素要有唯一字符串 <code>id</code>；</p>
+</li>
+<li>
+<p>文本每行 ≤ ~20 词（中文 ≤ ~30 字）；</p>
+</li>
+<li>
+<p>公式要用专门的 <code>latex</code> 元素，<strong>严禁把 LaTeX 写进文本元素</strong>（会原样显示反斜杠）。</p>
+</li>
+</ul>
+<hr />
+<h2 id="sec-20">五、四个技能（Skills）详解</h2>
+<p>技能是<strong>打包进插件</strong>的（bundled），模型可调用、用户也可调用。它们的正文存放在 <code>assets/</code> 目录。</p>
+<h3 id="sec-21">5.1 <code>openmaic-render</code> —— 教学卡片写作规范</h3>
+<ul>
+<li>
+<p>告诉 AI 怎么写 &quot;仅内联片段&quot;（不要文档骨架）；</p>
+</li>
+<li>
+<p>数据必须内联（沙箱断网）；</p>
+</li>
+<li>
+<p>大小上限 256KB；</p>
+</li>
+<li>
+<p>推荐使用内置样式类 <code>card</code> / <code>btn</code> / <code>viz-grid</code> / <code>viz-row</code> / <code>viz-stat</code> 等；</p>
+</li>
+<li>
+<p>带判分的小测验在本地 <code>&lt;script&gt;</code> 完成，不回传模型；</p>
+</li>
+<li>
+<p>附最小示例和测验示例。</p>
+</li>
+</ul>
+<h3 id="sec-22">5.2 <code>openmaic-widget</code> —— 互动组件写作规范</h3>
+<ul>
+<li>
+<p>定义 3 种组件类型（simulation /game/code）并指向对应模板；</p>
+</li>
+<li>
+<p>硬性要求：</p>
+</li>
+</ul>
+<ol>
+<li>
+<p>输出<strong>恰好一个</strong>完整 HTML 文档（<code>&lt;!doctype html&gt;</code> 到 <code>&lt;/html&gt;</code>），不许套 markdown 代码块；</p>
+</li>
+<li>
+<p>嵌入 <code>&lt;script type=&quot;application/json&quot; id=&quot;widget-config&quot;&gt;</code> 描述组件；</p>
+</li>
+<li>
+<p><strong>必须</strong>包含 <code>postMessage</code> 监听器（<code>SET_WIDGET_STATE</code> / <code>HIGHLIGHT_ELEMENT</code> / <code>ANNOTATE_ELEMENT</code> / <code>REVEAL_ELEMENT</code>），方便将来 &quot;教学代理&quot; 驱动组件；</p>
+</li>
+<li>
+<p>元素命名规范：<code>{变量}-slider</code>、<code>{动作}-btn</code>、<code>{变量}-display</code>；</p>
+</li>
+<li>
+<p>移动端适配、触控目标 ≥ 44px、有明确的运行 / 结束状态。</p>
+</li>
+</ol>
+<blockquote>
+<p>三个模板（</p>
+<p><code>simulation.md</code></p>
+<p>/</p>
+<p><code>game.md</code></p>
+<p>/</p>
+<p><code>code.md</code></p>
+<p>）非常详尽，包含了大量 &quot;常见坑&quot;：
+重置按钮必须真的重置所有状态；
+模拟器必须有</p>
+<p><strong>肉眼可见的动画</strong></p>
+<p>（不是只变个数字）；
+游戏</p>
+<p><strong>不能开局就失败</strong></p>
+<p>（前 3-5 秒安全期 + 合理初值）；
+代码练习用 Pyodide 时，必须</p>
+<p><code>import sys</code></p>
+<p><strong>和</strong></p>
+<p><code>import io</code></p>
+<p>才能捕获输出，且用</p>
+<p><code>runPythonAsync</code></p>
+<p>；
+游戏开始按钮用</p>
+<p><strong>内联 onclick</strong></p>
+<p>（比 addEventListener 可靠）；
+不要用 Tailwind CDN 的</p>
+<p><code>@layer utilities</code></p>
+<p>（可能编译失败）。</p>
+</blockquote>
+<h3 id="sec-23">5.3 <code>openmaic-slide</code> —— 幻灯片写作规范</h3>
+<ul>
+<li>
+<p>画布固定 <strong>1280 × 720</strong>，边距 ≥ 50；</p>
+</li>
+<li>
+<p>输出结构：<code>{ &quot;background&quot;: {...}, &quot;elements&quot;: [...] }</code>，<code>elements</code> 必填且非空；</p>
+</li>
+<li>
+<p>元素类型和字段遵循 <code>assets/slide-template/system.md</code>（官方 slide-content 生成契约）；</p>
+</li>
+<li>
+<p>文本高度必须查 &quot;高度速查表&quot;、宽度按公式校验、居中要对齐到 &lt;2px；</p>
+</li>
+<li>
+<p>幻灯片是<strong>视觉辅助</strong>不是讲稿：禁止把 &quot;老师说的话&quot; 写上去（不能出现 &quot;老师提醒你…&quot; 这类个人化内容）。</p>
+</li>
+</ul>
+<h3 id="sec-24">5.4 <code>openmaic-teach</code> —— 苏格拉底式教学</h3>
+<p>把当前会话变成 &quot;引导式教学&quot;：</p>
+<ol>
+<li>
+<p><strong>摸底</strong>：先问用户对这个主题已了解多少，据此调整起点；</p>
+</li>
+<li>
+<p><strong>切块</strong>：把主题拆成 3-6 个小步骤；</p>
+</li>
+<li>
+<p><strong>每步循环</strong>：先提问 → 等用户尝试 → 卡住就给提示 / 更小的子问题 → 确认或纠正 → 等用户真正接触概念后再用一张视觉辅助 &quot;确认&quot;（而不是 &quot;剧透&quot;）；</p>
+</li>
+<li>
+<p><strong>小测验</strong>：一个简短的自判小测验确认理解；</p>
+</li>
+<li>
+<p><strong>总结</strong>：用用户自己的话复述思路链。</p>
+</li>
+</ol>
+<p><strong>辅助工具的使用原则：</strong></p>
+<ul>
+<li>
+<p>概念是 &quot;事实 / 结构&quot; 型 → 用 <code>openmaic_slide</code>（定义、公式、标注图、对比）；</p>
+</li>
+<li>
+<p>概念是 &quot;动态 / 过程&quot; 型 → 用 <code>openmaic_widget</code>（模拟、机制、可运行示例）；</p>
+</li>
+<li>
+<p>只需小视觉 → 用 <code>openmaic_render</code>（概念卡、小测验）；</p>
+</li>
+<li>
+<p>只有用户明确要整套课 → 才用 <code>openmaic_generate</code>；</p>
+</li>
+<li>
+<p><strong>先问后展示</strong>：辅助图是在学习者 &quot;思考过之后&quot; 用来确认的，不是用来提前泄题的。</p>
+</li>
+</ul>
+<hr />
+<h2 id="sec-25">六、安装与配置</h2>
+<h3 id="sec-26">6.1 安装</h3>
+<p>在 dsh 环境里执行：</p>
+<pre><code>dsh plugin --profile web add git+https://github.com/THU-MAIC/dsh-openmaic.git
+</code></pre>
+<p>然后重启 <code>dsh web</code> 并刷新页面。</p>
+<blockquote>
+<p>插件</p>
+<p>**自带编译好的 **</p>
+<p><code>lib/</code></p>
+<p>** 目录**</p>
+<p>，所以通过 git 安装</p>
+<p><strong>不需要再构建</strong></p>
+<p>，装上就能用。</p>
+</blockquote>
+<h3 id="sec-27">6.2 配置项</h3>
+<pre><code>dsh-openmaic:
+
+  baseUrl: https://open.maic.chat
+
+  accessCode: &quot;&quot;     # 邀请码；线上暂未强制，留空即可
+
+  pollIntervalMs: 5000
+
+  maxWaitMs: 600000
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>baseUrl</code></td>
+<td><code>https://open.maic.chat</code></td>
+<td>OpenMAIC API 地址。想对接本地 OpenMAIC 实例可改成 <code>http://localhost:3000</code></td>
+</tr>
+<tr>
+<td><code>accessCode</code></td>
+<td><code>&quot;&quot;</code></td>
+<td>open.maic.chat 的邀请码。线上尚未启用，留空；启用后再填</td>
+</tr>
+<tr>
+<td><code>pollIntervalMs</code></td>
+<td><code>5000</code></td>
+<td>课堂生成作业的轮询间隔（毫秒）。生成很慢，<strong>建议调到 60000</strong></td>
+</tr>
+<tr>
+<td><code>maxWaitMs</code></td>
+<td><code>600000</code></td>
+<td>单个作业最长等待时间（毫秒），默认 10 分钟</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sec-28">七、安全性：沙箱是怎么保护你的</h2>
+<p>所有由 AI 生成的内容（卡片、组件、幻灯片）都在<strong>受限的沙箱里</strong>渲染，这是本插件最看重的设计之一：</p>
+<h3 id="sec-29">沙箱层级</h3>
+<ol>
+<li>
+<p><code>&lt;iframe sandbox=&quot;allow-scripts&quot;&gt;</code>：只允许脚本运行；iframe 是 <strong>opaque origin</strong>（与宿主页面完全隔离），里面的脚本<strong>无法访问</strong> dsh 页面本身。</p>
+</li>
+<li>
+<p><strong>自带的 CSP（内容安全策略）</strong>：每个卡片文档都带一个强 CSP：</p>
+</li>
+</ol>
+<ul>
+<li>
+<p>只允许<strong>内联脚本 / 样式</strong> + <strong>白名单 CDN</strong>（cdnjs、jsdelivr、esm.sh、Google Fonts、unpkg 等）；</p>
+</li>
+<li>
+<p><strong>禁止网络请求</strong>（<code>connect-src</code> 只允许 <code>blob:</code>/<code>data:</code>，不能 fetch/XHR/WebSocket）；</p>
+</li>
+<li>
+<p><strong>禁止嵌套 iframe</strong>、<strong>禁止表单提交</strong>、<strong>禁止 <strong><code>base</code></strong> 标签篡改</strong>、**禁止 **<code>object</code>。</p>
+</li>
+</ul>
+<ol>
+<li><strong>主题桥接只读</strong>：宿主把配色设计 token 以 CSS 变量形式传入 iframe，<strong>不回传任何数据</strong>。</li>
+</ol>
+<h3 id="sec-30">效果</h3>
+<p>即使 AI 生成的 HTML 里夹带了恶意脚本（例如想偷数据、弹窗、跳转），在沙箱里也：</p>
+<ul>
+<li>
+<p>拿不到宿主页面 DOM / Cookie /localStorage；</p>
+</li>
+<li>
+<p>无法联网外传；</p>
+</li>
+<li>
+<p>无法嵌套弹窗或表单。</p>
+</li>
+</ul>
+<p>一句话：<strong>AI 可以随便写，但只能在自己的 &quot;小黑屋&quot; 里跑。</strong></p>
+<hr />
+<h2 id="sec-31">八、代码结构导读</h2>
+<pre><code>dsh-openmaic-main/
+
+├── package.json              # 包定义：入口、导出、依赖、工具/技能清单
+
+├── dsh.plugin.json           # dsh 插件清单（工具 + 技能列表）
+
+├── cordis.patch.yml          # 构建时把插件插入 dsh 配置层的补丁
+
+├── tsdown.config.ts          # 双端打包配置（Node 端 + 浏览器端）
+
+├── tsconfig.json             # Node 端 TypeScript 配置
+
+├── tsconfig.client.json      # 浏览器端 TypeScript 配置
+
+├── README.md                 # 英文简介
+
+├── LICENSE                   # MIT 协议
+
+│
+
+├── src/                      # ★ 源码（TypeScript）
+
+│   ├── index.ts              # 插件入口：注册 4 工具 + 4 技能 + 4 段系统提示 + 配置定义
+
+│   ├── client.ts             # openmaic_generate 的 API 客户端（提交作业 + 轮询）
+
+│   ├── tool.ts               # openmaic_render 工具定义
+
+│   ├── widget.ts             # openmaic_widget 工具定义
+
+│   ├── slide.ts              # openmaic_slide 工具定义（画布固定 1280×720）
+
+│   ├── skill.ts              # 4 个 bundled 技能的提供者（从 assets/ 读正文）
+
+│   ├── fragment.ts           # ★ 共享契约：片段校验 + meta 类型（纯函数）
+
+│   ├── slide-meta.ts         # ★ 共享契约：幻灯片 meta
+
+│   ├── widget-meta.ts        # ★ 共享契约：组件 meta + 流式解析
+
+│   └── client/               # ★ 浏览器端（React 组件）
+
+│       ├── index.tsx         # 注册 toolview（卡片/组件/幻灯片）+ 流式预览 dock
+
+│       ├── OpenmaicCard.tsx  # 教学卡片渲染组件
+
+│       ├── WidgetCard.tsx    # 互动组件渲染组件（含展开大窗）
+
+│       ├── SlideCard.tsx     # 幻灯片渲染组件（用 @openmaic/renderer）
+
+│       ├── StreamingWidgetPreview.tsx  # 写代码时的实时预览
+
+│       ├── shell.ts          # 沙箱 iframe 文档 + CSP 组装
+
+│       ├── frame-css.ts      # 卡片内置样式表（card/btn/viz-* 类）
+
+│       ├── theme.ts          # 宿主主题 → 卡片主题桥接
+
+│       └── shiki-stub.ts     # 代码高亮库 shiki 的桩（浏览器里不可用，降级纯文本）
+
+│
+
+├── assets/                   # ★ 技能正文与模板（打包进插件）
+
+│   ├── openmaic-render.md    # render 技能正文
+
+│   ├── openmaic-widget.md    # widget 技能正文
+
+│   ├── openmaic-slide.md     # slide 技能正文
+
+│   ├── openmaic-teach.md     # teach 技能正文
+
+│   ├── slide-template/       # 幻灯片生成契约（system.md + user.md）
+
+│   └── widget-templates/     # 组件模板（simulation / game / code）
+
+│
+
+├── lib/                      # 编译产物（随插件分发，git 安装无需构建）
+
+│   ├── index.js              # Node 端产物
+
+│   ├── client.js             # 浏览器端产物（单文件经典脚本）
+
+│   └── index.d.ts            # 类型声明
+
+│
+
+├── scripts/
+
+│   ├── build.sh              # 构建脚本（链接 dsh 依赖 + tsdown 打包 + 产物校验）
+
+│   └── test.sh               # 测试脚本（链接依赖 + 跑 vitest）
+
+│
+
+└── tests/                    # ★ 测试
+
+    ├── plugin.spec.ts        # 集成测试：真实 Cordis 组合下注册/系统提示/技能
+
+    ├── client.spec.ts        # openmaic_generate 客户端测试
+
+    ├── fragment.spec.ts      # 片段契约测试
+
+    ├── widget.spec.ts        # 组件 meta + 流式解析测试
+
+    └── slide.spec.ts         # 幻灯片 meta 测试
+</code></pre>
+<h3 id="sec-32">看懂源码的三个 &quot;钥匙&quot;</h3>
+<ol>
+<li>
+<p><code>src/index.ts</code>** 是总开关**：<code>apply()</code> 函数里 <code>ctx.effect(...)</code> 依次注册了工具、技能、系统提示段落。看懂了它就看懂了插件贡献了什么。</p>
+</li>
+<li>
+<p><strong>&quot;meta 传递&quot; 机制</strong>：Node 端把内容写进 <code>tool/result</code> 的 meta，浏览器端从 meta 取内容渲染。<strong>内容不通过 &quot;文本流&quot; 回传给模型</strong>（省 token），也<strong>保证回放一致性</strong>。</p>
+</li>
+<li>
+<p><strong>共享契约模块是纯函数</strong>：<code>fragment.ts</code> / <code>slide-meta.ts</code> / <code>widget-meta.ts</code> 无 I/O、无 DOM、不引入宿主包的值，所以 Node 端、浏览器端、vitest 都能直接加载 —— 这是构建约束（浏览器 bundle 不能 require 宿主模块）逼出来的优雅设计。</p>
+</li>
+</ol>
+<hr />
+<h2 id="sec-33">九、开发与测试</h2>
+<h3 id="sec-34">前置条件</h3>
+<ul>
+<li>
+<p>需要有一个 <strong>DeepSeek Harness 的源码检出</strong>（checkout），构建 / 测试脚本会从中拿依赖。</p>
+</li>
+<li>
+<p>脚本自动定位方式：从 <code>PATH</code> 上的 <code>dsh</code> 命令反推出 checkout；也可用环境变量 <code>DSH_CHECKOUT</code> 手动指定。</p>
+</li>
+</ul>
+<h3 id="sec-35">构建</h3>
+<pre><code>./scripts/build.sh          # 或 npm run build
+</code></pre>
+<p>脚本做的事：</p>
+<ol>
+<li>
+<p>定位 harness checkout；</p>
+</li>
+<li>
+<p>把 dsh 的宿主依赖<strong>软链接</strong>进本项目的 <code>node_modules</code>（保证用同一份 vendored 包编译）；</p>
+</li>
+<li>
+<p>用 <code>tsdown</code> 分别打包：</p>
+</li>
+</ol>
+<ul>
+<li>
+<p><strong>Node 端</strong>：<code>src/index.ts</code> → <code>lib/index.js</code> + <code>.d.ts</code>（ESM，schemastery/cordis 保持外部）；</p>
+</li>
+<li>
+<p><strong>浏览器端</strong>：<code>src/client/index.tsx</code> → <code>lib/client.js</code>（单个 CJS 文件，通过 <code>window.__ModuleLoader__.load(...)</code> 包装，平台模块保持外部，其余全部内联）；</p>
+</li>
+</ul>
+<ol>
+<li><strong>产物自检</strong>：校验 <code>lib/client.js</code> 里 <code>require()</code> 的模块全在白名单内、没有遗留动态 <code>import()</code>、没有拆分成多个 chunk—— 任何一条不满足就报错退出（因为浏览器加载器只能加载一个经典脚本）。</li>
+</ol>
+<h3 id="sec-36">类型检查</h3>
+<pre><code>npm run typecheck            # tsc -p tsconfig.json &amp;&amp; tsc -p tsconfig.client.json
+</code></pre>
+<h3 id="sec-37">测试</h3>
+<pre><code>./scripts/test.sh            # 或 npm test（链接依赖后跑 vitest）
+</code></pre>
+<p>测试覆盖：</p>
+<ul>
+<li>
+<p><code>client.spec.ts</code>：课堂生成客户端的提交、轮询、失败、超时、Cookie、URL 兜底；</p>
+</li>
+<li>
+<p><code>fragment.spec.ts</code> / <code>widget.spec.ts</code> / <code>slide.spec.ts</code>：三个契约的校验与 meta 收窄；</p>
+</li>
+<li>
+<p><code>plugin.spec.ts</code>：用<strong>真实的 Cordis 组合</strong>（SessionStore + SystemPrompt + SkillService + ToolRegistry + 本插件）验证工具注册、系统提示注入、技能目录可用。</p>
+</li>
+</ul>
+<h3 id="sec-38">常见构建报错与含义</h3>
+<table>
+<thead>
+<tr>
+<th>报错</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cannot locate the harness checkout</code></td>
+<td>没找到 dsh 源码；设置 <code>DSH_CHECKOUT</code> 或把 <code>dsh</code> 放进 PATH</td>
+</tr>
+<tr>
+<td><code>lib/client.js requires modules the loader module table cannot answer</code></td>
+<td>浏览器端引入了不该引入的 Node 端模块（比如 import 了宿主包的值）；把共享逻辑挪进纯模块</td>
+</tr>
+<tr>
+<td><code>kept dynamic imports the browser cannot resolve</code></td>
+<td>浏览器产物里残留动态 import；要内联或用本地 stub 替换</td>
+</tr>
+<tr>
+<td><code>browser bundle split into chunks</code></td>
+<td>打包被拆成多文件；浏览器加载器无法拉取，需要内联</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sec-39">十、已知限制与规划</h2>
+<h3 id="sec-40">当前状态</h3>
+<ul>
+<li>
+<p>本项目处于 <strong>developer preview</strong> 阶段，dsh 本身也在快速迭代，<strong>会有破坏性变更</strong>。</p>
+</li>
+<li>
+<p>组件类型目前只接了 <strong>3 种</strong>：<code>simulation</code>、<code>game</code>、<code>code</code>。</p>
+</li>
+<li>
+<p><code>openmaic_render</code> / <code>openmaic_widget</code> / <code>openmaic_slide</code> 三个渲染工具<strong>不做服务端生成</strong>，只渲染 AI 按契约手写的内容（依托 <code>@openmaic/dsl</code>、<code>@openmaic/generation</code>、<code>@openmaic/renderer</code> SDK）。</p>
+</li>
+<li>
+<p>代码高亮（shiki）在浏览器端<strong>不可用</strong>，代码块以纯文本渲染（框架、行号、内容都在，只是没有语法配色）—— 这是刻意取舍，见 <code>shiki-stub.ts</code>。</p>
+</li>
+</ul>
+<h3 id="sec-41">Roadmap（项目计划）</h3>
+<ul>
+<li>
+<p>接线剩余组件类型：<code>diagram</code>（图表）、<code>visualization3d</code>（3D 可视化）、<code>procedural-skill</code>（程序化技能）；</p>
+</li>
+<li>
+<p>动作回环到模型：让 &quot;教学代理&quot; 能对组件做 <code>highlight</code>（高亮）/ <code>annotate</code>（标注）/ <code>reveal</code>（揭示）等驱动动作（组件里已预留好 <code>postMessage</code> 监听器）。</p>
+</li>
+</ul>
+<hr />
+<h2 id="sec-42">十一、常见问题 FAQ</h2>
+<p><strong>Q1：装上插件后为什么 AI 会 &quot;突然&quot; 开始做卡片 / 幻灯片？</strong></p>
+<p>A：这是正常的。插件给 dsh 注入了 4 段系统提示，教会模型 &quot;什么场景该用哪个工具&quot;；模型判断可视化更有帮助时就会自动调用。</p>
+<p><strong>Q2：</strong><code>openmaic_generate</code>** 生成课堂要等多久？**</p>
+<p>A：异步作业 + 轮询，默认最长等 10 分钟（<code>maxWaitMs</code>），轮询间隔默认 5 秒。官方建议把 <code>pollIntervalMs</code> 调到 60000，更省资源。</p>
+<p><strong>Q3：AI 生成的 HTML 安全吗？会不会偷我的数据？</strong></p>
+<p>A：渲染在 <code>&lt;iframe sandbox=&quot;allow-scripts&quot;&gt;</code> + 强 CSP 的沙箱里，opaque origin、不能联网、不能访问宿主页面，详见<a href="#七安全性沙箱是怎么保护你的">第七章</a>。</p>
+<p><strong>Q4：为什么我的 <strong><code>openmaic_render</code></strong> 调用报 &quot;document-skeleton&quot; 错误？</strong></p>
+<p>A：你把 <code>&lt;!doctype&gt;</code> / <code>&lt;html&gt;</code> / <code>&lt;head&gt;</code> / <code>&lt;body&gt;</code> 写进 <code>fragment</code> 了。卡片自己会提供文档骨架，你只需要写正文片段（标签 + 样式 + 可选脚本）。</p>
+<p><strong>Q5：组件里的代码为什么没有语法高亮？</strong></p>
+<p>A：shiki 在浏览器端插件环境里无法打包，项目用一个 stub 让它降级为纯文本渲染（有代码框、行号、内容，只是没有配色）。这是已知取舍。</p>
+<p><strong>Q6：我想对接自己部署的 OpenMAIC，怎么改？</strong></p>
+<p>A：把配置 <code>baseUrl</code> 指向你的实例（如 <code>http://localhost:3000</code>）即可，其余流程不变。</p>
+<p><strong>Q7：改完源码怎么让改动生效？</strong></p>
+<p>A：运行 <code>./scripts/build.sh</code> 重新打包到 <code>lib/</code>，然后重启 <code>dsh web</code>。注意需要能定位到 harness checkout。</p>
+<p><strong>Q8：这个插件能离线使用吗？</strong></p>
+<p>A：部分可以。<code>openmaic_render</code> / <code>openmaic_widget</code> / <code>openmaic_slide</code> 全部本地渲染、无需联网（沙箱本身也禁止联网）；只有 <code>openmaic_generate</code> 需要访问 open.maic.chat 服务。</p>
+<hr />
+<p><em>本说明书基于项目源码（v0.4.0）整理，涵盖全部 4 个工具、4 个技能、双端架构、安全机制、构建与测试流程。如有疑问，可对照 <em><code>README.md</code></em> 与 <em><code>src/</code></em> 源码进一步阅读。</em></p>
+
+</div>
+</body>
+</html>
