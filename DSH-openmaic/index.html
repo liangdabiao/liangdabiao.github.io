@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DeepSeek Harness 插件开发实战课程 — dsh-openmaic 从入门到精通</title>
+<style>
+:root{
+  --bg:#ffffff; --fg:#1f2328; --muted:#57606a; --line:#e3e6ea;
+  --accent:#0a6b6b; --accent2:#e8622c; --code-bg:#f6f8fa; --quote-bg:#f3f8f8;
+  --card:#fbfcfd;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Noto Sans CJK SC",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-size:17px; line-height:1.85;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex; align-items:flex-start; max-width:1280px; margin:0 auto}
+.sidebar{
+  position:sticky; top:0; align-self:flex-start;
+  flex:0 0 270px; height:100vh; overflow-y:auto;
+  padding:24px 18px 40px; border-right:1px solid var(--line);
+  background:#fcfdfe;
+}
+.sidebar h2{
+  font-size:15px; margin:0 0 12px; color:var(--accent);
+  font-weight:700; letter-spacing:.5px;
+}
+.toc-list{list-style:none; margin:0; padding:0; font-size:14px}
+.toc-list li{margin:2px 0; line-height:1.5}
+.toc-list a{color:var(--muted); display:block; padding:3px 8px; border-radius:6px; border-left:2px solid transparent}
+.toc-list a:hover{background:#eef3f3; color:var(--fg); text-decoration:none}
+.toc-list a.active{color:var(--accent); background:#e9f3f3; border-left:2px solid var(--accent); font-weight:600}
+.content{
+  flex:1; min-width:0; max-width:860px; margin:0 auto;
+  padding:40px 48px 120px;
+}
+.content h1{font-size:30px; line-height:1.35; margin:0 0 8px; color:#0c2b2b}
+.content h2{font-size:24px; margin:42px 0 14px; padding-bottom:8px; border-bottom:2px solid var(--line); color:#0c2b2b}
+.content h3{font-size:19px; margin:28px 0 10px; color:var(--accent)}
+.content p{margin:14px 0}
+.content img{max-width:100%; height:auto; display:block; margin:20px auto; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.content blockquote{
+  margin:18px 0; padding:12px 18px; background:var(--quote-bg);
+  border-left:4px solid var(--accent); border-radius:0 8px 8px 0; color:#26403f;
+}
+.content blockquote p{margin:8px 0}
+.content code{
+  background:var(--code-bg); padding:.15em .4em; border-radius:5px;
+  font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; font-size:.9em;
+  border:1px solid var(--line);
+}
+.content pre{
+  background:var(--code-bg); border:1px solid var(--line); border-radius:10px;
+  padding:16px 18px; overflow-x:auto; margin:18px 0;
+}
+.content pre code{background:none; border:none; padding:0; font-size:13.5px; line-height:1.6}
+.content table{
+  border-collapse:collapse; width:100%; margin:18px 0; font-size:15px;
+  display:block; overflow-x:auto;
+}
+.content th,.content td{border:1px solid var(--line); padding:8px 12px; text-align:left}
+.content th{background:#eef3f3; font-weight:700; color:#0c2b2b}
+.content tr:nth-child(even) td{background:#fafcfc}
+.mermaid{
+  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  padding:18px; margin:22px 0; overflow-x:auto; text-align:center;
+}
+.mermaid pre{text-align:left; white-space:pre; font-size:13px; color:var(--muted)}
+.cover-note{color:var(--muted); font-size:14px; margin:4px 0 30px}
+.footnote{margin-top:60px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:13px}
+.totop{
+  position:fixed; right:24px; bottom:24px; width:44px; height:44px; border-radius:50%;
+  background:var(--accent); color:#fff; border:none; font-size:20px; cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.18); display:none;
+}
+.totop:hover{background:#085656}
+@media (max-width:980px){
+  .layout{flex-direction:column}
+  .sidebar{position:static; height:auto; width:100%; border-right:none; border-bottom:1px solid var(--line); max-height:42vh}
+  .content{padding:24px 18px 90px}
+  .content h1{font-size:25px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <h2>dsh 插件开发实战</h2>
+    <ul class="toc-list">
+      <li style="margin-left:0px"><a href="#sec-1">dsh-openmaic 插件开发实战</a></li>
+      <li style="margin-left:0px"><a href="#sec-2">阅读指南</a></li>
+      <li style="margin-left:0px"><a href="#sec-3">第 0 章 开课准备</a></li>
+      <li style="margin-left:18px"><a href="#sec-4">0.1 能学会什么</a></li>
+      <li style="margin-left:18px"><a href="#sec-5">0.2 dsh 是什么</a></li>
+      <li style="margin-left:18px"><a href="#sec-6">0.3 万物皆插件</a></li>
+      <li style="margin-left:18px"><a href="#sec-7">0.4 关键术语表</a></li>
+      <li style="margin-left:18px"><a href="#sec-8">0.5 工具链</a></li>
+      <li style="margin-left:18px"><a href="#sec-9">0.6 案例全景</a></li>
+      <li style="margin-left:0px"><a href="#sec-10">第 1 章 搭好开发环境</a></li>
+      <li style="margin-left:18px"><a href="#sec-11">1.1–1.7 环境搭建</a></li>
+      <li style="margin-left:0px"><a href="#sec-12">第 2 章 初始化插件项目</a></li>
+      <li style="margin-left:18px"><a href="#sec-13">2.1 最小目录骨架</a></li>
+      <li style="margin-left:18px"><a href="#sec-14">2.2 package.json</a></li>
+      <li style="margin-left:18px"><a href="#sec-15">2.3 dsh.plugin.json</a></li>
+      <li style="margin-left:18px"><a href="#sec-16">2.4 cordis.patch.yml</a></li>
+      <li style="margin-left:18px"><a href="#sec-17">2.5 双 tsconfig</a></li>
+      <li style="margin-left:18px"><a href="#sec-18">2.6 Hello World 工具</a></li>
+      <li style="margin-left:18px"><a href="#sec-19">2.7 装进 dsh 验证</a></li>
+      <li style="margin-left:0px"><a href="#sec-20">第 3 章 Cordis 插件生命周期</a></li>
+      <li style="margin-left:18px"><a href="#sec-21">3.1–3.5 生命周期详解</a></li>
+      <li style="margin-left:0px"><a href="#sec-22">第 4 章 第一个工具 openmaic_render</a></li>
+      <li style="margin-left:18px"><a href="#sec-23">4.1 工具的四样组成</a></li>
+      <li style="margin-left:18px"><a href="#sec-24">4.2 defineTool</a></li>
+      <li style="margin-left:18px"><a href="#sec-25">4.3 参数</a></li>
+      <li style="margin-left:18px"><a href="#sec-26">4.4 输出</a></li>
+      <li style="margin-left:18px"><a href="#sec-27">4.5 presentationMeta</a></li>
+      <li style="margin-left:18px"><a href="#sec-28">4.6 错误处理</a></li>
+      <li style="margin-left:18px"><a href="#sec-29">4.7 完整对照</a></li>
+      <li style="margin-left:0px"><a href="#sec-30">第 5 章 共享契约模块 + TDD</a></li>
+      <li style="margin-left:18px"><a href="#sec-31">5.1–5.4 契约模块与测试</a></li>
+      <li style="margin-left:0px"><a href="#sec-32">第 6 章 系统提示注入</a></li>
+      <li style="margin-left:18px"><a href="#sec-33">6.1–6.5 教模型用工具</a></li>
+      <li style="margin-left:0px"><a href="#sec-34">第 7 章 技能（Skill）开发</a></li>
+      <li style="margin-left:18px"><a href="#sec-35">7.1–7.5 写 AI 说明书</a></li>
+      <li style="margin-left:0px"><a href="#sec-36">第 8 章 HTTP 客户端工具</a></li>
+      <li style="margin-left:18px"><a href="#sec-37">8.1–8.5 openmaic_generate</a></li>
+      <li style="margin-left:0px"><a href="#sec-38">第 9 章 浏览器端渲染</a></li>
+      <li style="margin-left:18px"><a href="#sec-39">9.1–9.4 Toolview / 沙箱</a></li>
+      <li style="margin-left:0px"><a href="#sec-40">第 10 章 构建与打包</a></li>
+      <li style="margin-left:18px"><a href="#sec-41">10.1 tsdown 双端构建</a></li>
+      <li style="margin-left:0px"><a href="#sec-42">第 11 章 测试</a></li>
+      <li style="margin-left:18px"><a href="#sec-43">11.1 纯函数到集成</a></li>
+      <li style="margin-left:0px"><a href="#sec-44">第 12 章 调试与发布</a></li>
+      <li style="margin-left:18px"><a href="#sec-45">12.1 常见坑与发布</a></li>
+      <li style="margin-left:0px"><a href="#sec-46">第 13 章 实战案例集</a></li>
+      <li style="margin-left:18px"><a href="#sec-47">13.1 四个工具 + 四个技能</a></li>
+      <li style="margin-left:0px"><a href="#sec-48">第 14 章 端到端演示</a></li>
+      <li style="margin-left:18px"><a href="#sec-49">14.1 光的折射微课全程</a></li>
+      <li style="margin-left:0px"><a href="#sec-50">第 15 章 四种插件开发方法</a></li>
+      <li style="margin-left:18px"><a href="#sec-51">15.1–15.11 选型与实战</a></li>
+      <li style="margin-left:0px"><a href="#sec-52">附录</a></li>
+      <li style="margin-left:18px"><a href="#sec-53">A 参数与配置速查</a></li>
+      <li style="margin-left:18px"><a href="#sec-54">B 常见问题 FAQ</a></li>
+      <li style="margin-left:18px"><a href="#sec-55">C 安全与 Roadmap</a></li>
+      <li style="margin-left:18px"><a href="#sec-56">D 内容对照表</a></li>
+    </ul>
+  </nav>
+  <main class="content">
+
+    <h1 id="sec-1">DeepSeek Harness 插件开发实战课程</h1>
+    <p>以 <code>dsh-openmaic</code> 为案例，从零带你开发一个 DeepSeek Harness 插件。</p>
+    <p><img alt="第0章信息图" src="课程图片/第0章.png" /></p>
+    <p><strong>创建者</strong>: 标叔（整理自 dsh-openmaic 实战复盘 + 源码深读）<br>
+    <strong>为谁创建</strong>: 想学会 dsh 插件开发、能独立为 dsh 贡献工具/技能/前端能力的开发者<br>
+    <strong>基于</strong>: DeepSeek Harness v0.1-rc（developer preview）、dsh-openmaic 开源项目<br>
+    <strong>最后更新</strong>: 2026-09-01<br>
+    <strong>适用场景</strong>: 系统学习 dsh 插件开发，从零写出带工具、技能、前端渲染的完整插件</p>
+    <blockquote>
+    <p><strong>免责声明</strong>：dsh 处于 developer preview，官方明确后续会有破坏性变更。本书基于公开资料与 dsh-openmaic 仓库源码编写，落地前请以官方文档为准；不构成生产部署建议。</p>
+    </blockquote>
+
+    <h2 id="sec-2">阅读指南</h2>
+    <p>这是一本「教学书」，不是功能清单。目标只有一个：<strong>你读完能独立开发一个 dsh 插件</strong>，包含工具、技能、前端渲染、构建与发布。</p>
+    <p>dsh-openmaic 是一个给 dsh 增加「在线课堂制作能力」的开源插件：AI 助手装上它，就能生成教学卡片、互动组件、幻灯片，甚至调用外部服务生成整堂在线课。</p>
+    <table>
+    <thead>
+    <tr><th>分段</th><th>章节</th><th>你获得什么</th></tr>
+    </thead>
+    <tbody>
+    <tr><td>Part 1 基础</td><td>第 0–2 章</td><td>理解 dsh 哲学，搭好环境，初始化插件项目</td></tr>
+    <tr><td>Part 2 核心能力</td><td>第 3–7 章</td><td>工具开发、契约模块、系统提示、技能开发</td></tr>
+    <tr><td>Part 3 进阶</td><td>第 8–10 章</td><td>HTTP 客户端、前端渲染、构建打包</td></tr>
+    <tr><td>Part 4 工程化</td><td>第 11–15 章</td><td>测试、调试、发布、实战案例、插件选型</td></tr>
+    </tbody>
+    </table>
+    <p>读法建议：新手从第 0 章顺读；有 dsh 基础可直接跳到第 4 章开始动手。每章末尾有「动手练习」和「本章小结」。</p>
+    <hr />
+
+    <h2 id="sec-3">第 0 章 开课准备・先听懂概念</h2>
+    <p>在写任何代码之前，先用 30 分钟把 "DeepSeek Harness 是什么、插件是怎么回事" 这层窗户纸捅破。</p>
+
+    <h3 id="sec-4">0.1 这门课能让你学会什么</h3>
+    <p>学完你将能独立完成：看懂 dsh-openmaic 项目结构；从零初始化 dsh 插件；给插件添加工具（Tool）；给插件添加技能（Skill）；让工具在聊天界面渲染出漂亮卡片；配置构建、测试，把插件打包发布。</p>
+    <p><strong>一句话目标</strong>：让一个只会「打字」的 AI 助手，装上你的插件后学会「做卡片、做幻灯片、做互动小游戏」。</p>
+
+    <h3 id="sec-5">0.2 DeepSeek Harness 到底是什么</h3>
+    <p>DeepSeek Harness（dsh）是 DeepSeek AI 开发的开源 agent harness（智能体运行框架）。采用「万物皆插件」架构，底层由 Cordis 框架驱动。</p>
+    <p>类比：dsh 是 AI 员工的「工作台 + 工具箱」，插件是装进工具箱的「新能力包」。</p>
+
+    <h3 id="sec-6">0.3 核心哲学：everything-is-a-plugin（万物皆插件）</h3>
+    <p>dsh 里几乎每一块能力本身就是「一个插件」：模型适配器、工具、会话管理、UI 界面……全是插件。好处：可以换、可以组合、可以扩展。dsh-openmaic 就是给 dsh 增加「教学能力」的插件。</p>
+
+    <h3 id="sec-7">0.4 关键术语表</h3>
+    <p>插件（Plugin）= 可插拔的代码包；工具（Tool）= AI 可调用的动作；技能（Skill）= 教 AI 按规范做的说明书；Toolview = 前端渲染组件；Cordis = 底层插件框架。</p>
+
+    <h3 id="sec-8">0.5 需要的工具链</h3>
+    <p>Node.js（LTS）、pnpm、git、TypeScript、VS Code。dsh 目前是 developer preview，迭代很快。</p>
+
+    <h3 id="sec-9">0.6 案例全景：dsh-openmaic</h3>
+    <p>dsh-openmaic 插件贡献了：4 个工具（openmaic_generate / render / widget / slide）、4 个技能（创作契约）、4 段系统提示、4 个 Toolview 前端组件。本书全程以它为活案例。</p>
+    <hr />
+
+    <h2 id="sec-10">第 1 章 搭好开发环境</h2>
+    <h3 id="sec-11">1.1–1.7 环境搭建</h3>
+    <p>安装 Node.js → pnpm → 获取 dsh 源码 → 构建 → 运行验证。认识 dsh 源码结构（三个最重要目录：packages/、apps/、plugins/）。了解为什么插件开发需要一份 dsh 源码 checkout（类型定义、本地调试、依赖链接）。预习 dsh-openmaic 项目骨架。</p>
+    <hr />
+
+    <h2 id="sec-12">第 2 章 初始化一个插件项目</h2>
+    <h3 id="sec-13">2.1 插件项目的最小目录骨架</h3>
+    <p><code>src/node/</code>（Node 端源码）、<code>src/client/</code>（浏览器端源码）、<code>lib/</code>（编译产物）、<code>package.json</code>、<code>dsh.plugin.json</code>、<code>tsconfig.json</code> + <code>tsconfig.client.json</code>。</p>
+
+    <h3 id="sec-14">2.2 package.json：插件的身份证 + 说明书</h3>
+    <p>四个关键字段：<code>name</code>（npm 包名）、<code>main</code>（Node 入口）、<code>client</code>（浏览器入口）、<code>dsh.plugin</code>（插件声明）。</p>
+
+    <h3 id="sec-15">2.3 dsh.plugin.json：插件清单（旧格式）</h3>
+    <p>声明插件名、入口、依赖服务的清单文件。dsh 加载时读取。</p>
+
+    <h3 id="sec-16">2.4 cordis.patch.yml：把插件插进 dsh</h3>
+    <p>通过 patch 机制把插件注册到 profile 的插件栈里。</p>
+
+    <h3 id="sec-17">2.5 双 tsconfig：Node 端和浏览器端分开编译</h3>
+    <p>Node 端 target ES2022 / module NodeNext；浏览器端用 tsconfig.client.json 编译为浏览器可执行代码。</p>
+
+    <h3 id="sec-18">2.6 你的第一个插件：Hello World 工具</h3>
+    <p>导出 <code>name</code> + <code>apply(ctx)</code>，用 <code>ctx.tools.register(defineTool({...}))</code> 注册一个 greet 工具。逐行解读。</p>
+
+    <h3 id="sec-19">2.7 怎么把插件装进 dsh 验证</h3>
+    <p>两种方式：cordis.patch.yml 临时插入 web profile；或把编译好的 lib/ 复制到插件目录。</p>
+    <hr />
+
+    <h2 id="sec-20">第 3 章 理解 Cordis：插件生命周期</h2>
+    <h3 id="sec-21">3.1–3.5 生命周期详解</h3>
+    <p>Cordis 是 dsh 底层的插件框架。插件通过 <code>apply(ctx)</code> 启动，<code>ctx.effect()</code> 注册可逆副作用（插件卸载自动清理），<code>inject</code> 声明服务依赖。三大核心服务：<code>ctx.tools</code>（工具注册）、<code>ctx.skills</code>（技能注册）、<code>ctx.systemPrompt</code>（系统提示注入）。生命周期：加载 → 依赖解析 → apply → 运行 → 卸载（dispose）。</p>
+    <hr />
+
+    <h2 id="sec-22">第 4 章 开发第一个工具：openmaic_render</h2>
+    <h3 id="sec-23">4.1 一个工具由哪四样东西组成</h3>
+    <p>name（工具名）、description（描述）、parameters（参数 schema）、output（输出规范）。</p>
+
+    <h3 id="sec-24">4.2 defineTool：工具的模板</h3>
+    <p><code>defineTool</code> 收窄参数类型、校验入参、按 output.schema 推导返回类型。</p>
+
+    <h3 id="sec-25">4.3 参数（parameters）：告诉模型怎么填</h3>
+    <p>用 zod schema 定义参数结构，含类型、描述、是否必填。</p>
+
+    <h3 id="sec-26">4.4 输出（output）：结果如何返回给模型</h3>
+    <p>定义 schema + render 函数，输出可以是文本、卡片、混合内容。</p>
+
+    <h3 id="sec-27">4.5 presentationMeta：把内容交给前端的暗号</h3>
+    <p>工具结果附带的持久化数据，前端 Toolview 据此渲染。</p>
+
+    <h3 id="sec-28">4.6 错误处理：让工具优雅地失败</h3>
+    <p>结构化错误（UNKNOWN_TOOL 等），调用失败但不终止轮次，模型自决重试或换路。</p>
+
+    <h3 id="sec-29">4.7 完整对照：dsh-openmaic 的 openmaic_render</h3>
+    <p>完整源码解读，从参数定义到输出渲染的全流程。</p>
+    <hr />
+
+    <h2 id="sec-30">第 5 章 共享契约模块：纯函数设计 + TDD</h2>
+    <h3 id="sec-31">5.1–5.4 契约模块与测试</h3>
+    <p>「共享契约模块」是 Node 端和浏览器端共同依赖的数据结构与校验逻辑。<code>fragment.ts</code> 包含工具名常量、meta 接口、校验规则、字节数计算、核心校验函数。slide 和 widget 的契约模块复用相同模式。TDD：先写测试再写实现，确保双端一致性。</p>
+    <hr />
+
+    <h2 id="sec-32">第 6 章 系统提示注入：教模型用你的工具</h2>
+    <h3 id="sec-33">6.1–6.5 教模型用工具</h3>
+    <p>工具需要被「教」—— 通过 <code>ctx.systemPrompt.section()</code> 注入使用说明。order 控制段落顺序。什么时候用系统提示 vs 什么时候用技能：系统提示是「固定入职培训」，技能是「按需查阅的手册」。</p>
+    <hr />
+
+    <h2 id="sec-34">第 7 章 技能（Skill）开发：写「给 AI 的说明书」</h2>
+    <h3 id="sec-35">7.1–7.5 写 AI 说明书</h3>
+    <p>技能 = 可选的指令（SKILL.md 文件），不是插件、不是会话事件。三个核心类型：SkillCandidate / SkillProvider / SkillDefinition。注册技能和注册工具一样在 apply 里。模板系统把长规范拆到单独文件。dsh-openmaic 的四个创作契约（render / widget / slide / teach）。</p>
+    <hr />
+
+    <h2 id="sec-36">第 8 章 HTTP 客户端工具：openmaic_generate</h2>
+    <h3 id="sec-37">8.1–8.5 调用外部服务</h3>
+    <p>openmaic_generate 调用外部服务生成整堂在线课。可测试的 fetch 客户端（把 fetch 变成可注入参数）、Cookie 处理、状态机（三种终态 + 清晰错误）、配置项调节工具行为。</p>
+    <hr />
+
+    <h2 id="sec-38">第 9 章 浏览器端渲染：Toolview / 沙箱 / 流式预览</h2>
+    <h3 id="sec-39">9.1–9.4 前端渲染体系</h3>
+    <p>为什么需要浏览器半边：工具执行在 Node 端，但渲染在浏览器。注册 Toolview（前端组件），React 组件读取 meta 数据渲染。沙箱文档的组装（shell.ts），流式预览机制。</p>
+    <hr />
+
+    <h2 id="sec-40">第 10 章 构建与打包：tsdown 双端</h2>
+    <h3 id="sec-41">10.1 tsdown 双端构建</h3>
+    <p>tsdown 构建工具：Node 端 + 浏览器端分开编译。require 白名单检查、禁止动态 import()、禁止多 chunk。定位 dsh checkout 的反向解析。</p>
+    <hr />
+
+    <h2 id="sec-42">第 11 章 测试：从纯函数到集成</h2>
+    <h3 id="sec-43">11.1 纯函数到集成</h3>
+    <p>契约模块纯函数测试、工具执行测试、集成测试。测试驱动开发确保双端一致性。</p>
+    <hr />
+
+    <h2 id="sec-44">第 12 章 调试、常见坑与发布</h2>
+    <h3 id="sec-45">12.1 调试与发布</h3>
+    <p>常见坑：inject 漏声明、tsconfig 不匹配、cordis.yml 被重写、白名单检查失败。发布流程：npm publish + GitHub Release。</p>
+    <hr />
+
+    <h2 id="sec-46">第 13 章 实战案例集</h2>
+    <h3 id="sec-47">13.1 四个工具 + 四个技能逐个上手</h3>
+    <p>openmaic_render（教学卡片渲染）、openmaic_widget（互动组件）、openmaic_slide（幻灯片）、openmaic_generate（外部服务生成课堂）。每个工具配对应技能（创作契约）。</p>
+    <hr />
+
+    <h2 id="sec-47">第 14 章 端到端全流程演示</h2>
+    <h3 id="sec-48">14.1 一次「光的折射」微课从头走到尾</h3>
+    <p>从用户输入「帮我做一堂光的折射微课」→ 模型调用 skill → 调工具 → 生成卡片/组件/幻灯片 → 浏览器渲染的完整流程演示。</p>
+    <hr />
+
+    <h2 id="sec-50">第 15 章 四种插件开发方法：学会选型再动手</h2>
+    <h3 id="sec-51">15.1–15.11 插件开发全景</h3>
+    <p>四种插件类型：Model Provider（模型适配器）、Event Interceptor（事件拦截器）、Tool Plugin（工具插件，dsh-openmaic 的主干）、Agent Loop（高阶）。决策表 + 配置三层叠加（Preset → Bundle → Patch）。调试技巧 + 综合实战（加审批拦截器）。</p>
+    <hr />
+
+    <h2 id="sec-52">附录</h2>
+    <h3 id="sec-53">A 参数与配置速查</h3>
+    <p>项目信息卡、安装启用、配置项、四个工具参数速查、四个技能规范速查、widget 模板与常见坑。</p>
+
+    <h3 id="sec-54">B 常见问题 FAQ</h3>
+    <p>8 个常见问题解答。</p>
+
+    <h3 id="sec-55">C 安全与 Roadmap</h3>
+    <p>沙箱防护、当前限制、项目计划。</p>
+
+    <h3 id="sec-56">D 内容对照表</h3>
+    <p>说明书 → 课程内容对照。</p>
+
+    <div class="footnote">
+      <p><strong>dsh-openmaic 插件开发实战课程</strong> · 标叔出品 · 基于 DeepSeek Harness v0.1-rc · 最后更新 2026-09-01</p>
+      <p>本书为开源免费教程，基于 dsh-openmaic 项目源码编写。dsh 是 DeepSeek AI 的开源项目。</p>
+    </div>
+  </main>
+</div>
+<script>
+// 滚动高亮当前章节
+window.addEventListener('scroll', function () {
+  var links = document.querySelectorAll('.toc-list a');
+  var scrollY = window.scrollY;
+  links.forEach(function (a) {
+    var href = a.getAttribute('href');
+    if (!href || href[0] !== '#') return;
+    var el = document.getElementById(href.slice(1));
+    if (!el) return;
+    var top = el.offsetTop - 80;
+    a.classList.toggle('active', scrollY >= top && scrollY < top + el.offsetHeight + 40);
+  });
+});
+</script>
+</body>
+</html>

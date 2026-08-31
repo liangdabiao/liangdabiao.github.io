@@ -1,6 +1,6 @@
 # 标叔的 AI 教学站
 
-> 多个 AI 技术框架的「从入门到精通」教程合集 — 讲人话、能跑通、能上线。liangdabiao 的 agent 小册子，介绍我认识的各种有用agent ai技术. AI 技术框架教学站：阿里云百炼、LangGraph、Claude Agent SDK、OpenAI Agents SDK、DeepAgents、DeerFlow、Flue、Vercel Eve、Cloudflare Agents、EdgeOne Makers、Agent Skills 等多门课程，从入门到精通。
+> 多个 AI 技术框架的「从入门到精通」教程合集 — 讲人话、能跑通、能上线。liangdabiao 的 agent 小册子，介绍我认识的各种有用agent ai技术. AI 技术框架教学站：阿里云百炼、LangGraph、Claude Agent SDK、OpenAI Agents SDK、DeepAgents、DeerFlow、Flue、Vercel Eve、Cloudflare Agents、EdgeOne Makers、Agent Skills、DeepSeek Harness、dsh 插件开发 等多门课程，从入门到精通。
 
 ## 这是什么
 
@@ -22,6 +22,8 @@
 | Agent 框架 | Flue 框架从入门到精通 | [`flue/Flue框架从入门到精通.md`](./flue/Flue框架从入门到精通.md) |
 | Agent 框架 | OpenAI Agents SDK 从入门到精通 | [`openai-agent/OpenAI Agents SDK 从入门到精通.md`](./openai-agent/OpenAI%20Agents%20SDK%20从入门到精通.md) |
 | Agent 框架 | Vercel Eve 从入门到精通 | [`Vercel-Eve/Vercel-Eve-从入门到精通.md`](./Vercel-Eve/Vercel-Eve-从入门到精通.md) |
+| Agent 最佳实践 | DeepSeek Harness（dsh）从入门到精通 | [`DSH-DeepSeek-Harness/README.md`](./DSH-DeepSeek-Harness/README.md) |
+| Agent 最佳实践 | dsh-openmaic 插件开发实战课程 | [`DSH-openmaic/book.md`](./DSH-openmaic/book.md) |
 | Agent 部署 | Cloudflare Agents 从入门到精通 | [`Cloudflare-Agents/Cloudflare-Agents-从入门到精通.md`](./Cloudflare-Agents/Cloudflare-Agents-从入门到精通.md) |
 | Agent 部署 | EdgeOne Makers 从入门到精通 | [`edgeone/EdgeOne-Makers-从入门到精通.md`](./edgeone/EdgeOne-Makers-从入门到精通.md) |
 
@@ -29,7 +31,8 @@
 
 1. **入门先行** 从四本里挑：想懂概念看《真·AI Agent 小蓝书》；想零代码出活看阿里云百炼；想从代码开始看 LangGraph；想把经验沉淀成可复用技能看 Agent Skills。
 2. **进阶** 挑一个 Agent 框架深入（Claude Agent SDK / OpenAI Agents SDK / Flue / Vercel Eve / DeepAgents / DeerFlow）。
-3. **想托管上线** 看 Cloudflare Agents / EdgeOne Makers — 把 Agent 部署到边缘 / 云平台，不用管运维。
+3. **最佳实践 / 实战** 想学 dsh 框架内核看《DeepSeek Harness（dsh）从入门到精通》；想动手开发 dsh 插件看《dsh-openmaic 插件开发实战课程》。
+4. **想托管上线** 看 Cloudflare Agents / EdgeOne Makers — 把 Agent 部署到边缘 / 云平台，不用管运维。
 
 ## 写作约定
 
